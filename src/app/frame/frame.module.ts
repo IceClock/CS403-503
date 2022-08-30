@@ -3,11 +3,13 @@ import { FrameComponent } from "./frame.component";
 import { FooterComponent } from './footer/footer.component';
 import { CommonModule } from "@angular/common";
 import { SharedModule } from "../shared";
+import { TitleComponent } from './title/title.component';
 
 @NgModule({
     declarations: [
         FrameComponent,
-        FooterComponent
+        FooterComponent,
+        TitleComponent
     ],
     imports: [
         CommonModule,

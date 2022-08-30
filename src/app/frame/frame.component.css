@@ -1,0 +1,38 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+}
+
+mat-sidenav-container {
+    height: 100%;
+}
+
+mat-sidenav-content {
+    height: 100%;
+}
+
+::ng-deep mat-sidenav-content > router-outlet + * {
+    height: 100%;
+    min-height: 100%;
+    box-sizing: border-box;
+}
+
+footer {
+    flex: 0 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    margin: 0.5em;
+}
+
+.header h3 {
+    flex: 1 0 0px;
+    margin: 0px;
+    display: flex;
+    justify-content: center;
+    font-weight: bold;
+}
