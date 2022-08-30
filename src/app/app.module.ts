@@ -12,6 +12,7 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
 
 @NgModule({
   declarations: [
+    AppComponent
   ],
   imports: [
     BrowserModule,
@@ -20,7 +21,7 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
     FrameModule,
     MatIconModule,
     MatNativeDateModule,
-    MatSnackBarModule,
+    MatSnackBarModule
   ],
   bootstrap: [AppComponent]
 })
