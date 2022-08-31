@@ -1,0 +1,13 @@
+mat-list-option .option {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+mat-list-option .option span {
+    flex: 1 0 0px;
+    display: flex;
+    justify-content: space-between;
+}
+mat-list-option .option mat-icon {
+    flex: 0 0 auto;
+}
