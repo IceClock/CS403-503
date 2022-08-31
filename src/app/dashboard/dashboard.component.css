@@ -1,0 +1,23 @@
+:host {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+        "characters languages"
+        "characters languages"
+}
+
+:host > * {
+    height: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+app-famous-character-panel {
+    grid-area: characters;
+}
+
+app-language-history-panel{
+    grid-area: languages;
+}

@@ -5,7 +5,13 @@ import { FrameComponent } from './frame/frame.component';
 const routes: Routes = [
   {
     path: '',
-    component: FrameComponent
+    component: FrameComponent,
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)
+      }
+    ]
   }
 ];
 
