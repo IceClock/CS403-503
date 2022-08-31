@@ -1,0 +1,32 @@
+@mixin frame-color($config-or-theme) {
+    $config: mat-get-color-config($config-or-theme);
+    $primary: map-get($config, primary);
+
+    app-frame {
+        background-color: mat-color($primary, 600);
+        color: mat-contrast($primary, 600);
+    }
+}
+
+@mixin frame-typography($config-or-theme) {
+    $config: mat-get-typography-config($config-or-theme);
+    app-frame {
+        font: {
+            family: mat-font-family($config, body-1);
+            size: mat-font-size($config, body-1);
+            weight: mat-font-weight($config, body-1);
+        }
+    }
+}
+
+@mixin frame-theme($theme) {
+    $color: mat-get-color-config($theme);
+    $typography: mat-get-typography-config($theme);
+
+    @if $color != null {
+        @include frame-color($color);
+    }
+    @if $typography != null {
+        @include frame-typography($typography)
+    }
+}

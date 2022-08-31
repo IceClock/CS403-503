@@ -1,0 +1,33 @@
+@mixin title-color($config-or-theme) {
+    $config: mat-get-color-config($config-or-theme);
+    $warn: map-get($config, warn);
+
+    app-title .deployment-chip {
+        background-color: mat-color($warn, 400);
+        color: mat-color($warn, '100-contrast');
+    }
+}
+
+@mixin title-typography($config-or-theme) {
+    $config: mat-get-typography-config($config-or-theme);
+
+    app-title {
+        font: {
+            family: mat-font-family($config, body-1);
+            size: mat-font-size($config, body-1);
+            weight: mat-font-weight($config, body-1);
+        }
+    }
+}
+
+@mixin title-theme($theme) {
+    $color: mat-get-color-config($theme);
+    $typography: mat-get-typography-config($theme);
+
+    @if $color != null {
+        @include title-color($color);
+    }
+    @if $typography != null {
+        @include title-typography($typography)
+    }
+}

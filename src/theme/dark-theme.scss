@@ -1,0 +1,12 @@
+$app-dark-primary: mat-palette($mat-deep-purple);
+$app-dark-accent: mat-palette($mat-amber, 600);
+$app-dark-warn: mat-palette($mat-red, A200);
+$app-dark-theme: mat-dark-theme(
+    (
+        color: (
+            primary: $app-dark-primary,
+            accent: $app-dark-accent,
+            warn: $app-dark-warn
+        ),
+    )
+);

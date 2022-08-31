@@ -5,6 +5,10 @@
     max-height: 100vh;
 }
 
+main {
+    flex: 1 0 0px;
+    overflow: auto;
+}
 mat-sidenav-container {
     height: 100%;
 }

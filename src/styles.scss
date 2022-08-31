@@ -1,0 +1,52 @@
+@import "~@angular/material/theming";
+
+@include mat-core();
+
+// Improt the application's theme definitions
+@import 'theme/light-theme.scss';
+@import 'theme/dark-theme.scss';
+
+// Improt the application's component's theming files
+@import 'app/frame/frame.theme.scss';
+@import 'app/frame/footer/footer.theme.scss';
+@import 'app/frame/title/title.theme.scss';
+
+// Setup the application's default theme/light theme
+@include angular-material-theme($app-light-theme);
+@include frame-theme($app-light-theme);
+@include title-theme($app-light-theme);
+@include footer-theme($app-light-theme);
+$app-light-theme-config: mat-get-color-config($app-light-theme);
+$app-light-theme-primary: map-get($map: $app-light-theme-config, $key: primary);
+$app-light-theme-accent: map-get($map: $app-light-theme-config, $key: accent);
+$app-light-theme-warn: map-get($map: $app-light-theme-config, $key: warn);
+$app-light-theme-foreground: map-get($map: $app-light-theme-config, $key: foreground);
+$app-light-theme-background: map-get($map: $app-light-theme-config, $key: background);
+
+// Setup the application's dark theme selector
+.dark-theme {
+
+}
+
+//Global styles
+html,
+body {
+    height: 100%;
+    font-size: 14px;
+    font-weight: 400 !important;
+    font-family: Roboto, "Helvetica Neue, sans-serif";
+}
+body {
+    margin: 0;
+}
+
+// Angular material overrides to customize style of forms
+mat-form-field {
+    padding-bottom: 10px;
+}
+mat-from-field.no-wrapper {
+    padding-bottom: 0px;
+}
+mat-form-field.no-wrapper .mat-form-field-wrapper {
+    padding-bottom: 0px;
+}
