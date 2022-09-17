@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-interpreter-list',
@@ -8,9 +9,12 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 })
 export class InterpreterListComponent implements OnInit {
 
-  constructor() { }
+  constructor(private navigation: NavigationService) { }
 
   ngOnInit(): void {
   }
 
+  goToLoxScanner () {
+    this.navigation.viewLoxScanner();
+  }
 }
