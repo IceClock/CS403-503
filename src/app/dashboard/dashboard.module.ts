@@ -4,18 +4,14 @@ import { CommonModule } from "@angular/common";
 import { SharedModule } from "../shared";
 import { DashboardComponent } from "./dashboard.component";
 import { DashboardRoutingModule } from "./dashboard-routing.module";
-import { FamousCharacterPanelComponent } from './famous-character-panel/famous-character-panel.component';
-import { LanguageHistoryPanelComponent } from "./language-history-panel/language-history-panel.component";
-import { LanguagesListComponent } from './languages-list/languages-list.component';
-import { CharachtersListComponent } from './charachters-list/charachters-list.component';
+import { InterpreterPanelComponent } from './interpreter-panel/interpreter-panel.component';
+import { InterpreterListComponent } from './interpreter-list/interpreter-list.component';
 
 @NgModule({
     declarations: [
         DashboardComponent,
-        FamousCharacterPanelComponent,
-        LanguageHistoryPanelComponent,
-        LanguagesListComponent,
-        CharachtersListComponent
+        InterpreterPanelComponent,
+        InterpreterListComponent
     ],
     imports: [
         CommonModule,
