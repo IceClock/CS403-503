@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-title',
@@ -8,9 +9,13 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 })
 export class TitleComponent implements OnInit {
 
-  constructor() { }
+  constructor(private navigationService: NavigationService) { }
 
   ngOnInit(): void {
+  }
+
+  goToDashboard() {
+    this.navigationService.viewDashboard();
   }
 
 }
