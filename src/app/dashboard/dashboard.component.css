@@ -3,8 +3,9 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-areas: 
-        "characters languages"
-        "characters languages"
+        "interpreters interpreters"
+        "interpreters interpreters";
+    padding: 10px 50px 10px 50px;
 }
 
 :host > * {
@@ -14,10 +15,6 @@
     overflow: hidden;
 }
 
-app-famous-character-panel {
-    grid-area: characters;
-}
-
-app-language-history-panel{
-    grid-area: languages;
+app-interpreter-panel {
+    grid-area: interpreters;
 }
