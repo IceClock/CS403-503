@@ -8,6 +8,8 @@ import { FrameModule } from './frame/frame.module';
 import { MatIconModule } from "@angular/material/icon";
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSnackBarModule } from "@angular/material/snack-bar";
+import { NgxsRouterPluginModule } from '@ngxs/router-plugin';
+import { NgxsModule } from '@ngxs/store';
 
 
 @NgModule({
@@ -21,7 +23,9 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
     FrameModule,
     MatIconModule,
     MatNativeDateModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    NgxsModule.forRoot([]),
+    NgxsRouterPluginModule.forRoot()
   ],
   bootstrap: [AppComponent]
 })
