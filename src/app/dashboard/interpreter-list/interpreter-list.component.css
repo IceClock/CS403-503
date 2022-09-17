@@ -3,11 +3,20 @@ mat-list-option .option {
     flex-direction: row;
     align-items: center;
 }
+mat-list-option:first-child .option span {
+    flex: 1 0 0px;
+    display: flex;
+    justify-content: space-between;
+    color: black;
+    font-size: small;
+}
+
 mat-list-option .option span {
     flex: 1 0 0px;
     display: flex;
     justify-content: space-between;
 }
+
 mat-list-option .option mat-icon {
     flex: 0 0 auto;
 }
