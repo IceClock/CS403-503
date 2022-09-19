@@ -20,26 +20,49 @@ enum TokenType {
     // 38
     EOF
   }
+const TOKEN_STRING: Record<number, string> = {
+    // Single-character tokens. 0-10
+    0: 'Left paren', 1: 'Right paren', 2: 'Left brace', 3: 'Right brace',
+    4: 'Comma', 5: 'Dot', 6: 'Minus', 7: 'Plus', 8: 'Semicolon', 9: 'Slash', 10: 'Star',
+  
+    // One or two character tokens. 11-18
+    11: 'Bang', 12: 'Bang equal',
+    13: 'Equal', 14: 'Equal equal',
+    15: 'Greater', 16: 'Grater equal',
+    17: 'Less', 18: 'Less equal',
+  
+    // Literals. 19-21
+    19: 'Identifier', 20: 'String', 21: 'Number',
+  
+    // Keywords. 22-37
+    22: 'And', 23: 'Class', 24: 'Else', 25: 'False', 26: 'Fun', 27: 'For', 28: 'If', 29: 'Nil', 30: 'Or',
+    31: 'Print', 32: 'Return', 33: 'Super', 34: 'This', 35: 'True', 36: 'Var', 37: 'While',
+  
+    // 38
+    38: 'Eof'
+  }
 
-  class Token {
+  export class Token {
     readonly type: TokenType;
+    readonly typeString: string;
     readonly lexeme: string;
     readonly literal: any;
     readonly line: number;
 
     constructor(type: TokenType, lexeme: string, literal: any, line: number) {
         this.type = type;
+        this.typeString = TOKEN_STRING[this.type];
         this.lexeme = lexeme;
         this.literal = literal;
         this.line = line;
     }
 
     public toString() {
-        return this.type + " " + this.lexeme + " " + this.literal;
+        return this.typeString + " : " + this.type + " " + this.lexeme + " " + this.literal;
     }
   }
 
-  class Scanner {
+  export class Scanner {
     private readonly source: string;
     private readonly tokens: Token[] = [];
     private start = 0;
@@ -74,7 +97,7 @@ enum TokenType {
     scanTokens():Token[] {
         while (!this.isAtEnd) {
             this.start = this.current;
-            this.scanTokens();
+            this.scanToken();
         }
 
         this.tokens.push(new Token(TokenType.EOF, "", null, this.line));
