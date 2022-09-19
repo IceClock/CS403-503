@@ -1,3 +1,31 @@
-:host {
-    background: red;
+mat-card {
+    box-sizing: border-box;
+    height: 100%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+table {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+  
+.mat-column-type-number {
+width: 32px;
+border-right: 1px solid currentColor;
+padding-right: 24px;
+text-align: center;
+}
+
+.mat-column-type {
+padding-left: 20px;
+}
+
+.mat-column-line {
+width: 32px;
+text-align: center;
+font-weight: bold;
 }
