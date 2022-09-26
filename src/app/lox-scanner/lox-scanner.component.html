@@ -1,39 +1,62 @@
-<table mat-table [dataSource]="tokens" class="mat-elevation-z8 demo-table">
 
-    <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef> No. </th>
-      <td mat-cell *matCellDef="let token"> {{token.type}} </td>
-    </ng-container>
-  
-    <ng-container matColumnDef="typeString">
-      <th mat-header-cell *matHeaderCellDef> Type </th>
-      <td mat-cell *matCellDef="let token"> {{token.typeString}} </td>
-    </ng-container>
-  
-    <ng-container matColumnDef="lexeme">
-      <th mat-header-cell *matHeaderCellDef> Lexme </th>
-      <td mat-cell *matCellDef="let token"> {{token.lexeme}} </td>
-    </ng-container>
 
-    <ng-container matColumnDef="litral">
-      <th mat-header-cell *matHeaderCellDef> Litral </th>
-      <td mat-cell *matCellDef="let token"> {{token.literal}} </td>
-    </ng-container>
-  
-    <ng-container matColumnDef="line">
-      <th mat-header-cell *matHeaderCellDef> Line </th>
-      <td mat-cell *matCellDef="let token"> {{token.line}} </td>
-    </ng-container>
-  
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-<mat-form-field class="example-form-field full-width" appearance="fill">
-    <mat-label>Scanner input</mat-label>
-    <textarea matInput type="text" style="height: 300px;" placeholder=">" [(ngModel)]="value" (keyup)="run()"></textarea>
-    <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
-      <mat-icon>close</mat-icon>
-    </button>
-    <!-- <button style="float: right; margin-top: 10px;" mat-raised-button color="primary" (click)="run()"> <mat-icon>play_arrow</mat-icon> Run</button> -->
+<mat-card>
+  <mat-card-subtitle>
+    <h3>
+      Scanner input
+    </h3>
+    <mat-form-field appearance="outline" >
+      <mat-label>Pick a test</mat-label>
+      <mat-select [(value)]="value" (selectionChange)="run()">
+        <mat-option [value]="''">Select</mat-option>
+        <mat-option *ngFor="let test of tests" [value]="test.testValue">{{test.testLabel}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-card-subtitle>
+  <mat-card-content class="input-container">
+    <mat-form-field class="input-feild " appearance="outline">
+      <mat-label>Scanner input</mat-label>
+      <textarea matInput type="text" style="height: 200px;" placeholder=">" [(ngModel)]="value" (keyup)="run()"></textarea>
+      <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''; run()">
+        <mat-icon>close</mat-icon>
+      </button>  
+  </mat-form-field>
 
-</mat-form-field>
+  </mat-card-content>
+  <mat-card-footer>
+    <div class="table-container">
+      <table mat-table [dataSource]="tokens" class="mat-elevation-z8">
+
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef> No. </th>
+          <td mat-cell *matCellDef="let token"> {{token.type}} </td>
+        </ng-container>
+      
+        <ng-container matColumnDef="typeString">
+          <th mat-header-cell *matHeaderCellDef> Type </th>
+          <td mat-cell *matCellDef="let token"> {{token.typeString}} </td>
+        </ng-container>
+      
+        <ng-container matColumnDef="lexeme">
+          <th mat-header-cell *matHeaderCellDef> Lexme </th>
+          <td mat-cell *matCellDef="let token"> {{token.lexeme}} </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="litral">
+          <th mat-header-cell *matHeaderCellDef> Litral </th>
+          <td mat-cell *matCellDef="let token"> {{token.literal}} </td>
+        </ng-container>
+      
+        <ng-container matColumnDef="line">
+          <th mat-header-cell *matHeaderCellDef> Line </th>
+          <td mat-cell *matCellDef="let token"> {{token.line}} </td>
+        </ng-container>
+      
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+
+  </mat-card-footer>
+</mat-card>
+

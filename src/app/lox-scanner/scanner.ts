@@ -42,6 +42,8 @@ const TOKEN_STRING: Record<number, string> = {
     38: 'Eof'
   }
 
+  
+
   export class Token {
     readonly type: TokenType;
     readonly typeString: string;
@@ -182,6 +184,7 @@ const TOKEN_STRING: Record<number, string> = {
                     this.identifier();
                 } 
                 else {
+                    debugger
                     SyntaxError(`${this.line}: Unexpected character.`)
                 }
                 break;
