@@ -14,11 +14,18 @@ export class LoxScannerComponent implements OnInit {
     this.run();
   }
 
-  value = 'print "Hello, world!";'
+  value = 'var start = "Hello, world!";'
   tokens: Token[] = [];
-  displayedColumns: string[] = ['type-number', 'type', 'lexme' , 'litral', 'line'];
+  displayedColumns: string[] = ['type', 'typeString', 'lexeme' , 'litral', 'line'];
 
-
+  // tests = [
+  //   {testValue: '', testLabel: ''},
+  //   {testValue: '', testLabel: ''},
+  //   {testValue: '', testLabel: ''},
+  //   {testValue: '', testLabel: ''},
+  //   {testValue: '', testLabel: ''},
+  //   {testValue: '', testLabel: ''},
+  // ]
   run() {
     let scanner = new Scanner(this.value);
     let tokens = scanner.scanTokens();

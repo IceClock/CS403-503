@@ -1,18 +1,18 @@
 <table mat-table [dataSource]="tokens" class="mat-elevation-z8 demo-table">
 
-    <ng-container matColumnDef="type-number">
+    <ng-container matColumnDef="type">
       <th mat-header-cell *matHeaderCellDef> No. </th>
       <td mat-cell *matCellDef="let token"> {{token.type}} </td>
     </ng-container>
   
-    <ng-container matColumnDef="type">
+    <ng-container matColumnDef="typeString">
       <th mat-header-cell *matHeaderCellDef> Type </th>
       <td mat-cell *matCellDef="let token"> {{token.typeString}} </td>
     </ng-container>
   
-    <ng-container matColumnDef="lexme">
+    <ng-container matColumnDef="lexeme">
       <th mat-header-cell *matHeaderCellDef> Lexme </th>
-      <td mat-cell *matCellDef="let token"> {{token.lexme}} </td>
+      <td mat-cell *matCellDef="let token"> {{token.lexeme}} </td>
     </ng-container>
 
     <ng-container matColumnDef="litral">

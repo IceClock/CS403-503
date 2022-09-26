@@ -49,9 +49,9 @@ const TOKEN_STRING: Record<number, string> = {
     readonly literal: any;
     readonly line: number;
 
-    constructor(type: TokenType, lexeme: string, literal: any, line: number) {
+    constructor(type: TokenType, typeString:string, lexeme: string, literal: any, line: number) {
         this.type = type;
-        this.typeString = TOKEN_STRING[this.type];
+        this.typeString = typeString;
         this.lexeme = lexeme;
         this.literal = literal;
         this.line = line;
@@ -100,7 +100,7 @@ const TOKEN_STRING: Record<number, string> = {
             this.scanToken();
         }
 
-        this.tokens.push(new Token(TokenType.EOF, "", null, this.line));
+        this.tokens.push(new Token(TokenType.EOF, TOKEN_STRING[TokenType.EOF] , "", null, this.line));
         return this.tokens;
     }
 
@@ -152,7 +152,7 @@ const TOKEN_STRING: Record<number, string> = {
                 break;
             case '/':
                 if (this.match('/')) {
-                    while (this.peek() != '\n' && this.isAtEnd) {
+                    while (this.peek() != '\n' && !this.isAtEnd) {
                         this.advance(); 
                       }
                 } else {
@@ -196,7 +196,8 @@ const TOKEN_STRING: Record<number, string> = {
         if (literal == undefined) 
             literal = null;
        const text: string = this.source.substring(this.start, this.current);
-       this.tokens.push(new Token (type, text, literal, this.line))
+       
+       this.tokens.push(new Token (type, TOKEN_STRING[type] ,text, literal, this.line))
     }
 
     private match(expected: string): boolean {
@@ -231,7 +232,7 @@ const TOKEN_STRING: Record<number, string> = {
     }
 
     private isDigit(c: string): boolean {
-        return c >= '0' && c <= '9';
+        return c.charCodeAt(0) >= '0'.charCodeAt(0) && c.charCodeAt(0) <= '9'.charCodeAt(0);
     }
 
     private number() {
@@ -246,8 +247,8 @@ const TOKEN_STRING: Record<number, string> = {
         while (this.isDigit(this.peek())) {
             this.advance();
         }
-        
-        this.addToken(TokenType.NUMBER, parseFloat(this.source.substring(this.start, this.current)));
+        let litralValue = parseFloat(this.source.substring(this.start, this.current));
+        this.addToken(TokenType.NUMBER, litralValue);
     }
 
     private peekNext(): string {
@@ -264,15 +265,14 @@ const TOKEN_STRING: Record<number, string> = {
         let type = Scanner.keywords[text];
         if (type == null) {
             type = TokenType.IDENTIFIER;
-            return;
         }
         this.addToken(type);
     }
 
     private isAlpha(c: string): boolean {
-        return  (c >= 'a' && c <= 'z') ||
-                (c >= 'A' && c <= 'Z') ||
-                (c == '_');
+        return  (c.charCodeAt(0) >='a'.charCodeAt(0) && c.charCodeAt(0) <= 'z'.charCodeAt(0)) ||
+                (c.charCodeAt(0) >= 'A'.charCodeAt(0) && c.charCodeAt(0) <= 'Z'.charCodeAt(0)) ||
+                (c.charCodeAt(0) == '_'.charCodeAt(0));
     }
 
     private isAlphaNumeric(c: string): boolean {

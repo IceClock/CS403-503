@@ -13,14 +13,14 @@ table {
 }
 
   
-.mat-column-type-number {
+.mat-column-type {
 width: 32px;
 border-right: 1px solid currentColor;
 padding-right: 24px;
 text-align: center;
 }
 
-.mat-column-type {
+.mat-column-typeString {
 padding-left: 20px;
 }
 
