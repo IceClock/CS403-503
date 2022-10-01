@@ -1,3 +1,4 @@
+import { ErrorHandlingService } from "../services/error-handling.service";
 
 enum TokenType {
     // Single-character tokens. 0-10
@@ -184,9 +185,9 @@ const TOKEN_STRING: Record<number, string> = {
                     this.identifier();
                 } 
                 else {
-                    debugger
-                    SyntaxError(`${this.line}: Unexpected character.`)
+                    ErrorHandlingService.getInstance().syntaxErrorOccured(`${this.line}: Unexpected character.`)
                 }
+                ErrorHandlingService.getInstance().syntaxErrorOccured('pop')
                 break;
         }
     }
@@ -223,7 +224,7 @@ const TOKEN_STRING: Record<number, string> = {
             this.advance();
         }
         if (this.isAtEnd) {
-            SyntaxError(`${this.line}: Unterminated string.`);
+            ErrorHandlingService.getInstance().syntaxErrorOccured(`${this.line}: Unterminated string.`);
             return;
         }
         //The closing

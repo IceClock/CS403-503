@@ -7,7 +7,7 @@
     </h3>
     <mat-form-field appearance="outline" >
       <mat-label>Pick a test</mat-label>
-      <mat-select [(value)]="value" (selectionChange)="run()">
+      <mat-select [value]="value" (selectionChange)="run()">
         <mat-option [value]="''">Select</mat-option>
         <mat-option *ngFor="let test of tests" [value]="test.testValue">{{test.testLabel}}</mat-option>
       </mat-select>
@@ -56,7 +56,9 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
     </div>
-
+    <div class="error" *ngIf="syntaxError$ | async as errors">
+      <span *ngFor="let error of errors">{{error}}</span>
+    </div>
   </mat-card-footer>
 </mat-card>
 
