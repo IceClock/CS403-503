@@ -91,3 +91,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+#Ignore electron package
+cs403-503-win32-x64
