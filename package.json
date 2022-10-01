@@ -10,7 +10,8 @@
     "test": "ng test",
     "start-pwa": "ng build --configuration production --aot && http-server -p 8080 -c-1 dist/cs403-503",
     "electron": "ng build && electron .",
-    "electron-package" : "electron-packager . --platform=win32 --no-prune --ignore=/node_modules --ignore=/e2e --ignore=/src"
+    "electron-win" : "electron-packager . --platform=win32 --no-prune --ignore=/node_modules --ignore=/e2e --ignore=/src",
+    "electron-mac" : "electron-packager . --platform=darwin --no-prune --ignore=/node_modules --ignore=/e2e --ignore=/src"
   },
   "private": true,
   "dependencies": {
