@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ErrorHandlingService } from '../services/error-handling.service';
 import { Scanner, Token } from './scanner';
 
 @Component({
@@ -8,10 +9,14 @@ import { Scanner, Token } from './scanner';
 })
 export class LoxScannerComponent implements OnInit {
 
-  constructor() { }
+  constructor(private errorHnadingService: ErrorHandlingService) { }
+
+  syntaxError$ = this.errorHnadingService.syntaxErrorOccured$;
 
   ngOnInit(): void {
     this.run();
+    this.syntaxError$.subscribe((x) => {
+    })
   }
 
   value = ''
@@ -31,3 +36,4 @@ export class LoxScannerComponent implements OnInit {
     this.tokens = tokens;
   }
 }
+

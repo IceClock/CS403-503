@@ -42,3 +42,11 @@ mat-card-subtitle {
 :host ::ng-deep .mat-form-field-wrapper {
     padding: 0 !important;
 }
+
+.error {
+    color: red;
+    font-style: italic;
+    display: flex;
+    flex-direction: column;
+    padding-left: 50px;
+}
