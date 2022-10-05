@@ -22,6 +22,7 @@ export class LoxScannerComponent implements OnInit {
     this.syntaxError$.subscribe((x) => {
     })
     this.errorHnadingService.syntaxErrorOccured$.subscribe((e) => {
+      if(e)
       this._snackBar.open(e, 'close', {
         panelClass: ['mat-toolbar', 'mat-warn', 'error'],
         politeness: 'assertive',
