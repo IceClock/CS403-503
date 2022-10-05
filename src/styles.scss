@@ -72,3 +72,9 @@ mat-card .mat-card-header-text mat-card-title, mat-card-subtitle {
     overflow: hidden;
     white-space: nowrap;
 }
+
+.error {
+    .mat-simple-snackbar-action {
+        color: white !important;
+    }
+}

@@ -17,9 +17,7 @@ export class ErrorHandlingService {
     return ErrorHandlingService.instance;
   }
 
-  private syntaxErrorOccured$$ = new BehaviorSubject<string[]>([]);
-
-  private syntaxErrors: string[] = []
+  private syntaxErrorOccured$$ = new BehaviorSubject<string>('');
 
   syntaxErrorOccured$ = this.syntaxErrorOccured$$.asObservable();
 
@@ -32,12 +30,7 @@ export class ErrorHandlingService {
    }
 
   syntaxErrorOccured(errorMsg: string) {
-    if(!this.syntaxErrors.includes(errorMsg) && errorMsg != 'pop') {
-      this.syntaxErrors.push(errorMsg);
-      this.syntaxErrorOccured$$.next(this.syntaxErrors);
-    } else if (errorMsg == 'pop') {
-      this.syntaxErrors = [];
-    }
+      this.syntaxErrorOccured$$.next(errorMsg);
   }
 
 

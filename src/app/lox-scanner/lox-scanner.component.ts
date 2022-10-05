@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorHandlingService } from '../services/error-handling.service';
 import { Scanner, Token } from './scanner';
 
@@ -9,13 +10,23 @@ import { Scanner, Token } from './scanner';
 })
 export class LoxScannerComponent implements OnInit {
 
-  constructor(private errorHnadingService: ErrorHandlingService) { }
+  constructor(
+    private errorHnadingService: ErrorHandlingService,
+    private _snackBar: MatSnackBar
+    ) { }
 
   syntaxError$ = this.errorHnadingService.syntaxErrorOccured$;
 
   ngOnInit(): void {
     this.run();
     this.syntaxError$.subscribe((x) => {
+    })
+    this.errorHnadingService.syntaxErrorOccured$.subscribe((e) => {
+      this._snackBar.open(e, 'close', {
+        panelClass: ['mat-toolbar', 'mat-warn', 'error'],
+        politeness: 'assertive',
+        duration: 2000
+      })
     })
   }
 

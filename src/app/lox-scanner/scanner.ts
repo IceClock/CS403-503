@@ -187,7 +187,6 @@ const TOKEN_STRING: Record<number, string> = {
                 else {
                     ErrorHandlingService.getInstance().syntaxErrorOccured(`${this.line}: Unexpected character.`)
                 }
-                ErrorHandlingService.getInstance().syntaxErrorOccured('pop')
                 break;
         }
     }

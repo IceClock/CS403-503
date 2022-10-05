@@ -56,9 +56,6 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
     </div>
-    <div class="error" *ngIf="syntaxError$ | async as errors">
-      <span *ngFor="let error of errors">{{error}}</span>
-    </div>
   </mat-card-footer>
 </mat-card>
 
