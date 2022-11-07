@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Scanner, Token } from '../lox/src/scanner';
 import { ErrorHandlingService } from '../services/error-handling.service';
+import { Parser } from './src/parser';
+import { Scanner } from './src/scanner';
+import * as ast from "./src/ast";
 
 @Component({
-  selector: 'app-lox-scanner',
-  templateUrl: './lox-scanner.component.html',
-  styleUrls: ['./lox-scanner.component.css']
+  selector: 'app-lox',
+  templateUrl: './lox.component.html',
+  styleUrls: ['./lox.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LoxScannerComponent implements OnInit {
+export class LoxComponent implements OnInit {
+
 
   constructor(
     private errorHnadingService: ErrorHandlingService,
@@ -32,7 +36,7 @@ export class LoxScannerComponent implements OnInit {
   }
 
   value = ''
-  tokens: Token[] = [];
+  output: string = '';
   displayedColumns: string[] = ['type', 'typeString', 'lexeme' , 'litral', 'line'];
 
   tests = [
@@ -45,7 +49,12 @@ export class LoxScannerComponent implements OnInit {
   run() {
     let scanner = new Scanner(this.value);
     let tokens = scanner.scanTokens();
-    this.tokens = tokens;
+    let parser = new Parser(tokens);
+    let expression = parser.parse();
+    try {
+      this.output = new ast.AstPrinter().stringify(expression);
+    } catch {}
+  
   }
-}
 
+}

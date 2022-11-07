@@ -16,4 +16,8 @@ export class NavigationService {
   viewLoxScanner() {
     this.store.dispatch(new Navigate(['/lox-scanner']))
   }
+
+  viewLox() {
+    this.store.dispatch(new Navigate(['/lox']))
+  }
 }

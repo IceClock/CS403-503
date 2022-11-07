@@ -94,3 +94,4 @@ dist
 
 #Ignore electron package
 cs403-503-win32-x64
+cs403-503-darwin-x64

@@ -1,6 +1,6 @@
-import { ErrorHandlingService } from "../services/error-handling.service";
+import { ErrorHandlingService } from "src/app/services/error-handling.service";
 
-enum TokenType {
+export enum TokenType {
     // Single-character tokens. 0-10
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
     COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,

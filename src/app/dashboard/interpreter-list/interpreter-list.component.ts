@@ -17,4 +17,7 @@ export class InterpreterListComponent implements OnInit {
   goToLoxScanner () {
     this.navigation.viewLoxScanner();
   }
+  goToLox () {
+    this.navigation.viewLox();
+  }
 }

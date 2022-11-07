@@ -1,0 +1,33 @@
+
+
+<mat-card>
+    <mat-card-subtitle>
+      <h3>
+        Parser input
+      </h3>
+      <mat-form-field appearance="outline" >
+        <mat-label>Pick a test</mat-label>
+        <mat-select [(value)]="value" (selectionChange)="run()">
+          <mat-option [value]="''">Select</mat-option>
+          <mat-option *ngFor="let test of tests" [value]="test.testValue">{{test.testLabel}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-card-subtitle>
+    <mat-card-content class="input-container">
+      <mat-form-field class="input-feild " appearance="outline">
+        <mat-label>Parser input</mat-label>
+        <textarea matInput type="text" style="height: 200px;" placeholder=">" [(ngModel)]="value" (keyup)="run()"></textarea>
+        <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''; run()">
+          <mat-icon>close</mat-icon>
+        </button>  
+    </mat-form-field>
+
+    <div>
+        {{output | json}}
+    </div>
+  
+    </mat-card-content>
+
+  </mat-card>
+  
+  
