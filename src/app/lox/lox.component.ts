@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorHandlingService } from '../services/error-handling.service';
+import { AstPrinter } from './src/ast';
 import { Parser } from './src/parser';
 import { Scanner } from './src/scanner';
-import * as ast from "./src/ast";
 
 @Component({
   selector: 'app-lox',
@@ -50,9 +50,15 @@ export class LoxComponent implements OnInit {
     let scanner = new Scanner(this.value);
     let tokens = scanner.scanTokens();
     let parser = new Parser(tokens);
-    let expression = parser.parse();
+    const [statements, expr] = parser.parseRepl();
+    const astPrinter = new AstPrinter();
     try {
-      this.output = new ast.AstPrinter().stringify(expression);
+      if (statements.length > 0) {
+       this.output = astPrinter.stringify(statements);
+      }
+      if (expr !== null) {
+        this.output = astPrinter.stringify(expr);
+      }
     } catch {}
   
   }
