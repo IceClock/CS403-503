@@ -14,6 +14,7 @@ import { Scanner } from './src/scanner';
 })
 export class LoxComponent implements OnInit {
 
+  panelOpenState = true;
 
   constructor(
     private errorHnadingService: ErrorHandlingService,
@@ -36,15 +37,24 @@ export class LoxComponent implements OnInit {
       })
   }
 
-  value = ''
+  value = '';
   output: string = '';
-  displayedColumns: string[] = ['type', 'typeString', 'lexeme' , 'litral', 'line'];
+  logs: string[] = []
 
   tests = [
-    {testValue: 'print "Hello, world!";', testLabel: 'Hello World'},
-    {testValue: 'var language = "lox";', testLabel: 'String assignemnt'},
-    {testValue: 'var digit = 123;', testLabel: 'Digit assignment'},
-    {testValue: '@', testLabel: 'Unexpected character'},
+    // {testValue: 'print "Hello, world!";', testLabel: 'Hello World'},
+    // {testValue: 'var language = "lox";', testLabel: 'String assignemnt'},
+    // {testValue: 'var digit = 123;', testLabel: 'Digit assignment'},
+    {testValue: '1+6', testLabel: 'Addition'},
+    {testValue: '7*9', testLabel: 'Multiply'},
+    {testValue: '9/3', testLabel: 'Division'},
+    {testValue: '10 == 10', testLabel: 'Equality'},
+    {testValue: '11 != 11', testLabel: 'Bang Op'},
+    {testValue: '2 > 1', testLabel: 'Greater'},
+    {testValue: '2 < 1', testLabel: 'Less'},
+    {testValue: '2 <= 2', testLabel: 'Less Equal'},
+    {testValue: '1 >= 1', testLabel: 'Greater Equal'},
+    // {testValue: '@', testLabel: 'Unexpected character'},
   ]
 
   run() {
@@ -56,16 +66,14 @@ export class LoxComponent implements OnInit {
     const astPrinter = new AstPrinter();
     try {
       if (statements.length > 0) {
-       console.log(astPrinter.stringify(statements)) ;
+       console.log(astPrinter.stringify(statements));
+       this.output = interpreter.interpret(statements);
+       this.logs.push(`Parsed ${astPrinter.stringify(statements)} -> Interpreted ${interpreter.interpret(statements)}`);
       }
       if (expr !== null) {
         console.log(astPrinter.stringify(expr));
-      }
-      if (statements.length > 0) {
-       this.output = interpreter.interpret(statements);
-      }
-      if (expr !== null) {
         this.output = interpreter.interpret(expr);
+        this.logs.push(`Parsed ${astPrinter.stringify(expr)} -> Interpreted ${interpreter.interpret(expr)}`);
       }
     } catch {}
   
