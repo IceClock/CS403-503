@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorHandlingService } from '../services/error-handling.service';
 import { AstPrinter } from './src/ast';
+import { Interpreter } from './src/interpreter';
 import { Parser } from './src/parser';
 import { Scanner } from './src/scanner';
 
@@ -47,6 +48,7 @@ export class LoxComponent implements OnInit {
   ]
 
   run() {
+    let interpreter = new Interpreter();
     let scanner = new Scanner(this.value);
     let tokens = scanner.scanTokens();
     let parser = new Parser(tokens);
@@ -54,10 +56,16 @@ export class LoxComponent implements OnInit {
     const astPrinter = new AstPrinter();
     try {
       if (statements.length > 0) {
-       this.output = astPrinter.stringify(statements);
+       console.log(astPrinter.stringify(statements)) ;
       }
       if (expr !== null) {
-        this.output = astPrinter.stringify(expr);
+        console.log(astPrinter.stringify(expr));
+      }
+      if (statements.length > 0) {
+       this.output = interpreter.interpret(statements);
+      }
+      if (expr !== null) {
+        this.output = interpreter.interpret(expr);
       }
     } catch {}
   
