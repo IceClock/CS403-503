@@ -7,6 +7,7 @@ import { Interpreter } from "./interpreter";
 enum FunctionType {
     NONE,
     FUNCTION,
+    INITIALIZER,
     METHOD
   }
 
@@ -187,6 +188,9 @@ export class Resolver implements ast.SyntaxVisitor<void, void> {
             OutputHandlingService.getInstance().syntaxErrorOccured(`Can't return from top-level code.`);
         }
         if (stmt.value != null) {
+            if (this.currentFunction == FunctionType.INITIALIZER) {
+                OutputHandlingService.getInstance().syntaxErrorOccured("Can't return a value from an initializer.")
+            }
             this.resolve(stmt.value);
         }
         return;
@@ -201,7 +205,10 @@ export class Resolver implements ast.SyntaxVisitor<void, void> {
         this.scopes.peek()['this'] = true;
 
         stmt.methods.forEach(method => {
-            const declaration = FunctionType.METHOD;
+            let declaration = FunctionType.METHOD;
+            if (method.name.lexeme == "init") {
+                declaration = FunctionType.INITIALIZER;
+            }
             this.resolveFunction(method, declaration);
         });
         this.endScope();
