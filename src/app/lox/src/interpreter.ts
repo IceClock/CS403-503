@@ -1,8 +1,14 @@
 import * as ast from "./ast"
 import { Token, TokenType } from "./scanner";
-import { ErrorHandlingService } from "src/app/services/error-handling.service";
+import { OutputHandlingService } from "src/app/services/error-handling.service";
+import * as types from "./types"
 
 export class Interpreter implements ast.SyntaxVisitor<any, void> {
+    [x: string]: any;
+
+    globals = new Environment();
+    private environment = this.globals;
+    private locals: Map<ast.Expr, number> = new Map();
 
     interpret(statements: ast.Stmt[]): any
     interpret(expr: ast.Expr): any
@@ -55,13 +61,24 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
 
     private checkNumberOperand(operator: Token, operand: any) {
         if (typeof operand === "number") return;
-        else throw ErrorHandlingService.getInstance().syntaxErrorOccured(`Operand must be a number, ${operator} operator`)
+        else throw OutputHandlingService.getInstance().syntaxErrorOccured(`Operand must be a number, ${operator} operator`)
     }
 
     private checkNumberOperands(operator: Token, left: any, right: any) {
         if (typeof left === "number" && typeof right === "number") return;
-        else throw ErrorHandlingService.getInstance().syntaxErrorOccured(`Operands must be numbers, ${operator} operator`)
+        else throw OutputHandlingService.getInstance().syntaxErrorOccured(`Operands must be numbers, ${operator} operator`)
     }
+
+    private resolve(expr: ast.Expr, depth: number) {
+      this.locals.set(expr, depth);
+    }
+
+    private lookupVariable(name: Token, expr: ast.Expr): any {
+        const distance = this.locals.get(expr);
+        if (distance !== undefined) return this.environment.getAt(distance, name);
+        else return this.globals.get(name);
+      }
+
 
     visitBinaryExpr(expr: ast.BinaryExpr) {
         const left = this.evaluate(expr.left);
@@ -100,7 +117,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
                 if (typeof left === "string" && typeof right === "string") {
                     return left + right;
                 }
-                ErrorHandlingService.getInstance().syntaxErrorOccured(`${expr.operator} operands must be two numbers or two strings.`)
+                OutputHandlingService.getInstance().syntaxErrorOccured(`${expr.operator} operands must be two numbers or two strings.`)
         }
 
         // Unreachable.
@@ -127,55 +144,179 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
         return null;
     }
     visitVariableExpr(expr: ast.VariableExpr) {
-        throw new Error("Method not implemented.");
+        return this.lookupVariable(expr.name, expr);
     }
     visitAssignExpr(expr: ast.AssignExpr) {
-        throw new Error("Method not implemented.");
+        const value = this.evaluate(expr.value);
+
+        const distance = this.locals.get(expr);
+        if (distance != null) {
+            this.environment.assignAt(distance, expr.name, value);
+        } else {
+            this.globals.assign(expr.name, value);
+        }
+        return value;
     }
     visitLogicalExpr(expr: ast.LogicalExpr) {
-        throw new Error("Method not implemented.");
+        let left = this.evaluate(expr.left);
+
+        if (expr.operator.type === TokenType.OR) {
+            if (this.isTruthy(left)) return left;
+        } else if(!this.isTruthy(left)) return left;
+
+        return this.evaluate(expr.right);
     }
     visitCallExpr(expr: ast.CallExpr) {
-        throw new Error("Method not implemented.");
+        const callee = this.evaluate(expr.callee);
+        const args: any[] = [];
+
+        expr.args.forEach(arg => {
+            args.push(this.evaluate(arg));
+        });
+
+        if(!(callee instanceof types.LoxCallable)) {
+            OutputHandlingService.getInstance().syntaxErrorOccured(`Can only call functions and classes, ${expr.paren}`);
+        }
+
+        if (args.length !== callee.arity()) {
+            throw OutputHandlingService.getInstance().syntaxErrorOccured(`Expected ${callee.arity()} arguments but got ${args.length}, ${expr.paren}`);
+          }
+      
+          return callee.call(this, args);
     }
     visitGetExpr(expr: ast.GetExpr) {
         throw new Error("Method not implemented.");
     }
     visitSetExpr(expr: ast.SetExpr) {
-        throw new Error("Method not implemented.");
+        let object = this.evaluate(expr.object);
+        if (!(object instanceof types.LoxInstance)) {
+          OutputHandlingService.getInstance().syntaxErrorOccured("Only instances have fields");
+        }
+        let value = this.evaluate(expr.value);
+        object.set(expr.name, value);
     }
     visitThisExpr(expr: ast.ThisExpr) {
-        throw new Error("Method not implemented.");
+        return this.lookupVariable(expr.keyword, expr);
     }
     visitSuperExpr(expr: ast.SuperExpr) {
         throw new Error("Method not implemented.");
     }
     visitExpressionStmt(stmt: ast.ExpressionStmt): void {
-        throw new Error("Method not implemented.");
+        this.evaluate(stmt.expression);
     }
     visitPrintStmt(stmt: ast.PrintStmt): void {
-        throw new Error("Method not implemented.");
+        const value = this.evaluate(stmt.expression);
+        OutputHandlingService.getInstance().print(this.stringify(value));
     }
     visitVarStmt(stmt: ast.VarStmt): void {
-        throw new Error("Method not implemented.");
+        let value = null;
+        if(stmt.initializer !== null) value = this.evaluate(stmt.initializer);
+
+        this.environment.define(stmt.name.lexeme, value);
     }
     visitBlockStmt(stmt: ast.BlockStmt): void {
         throw new Error("Method not implemented.");
     }
     visitIfStmt(stmt: ast.IfStmt): void {
-        throw new Error("Method not implemented.");
+        if (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.thenBranch);
+          } else if (stmt.elseBranch !== null) {
+            this.execute(stmt.elseBranch);
+        }
     }
     visitWhileStmt(stmt: ast.WhileStmt): void {
-        throw new Error("Method not implemented.");
+       while (this.isTruthy(this.evaluate(stmt.condition))) {
+        this.execute(stmt.body);
+       }
+       return;
     }
     visitFunctionStmt(stmt: ast.FunctionStmt): void {
-        throw new Error("Method not implemented.");
+        const func = new types.LoxFunction(stmt, this.environment, false);
+        this.environment.define(stmt.name.lexeme, func);
+        return;
     }
     visitReturnStmt(stmt: ast.ReturnStmt): void {
-        throw new Error("Method not implemented.");
+        let value = null;
+        if (stmt.value !== null) value = this.evaluate(stmt.value);
+    
+        throw new types.LoxFunction.Return(value);
     }
     visitClassStmt(stmt: ast.ClassStmt): void {
-        throw new Error("Method not implemented.");
+      let superclass: any = null
+      this.environment.define(stmt.name.lexeme, null);
+      let methods: Record<string, types.LoxFunction> = {};
+      stmt.methods.forEach((method) => {
+        const func = new types.LoxFunction(method, this.environment, method.name.lexeme === "init");
+        methods[method.name.lexeme] = func;
+      });
+      
+      let klass = new types.LoxClass(stmt.name.lexeme, superclass, methods);
+      this.environment.assign(stmt.name, klass);
+      return;
     }
     
 }
+
+export class Environment {
+    enclosing: Environment | null;
+    private values: Record<string, any> = {};
+  
+    constructor(enclosing?: Environment) {
+      if (enclosing) this.enclosing = enclosing;
+      else this.enclosing = null;
+    }
+  
+    ancestor(distance: number): Environment | null {
+      if (distance === 0) return this
+      else {
+        let environment = this.enclosing || null;
+        for (let i = 1; i < distance; i++) {
+          environment = environment?.enclosing || null;
+        }
+        return environment;
+      }
+    }
+  
+    define(name: string, value: any): void {
+      this.values[name] = value;
+    }
+  
+    assign(name: Token, value: any): void {
+      if (name.lexeme in this.values) {
+        this.values[name.lexeme] = value;
+        return;
+      }
+  
+      if (this.enclosing !== null) {
+        this.enclosing.assign(name, value);
+        return;
+      }
+  
+      throw OutputHandlingService.getInstance().syntaxErrorOccured(`Undefined variable '${name.lexeme}', ${name}`);
+    }
+  
+    assignAt(distance: number, name: Token, value: any): void {
+      const environment = this.ancestor(distance);
+      if (environment !== null) environment.values[name.lexeme] = value;
+      // Unreachable (just in case)
+      throw OutputHandlingService.getInstance().syntaxErrorOccured(`Undefined variable '${name.lexeme}', ${name}`);
+    }
+  
+    get(name: Token): any {
+      if (name.lexeme in this.values) return this.values[name.lexeme];
+      if (this.enclosing !== null) return this.enclosing.get(name);
+  
+      throw OutputHandlingService.getInstance().syntaxErrorOccured(`Undefined variable '${name.lexeme}', ${name}`);
+    }
+  
+    getAt(distance: number, name: Token): any {
+      const environment = this.ancestor(distance);
+      if (environment !== null) return environment.values[name.lexeme];
+      // Unreachable
+      throw OutputHandlingService.getInstance().syntaxErrorOccured(`Undefined variable '${name.lexeme}', ${name}`);
+    }
+  
+    getThis(): any {
+      return this.values["this"];
+    }
+  }

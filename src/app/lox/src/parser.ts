@@ -1,4 +1,4 @@
-import { ErrorHandlingService } from "src/app/services/error-handling.service";
+import { OutputHandlingService } from "src/app/services/error-handling.service";
 import * as ast from "./ast"
 import { Token, TokenType } from "./scanner";
 
@@ -407,10 +407,10 @@ export class Parser {
     error(token: Token, messege: string) {
         if (token.type == TokenType.EOF) {
             new SyntaxError(`${messege} ${token.line} at end`);
-            ErrorHandlingService.getInstance().syntaxErrorOccured(`${messege} ${token.line} at end.`);
+            OutputHandlingService.getInstance().syntaxErrorOccured(`${messege} ${token.line} at end.`);
         } else {
             new SyntaxError(`${token.line} at ${token.lexeme} ${messege}`);
-            ErrorHandlingService.getInstance().syntaxErrorOccured(`Line: ${token.line} at Lexeme: ${token.lexeme}, notes: ${messege}`);
+            OutputHandlingService.getInstance().syntaxErrorOccured(`Line: ${token.line} at Lexeme: ${token.lexeme}, notes: ${messege}`);
         }
     }
 

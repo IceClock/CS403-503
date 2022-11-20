@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ErrorHandlingService } from '../services/error-handling.service';
+import { OutputHandlingService } from '../services/error-handling.service';
 import { AstPrinter } from './src/ast';
 import { Interpreter } from './src/interpreter';
 import { Parser } from './src/parser';
+import { Resolver } from './src/resolver';
 import { Scanner } from './src/scanner';
 
 @Component({
@@ -17,7 +18,7 @@ export class LoxComponent implements OnInit {
   panelOpenState = true;
 
   constructor(
-    private errorHnadingService: ErrorHandlingService,
+    private errorHnadingService: OutputHandlingService,
     private _snackBar: MatSnackBar
     ) { }
 
@@ -59,6 +60,7 @@ export class LoxComponent implements OnInit {
 
   run() {
     let interpreter = new Interpreter();
+    let resolver = new Resolver(interpreter);
     let scanner = new Scanner(this.value);
     let tokens = scanner.scanTokens();
     let parser = new Parser(tokens);
@@ -66,11 +68,13 @@ export class LoxComponent implements OnInit {
     const astPrinter = new AstPrinter();
     try {
       if (statements.length > 0) {
+       resolver.resolve(statements);
        console.log(astPrinter.stringify(statements));
        this.output = interpreter.interpret(statements);
        this.logs.push(`Parsed ${astPrinter.stringify(statements)} -> Interpreted ${interpreter.interpret(statements)}`);
       }
       if (expr !== null) {
+        resolver.resolve(expr)
         console.log(astPrinter.stringify(expr));
         this.output = interpreter.interpret(expr);
         this.logs.push(`Parsed ${astPrinter.stringify(expr)} -> Interpreted ${interpreter.interpret(expr)}`);

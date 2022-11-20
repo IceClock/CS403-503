@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Scanner, Token } from '../lox/src/scanner';
-import { ErrorHandlingService } from '../services/error-handling.service';
+import { OutputHandlingService } from '../services/error-handling.service';
 
 @Component({
   selector: 'app-lox-scanner',
@@ -11,7 +11,7 @@ import { ErrorHandlingService } from '../services/error-handling.service';
 export class LoxScannerComponent implements OnInit {
 
   constructor(
-    private errorHnadingService: ErrorHandlingService,
+    private errorHnadingService: OutputHandlingService,
     private _snackBar: MatSnackBar
     ) { }
 
