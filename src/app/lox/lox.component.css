@@ -32,14 +32,38 @@ table {
       justify-content: space-between;
       padding: 0 20px 0 20px;
   }
+
+  .logs {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  mat-accordion {
+    flex-grow: 1;
+    
+    }
+
+    ::ng-deep .mat-expansion-panel-body {
+        max-height: 500px;
+        height: 500px;
+        overflow-y: auto;
+        font-family: monospace;
+    }
   
   mat-card-subtitle {
       display: flex;
       justify-content: space-between;
   
   }
+
+  .action-bar {
+    display: flex;
+    margin-top: 10px;
+    justify-content: space-between;
+  }
   
   :host ::ng-deep .mat-form-field-wrapper {
       padding: 0 !important;
+      font-family: monospace;
   }
   

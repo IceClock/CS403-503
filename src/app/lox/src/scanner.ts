@@ -185,7 +185,7 @@ const TOKEN_STRING: Record<number, string> = {
                     this.identifier();
                 } 
                 else {
-                    OutputHandlingService.getInstance().syntaxErrorOccured(`${this.line}: Unexpected character.`)
+                    OutputHandlingService.getInstance().errorOccured(`${this.line}: Unexpected character.`)
                 }
                 break;
         }
@@ -223,7 +223,7 @@ const TOKEN_STRING: Record<number, string> = {
             this.advance();
         }
         if (this.isAtEnd) {
-            OutputHandlingService.getInstance().syntaxErrorOccured(`${this.line}: Unterminated string.`);
+            OutputHandlingService.getInstance().errorOccured(`${this.line}: Unterminated string.`);
             return;
         }
         //The closing

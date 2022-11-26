@@ -206,15 +206,16 @@ export class Parser {
 
         if (!this.check(TokenType.RIGHT_PAREN)) {
             do {
-                if (args.length >= 255)
-                    this.error(this.peek(), "Can't have more than 255 args")
-                args.push(this.expression())
+                if (args.length >= 255) {
+                   this.error(this.peek(), "Can't have more than 255 args");
+                }
+                args.push(this.expression());
             } while (this.match(TokenType.COMMA))
         }
 
         const paren = this.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments");
 
-        return new ast.CallExpr(callee, paren, args)
+        return new ast.CallExpr(callee, paren, args);
     }
 
     private primary(): ast.Expr {
@@ -271,7 +272,7 @@ export class Parser {
 
     private funDeclaration(kind: "function" | "method"): ast.FunctionStmt {
         const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name`);
-        this.consume(TokenType.LEFT_BRACE, `Expect '(' after ${kind} name`);
+        this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind} name`);
 
         const params: Token[] = [];
         if (!this.check(TokenType.RIGHT_PAREN)) {
@@ -283,7 +284,7 @@ export class Parser {
         }
         this.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
 
-        this.consume(TokenType.LEFT_PAREN, `Expect '{' before ${kind} body`);
+        this.consume(TokenType.LEFT_BRACE, `Expect '{' before ${kind} body`);
         const body = this.block();
         return new ast.FunctionStmt(name, params, body);
     }
@@ -407,10 +408,10 @@ export class Parser {
     error(token: Token, messege: string) {
         if (token.type == TokenType.EOF) {
             new SyntaxError(`${messege} ${token.line} at end`);
-            OutputHandlingService.getInstance().syntaxErrorOccured(`${messege} ${token.line} at end.`);
+            OutputHandlingService.getInstance().errorOccured(`${messege} ${token.line} at end.`);
         } else {
             new SyntaxError(`${token.line} at ${token.lexeme} ${messege}`);
-            OutputHandlingService.getInstance().syntaxErrorOccured(`Line: ${token.line} at Lexeme: ${token.lexeme}, notes: ${messege}`);
+            OutputHandlingService.getInstance().errorOccured(`Line: ${token.line} at Lexeme: ${token.lexeme}, notes: ${messege}`);
         }
     }
 

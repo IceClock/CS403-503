@@ -58,7 +58,7 @@ export class LoxFunction extends LoxCallable {
     }
 
     try {
-      interpreter?.['executeBlock'](this.declaration.body, environment)
+      interpreter.executeBlock(this.declaration.body, environment)
     } catch (e) {
       if (e instanceof LoxFunction.Return) {
         if (this.isInitializer) return this.closure.getThis();
@@ -139,7 +139,7 @@ export class LoxInstance {
     const method = this.klass.findMethod(name.lexeme);
     if (method !== null) return method.bind(this);
 
-    OutputHandlingService.getInstance().syntaxErrorOccured(`Undefined property ${name.lexeme}, name`);
+    OutputHandlingService.getInstance().errorOccured(`Undefined property ${name.lexeme}, name`);
   }
 
   set(name: Token, value: any): void {

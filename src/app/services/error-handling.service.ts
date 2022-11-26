@@ -17,10 +17,10 @@ export class OutputHandlingService {
     return OutputHandlingService.instance;
   }
 
-  private syntaxErrorOccured$$ = new BehaviorSubject<string>('');
+  private errorOccured$$ = new BehaviorSubject<string>('');
   private printSubject$$ = new BehaviorSubject<string>('');
 
-  syntaxErrorOccured$ = this.syntaxErrorOccured$$.asObservable();
+  errorOccured$ = this.errorOccured$$.asObservable();
   printSubject$ = this.printSubject$$.asObservable();
 
   constructor() {
@@ -31,8 +31,8 @@ export class OutputHandlingService {
 
    }
 
-  syntaxErrorOccured(errorMsg: string) {
-      this.syntaxErrorOccured$$.next(errorMsg);
+  errorOccured(errorMsg: string) {
+      this.errorOccured$$.next(errorMsg);
   }
 
   print(x: string) {

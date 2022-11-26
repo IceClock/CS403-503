@@ -16,28 +16,55 @@
     <mat-card-content class="input-container">
       <mat-form-field class="input-feild " appearance="outline">
         <mat-label>Parser input</mat-label>
-        <textarea matInput type="text" style="height: 200px;" placeholder=">" [(ngModel)]="value" (keyup)="run()"></textarea>
-        <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''; run()">
-          <mat-icon>close</mat-icon>
-        </button>  
+        <textarea matInput type="text" style="height: 200px;" placeholder=">" [(ngModel)]="value"></textarea>
+        <div class="action-bar">
+          <button mat-raised-button color="primary" aria-label="Run" (click)="run()">
+            Run 
+            <mat-icon>start</mat-icon>
+          </button>  
+          <button *ngIf="value" mat-raised-button color="warn" aria-label="Clear" (click)="clear()">
+            <mat-icon>close</mat-icon>
+             Clear
+          </button>  
+        </div>
+
     </mat-form-field>
-    <mat-accordion>
+    <div class="logs">
+      <mat-accordion>
         <mat-expansion-panel [expanded]="panelOpenState" (opened)="panelOpenState = true"
         (closed)="panelOpenState = false">
         <mat-expansion-panel-header>
         <mat-panel-title>
-        Parsed expression and interpreted value
+        Verbose Log
         </mat-panel-title>
-        <mat-panel-description>
-        Current value {{output}}
-        </mat-panel-description>
         </mat-expansion-panel-header>
         <p *ngFor="let log of logs">{{log}}</p>
         </mat-expansion-panel>
-    </mat-accordion>
-  
+        </mat-accordion>
+
+        <mat-accordion>
+        <mat-expansion-panel [expanded]="panelOpenState" (opened)="panelOpenState = true"
+        (closed)="panelOpenState = false">
+        <mat-expansion-panel-header>
+        <mat-panel-title>
+        Error Log
+        </mat-panel-title>
+        </mat-expansion-panel-header>
+        <p *ngFor="let err of errors">{{err}}</p>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>  
     </mat-card-content>
 
+  </mat-card>
+
+  <mat-card class="example-card">
+    <mat-card-header>
+      <mat-card-title>Output</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p *ngFor="let print of printingStmts">{{print}}</p>
+    </mat-card-content>
   </mat-card>
   
   

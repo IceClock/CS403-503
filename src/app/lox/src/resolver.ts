@@ -1,7 +1,6 @@
 import * as ast from "./ast"
 import { Token, TokenType } from "./scanner";
 import { OutputHandlingService } from "src/app/services/error-handling.service";
-import * as types from "./types"
 import { Interpreter } from "./interpreter";
 
 enum FunctionType {
@@ -71,7 +70,7 @@ export class Resolver implements ast.SyntaxVisitor<void, void> {
 
         const scope = this.scopes.peek();
         if (name.lexeme in scope) {
-            OutputHandlingService.getInstance().syntaxErrorOccured(`Already variable with this name in this scope ${name.line}`);
+            OutputHandlingService.getInstance().errorOccured(`Already variable with this name in this scope ${name.line}`);
         }
 
         scope[name.lexeme] = false;
@@ -100,7 +99,7 @@ export class Resolver implements ast.SyntaxVisitor<void, void> {
     }
     visitVariableExpr(expr: ast.VariableExpr): void {
         if (!this.scopes.isEmpty() && this.scopes.peek()[expr.name.lexeme] === false) {
-            OutputHandlingService.getInstance().syntaxErrorOccured(`Can't read local variable in its own initializer ${expr.name.line}`);
+            OutputHandlingService.getInstance().errorOccured(`Can't read local variable in its own initializer ${expr.name.line}`);
         }
 
         this.resolveLocal(expr, expr.name);
@@ -125,21 +124,28 @@ export class Resolver implements ast.SyntaxVisitor<void, void> {
         return;
     }
     visitGetExpr(expr: ast.GetExpr): void {
-        throw new Error("Method not implemented.");
+        this.resolve(expr.object);
     }
     visitSetExpr(expr: ast.SetExpr): void {
-        throw new Error("Method not implemented.");
+        this.resolve(expr.value);
+        this.resolve(expr.object);
     }
     visitThisExpr(expr: ast.ThisExpr): void {
         if (this.currentClass == ClassType.NONE) {
-            OutputHandlingService.getInstance().syntaxErrorOccured("Can't use 'this' outside of a class.")
+            OutputHandlingService.getInstance().errorOccured("Can't use 'this' outside of a class.")
             return;
         }
         this.resolveLocal(expr, expr.keyword);
         return;
     }
     visitSuperExpr(expr: ast.SuperExpr): void {
-        throw new Error("Method not implemented.");
+        if (this.currentClass == ClassType.NONE) {
+            OutputHandlingService.getInstance().errorOccured("Can't use 'super' outside of a class.");
+        } else if (this.currentClass != ClassType.SUBCLASS) {
+            OutputHandlingService.getInstance().errorOccured("Can't use 'super' in a class with no superclass.");
+        }
+       this.resolveLocal(expr, expr.keyword);
+       return;
     }
     visitExpressionStmt(stmt: ast.ExpressionStmt): void {
         this.resolve(stmt.expression);
@@ -185,11 +191,11 @@ export class Resolver implements ast.SyntaxVisitor<void, void> {
     }
     visitReturnStmt(stmt: ast.ReturnStmt): void {
         if (this.currentFunction == FunctionType.NONE) {
-            OutputHandlingService.getInstance().syntaxErrorOccured(`Can't return from top-level code.`);
+            OutputHandlingService.getInstance().errorOccured(`Can't return from top-level code.`);
         }
         if (stmt.value != null) {
             if (this.currentFunction == FunctionType.INITIALIZER) {
-                OutputHandlingService.getInstance().syntaxErrorOccured("Can't return a value from an initializer.")
+                OutputHandlingService.getInstance().errorOccured("Can't return a value from an initializer.")
             }
             this.resolve(stmt.value);
         }
@@ -198,20 +204,37 @@ export class Resolver implements ast.SyntaxVisitor<void, void> {
     visitClassStmt(stmt: ast.ClassStmt): void {
         const enclosingClass = this.currentClass;
         this.currentClass = ClassType.CLASS;
+    
         this.declare(stmt.name);
         this.define(stmt.name);
+    
+        if (stmt.superclass !== null) {
+          if (stmt.name.lexeme === stmt.superclass.name.lexeme) {
+         
+            OutputHandlingService.getInstance().errorOccured(`A class can't inherit from itself, ${stmt.superclass.name.line}`);
 
+          } else {
+            this.currentClass = ClassType.SUBCLASS;
+            this.resolve(stmt.superclass);
+    
+            this.beginScope();
+            this.scopes.peek()["super"] = true;
+          }
+        }
+    
         this.beginScope();
-        this.scopes.peek()['this'] = true;
-
-        stmt.methods.forEach(method => {
-            let declaration = FunctionType.METHOD;
-            if (method.name.lexeme == "init") {
-                declaration = FunctionType.INITIALIZER;
-            }
-            this.resolveFunction(method, declaration);
-        });
+        this.scopes.peek()["this"] = true;
+        stmt.methods.forEach((method) => {
+          const declaration =
+            method.name.lexeme === "init"
+              ? FunctionType.INITIALIZER
+              : FunctionType.METHOD
+          this.resolveFunction(method, declaration);
+        })
         this.endScope();
+    
+        if (stmt.superclass !== null) this.endScope();
+    
         this.currentClass = enclosingClass;
         return;
     }

@@ -11,24 +11,28 @@ import { OutputHandlingService } from '../services/error-handling.service';
 export class LoxScannerComponent implements OnInit {
 
   constructor(
-    private errorHnadingService: OutputHandlingService,
+    private outputHnadingService: OutputHandlingService,
     private _snackBar: MatSnackBar
     ) { }
 
-  syntaxError$ = this.errorHnadingService.syntaxErrorOccured$;
+  error$ = this.outputHnadingService.errorOccured$;
+
+  printSubject$ = this.outputHnadingService.printSubject$;
 
   ngOnInit(): void {
     this.run();
-    this.syntaxError$.subscribe((x) => {
-    })
-    this.errorHnadingService.syntaxErrorOccured$.subscribe((e) => {
+    this.error$.subscribe((e) => {
       if(e)
       this._snackBar.open(e, 'close', {
         panelClass: ['mat-toolbar', 'mat-warn', 'error'],
         politeness: 'assertive',
         duration: 2000
       })
-      })
+    })
+
+    this.printSubject$.subscribe((output) => {
+
+    });
   }
 
   value = ''
