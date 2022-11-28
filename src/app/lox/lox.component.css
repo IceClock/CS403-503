@@ -39,13 +39,12 @@ table {
   }
 
   mat-accordion {
-    flex-grow: 1;
-    
+    width: 50%;
     }
 
     ::ng-deep .mat-expansion-panel-body {
-        max-height: 500px;
-        height: 500px;
+        max-height: 300px;
+        height: 100px;
         overflow-y: auto;
         font-family: monospace;
     }
