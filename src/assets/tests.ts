@@ -3143,46 +3143,501 @@ export const TESTS = {
   ],
   "operator" : [
     {
-      testLabel: '',
+      testLabel: 'Add',
       testValue: 
       `
+      print 123 + 456; // expect: 579
+      print "str" + "ing"; // expect: string
+      `
+    },
+    {
+      testLabel: 'Add bool',
+      testValue: 
+      `
+      true + nil; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Add bool num',
+      testValue: 
+      `
+      true + 123; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Add bool string',
+      testValue: 
+      `
+      true + "s"; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Add nil nil',
+      testValue: 
+      `
+      nil + nil; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Add num nil',
+      testValue: 
+      `
+      1 + nil; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Add string nil',
+      testValue: 
+      `
+      "s" + nil; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Comparision',
+      testValue: 
+      `
+      print 1 < 2;    // expect: true
+      print 2 < 2;    // expect: false
+      print 2 < 1;    // expect: false
+      
+      print 1 <= 2;    // expect: true
+      print 2 <= 2;    // expect: true
+      print 2 <= 1;    // expect: false
+      
+      print 1 > 2;    // expect: false
+      print 2 > 2;    // expect: false
+      print 2 > 1;    // expect: true
+      
+      print 1 >= 2;    // expect: false
+      print 2 >= 2;    // expect: true
+      print 2 >= 1;    // expect: true
+      
+      // Zero and negative zero compare the same.
+      print 0 < -0; // expect: false
+      print -0 < 0; // expect: false
+      print 0 > -0; // expect: false
+      print -0 > 0; // expect: false
+      print 0 <= -0; // expect: true
+      print -0 <= 0; // expect: true
+      print 0 >= -0; // expect: true
+      print -0 >= 0; // expect: true
+      `
+    },
+    {
+      testLabel: 'Divide',
+      testValue: 
+      `
+      print 8 / 2;         // expect: 4
+      print 12.34 / 12.34;  // expect: 1
+      `
+    },
+    {
+      testLabel: 'Divide non-num num',
+      testValue: 
+      `
+      "1" / 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Divide num non-num',
+      testValue: 
+      `
+      1 / "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Equals',
+      testValue: 
+      `
+      print nil == nil; // expect: true
 
+      print true == true; // expect: true
+      print true == false; // expect: false
+      
+      print 1 == 1; // expect: true
+      print 1 == 2; // expect: false
+      
+      print "str" == "str"; // expect: true
+      print "str" == "ing"; // expect: false
+      
+      print nil == false; // expect: false
+      print false == 0; // expect: false
+      print 0 == "0"; // expect: false
+      `
+    },
+    {
+      testLabel: 'Equals class',
+      testValue: 
+      `
+      // Bound methods have identity equality.
+      class Foo {}
+      class Bar {}
+      
+      print Foo == Foo; // expect: true
+      print Foo == Bar; // expect: false
+      print Bar == Foo; // expect: false
+      print Bar == Bar; // expect: true
+      
+      print Foo == "Foo"; // expect: false
+      print Foo == nil;   // expect: false
+      print Foo == 123;   // expect: false
+      print Foo == true;  // expect: false
+      `
+    },
+    {
+      testLabel: 'Equals method',
+      testValue: 
+      `
+      // Bound methods have identity equality.
+      class Foo {
+        method() {}
+      }
+      
+      var foo = Foo();
+      var fooMethod = foo.method;
+      
+      // Same bound method.
+      print fooMethod == fooMethod; // expect: true
+      
+      // Different closurizations.
+      print foo.method == foo.method; // expect: false
+      `
+    },
+    {
+      testLabel: 'Greater non-num num',
+      testValue: 
+      `
+      "1" > 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Greater num non-num',
+      testValue: 
+      `
+      1 > "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Greater or equal non-num num',
+      testValue: 
+      `
+      "1" >= 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Greater or equal num non-num',
+      testValue: 
+      `
+      1 >= "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Less non-num num',
+      testValue: 
+      `
+      "1" < 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Less num non-num',
+      testValue: 
+      `
+      1 < "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Less or equal non-num num',
+      testValue: 
+      `
+      "1" <= 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Less or equal num non-num',
+      testValue: 
+      `
+      1 <= "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Multiply',
+      testValue: 
+      `
+      print 5 * 3; // expect: 15
+      print 12.34 * 0.3; // expect: 3.702
+      `
+    },
+    {
+      testLabel: 'Multiply non-num num',
+      testValue: 
+      `
+      "1" * 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Multiply num non-num',
+      testValue: 
+      `
+      1 * "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Negate',
+      testValue: 
+      `
+      print -(3); // expect: -3
+      print --(3); // expect: 3
+      print ---(3); // expect: -3
+      `
+    },
+    {
+      testLabel: 'Negate non-num',
+      testValue: 
+      `
+      -"s"; // expect runtime error: Operand must be a number.
+      `
+    },
+    {
+      testLabel: 'Not',
+      testValue: 
+      `
+      print !true;     // expect: false
+      print !false;    // expect: true
+      print !!true;    // expect: true
+      
+      print !123;      // expect: false
+      print !0;        // expect: false
+      
+      print !nil;     // expect: true
+      
+      print !"";       // expect: false
+      
+      fun foo() {}
+      print !foo;      // expect: false
+      `
+    },
+    {
+      testLabel: 'Not class',
+      testValue: 
+      `
+      class Bar {}
+      print !Bar;      // expect: false
+      print !Bar();    // expect: false
+      `
+    },
+    {
+      testLabel: 'Not equals',
+      testValue: 
+      `
+      print nil != nil; // expect: false
+
+      print true != true; // expect: false
+      print true != false; // expect: true
+      
+      print 1 != 1; // expect: false
+      print 1 != 2; // expect: true
+      
+      print "str" != "str"; // expect: false
+      print "str" != "ing"; // expect: true
+      
+      print nil != false; // expect: true
+      print false != 0; // expect: true
+      print 0 != "0"; // expect: true
+      `
+    },
+    {
+      testLabel: 'Subtract',
+      testValue: 
+      `
+      print 4 - 3; // expect: 1
+      print 1.2 - 1.2; // expect: 0
+      `
+    },
+    {
+      testLabel: 'Subtract non-num num',
+      testValue: 
+      `
+      "1" - 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Subtract num non-num',
+      testValue: 
+      `
+      1 - "1"; // expect runtime error: Operands must be numbers.
       `
     },
   ],
   "print" : [
     {
-      testLabel: '',
+      testLabel: 'Missing argument',
       testValue: 
       `
-
+      // [line 2] Error at ';': Expect expression.
+      print;
       `
     },
   ],
   "regression" : [
     {
-      testLabel: '',
+      testLabel: '394',
       testValue: 
       `
-
+      {
+        class A {}
+        class B < A {}
+        print B; // expect: B
+      }
+      `
+    },
+    {
+      testLabel: '40',
+      testValue: 
+      `
+      fun caller(g) {
+        g();
+        // g should be a function, not nil.
+        print g == nil; // expect: false
+      }
+      
+      fun callCaller() {
+        var capturedVar = "before";
+        var a = "a";
+      
+        fun f() {
+          // Commenting the next line out prevents the bug!
+          capturedVar = "after";
+      
+          // Returning anything also fixes it, even nil:
+          //return nil;
+        }
+      
+        caller(f);
+      }
+      
+      callCaller();
       `
     },
   ],
   "return" : [
     {
-      testLabel: '',
+      testLabel: 'After else',
       testValue: 
       `
 
       `
     },
-  ],
-  "string" : [
     {
-      testLabel: '',
+      testLabel: 'After if',
       testValue: 
       `
 
+      `
+    },
+    {
+      testLabel: 'After while',
+      testValue: 
+      `
+      fun f() {
+        if (false) "no"; else return "ok";
+      }
+      
+      print f(); // expect: ok
+      `
+    },
+    {
+      testLabel: 'At top level',
+      testValue: 
+      `
+      fun f() {
+        if (true) return "ok";
+      }
+      
+      print f(); // expect: ok
+      `
+    },
+    {
+      testLabel: 'In function',
+      testValue: 
+      `
+      fun f() {
+        while (true) return "ok";
+      }
+      
+      print f(); // expect: ok
+      `
+    },
+    {
+      testLabel: 'In method',
+      testValue: 
+      `
+      class Foo {
+        method() {
+          return "ok";
+          print "bad";
+        }
+      }
+      
+      print Foo().method(); // expect: ok
+      `
+    },
+    {
+      testLabel: 'Return nil if no value',
+      testValue: 
+      `
+      fun f() {
+        return;
+        print "bad";
+      }
+      
+      print f(); // expect: nil
+      `
+    },
+  ],
+  "string" : [
+    {
+      testLabel: 'Error after multiline',
+      testValue: 
+      `
+      // Tests that we correctly track the line info across multiline strings.
+      var a = "1
+      2
+      3
+      ";
+      
+      err; // // expect runtime error: Undefined variable 'err'.
+      `
+    },
+    {
+      testLabel: 'Litrals',
+      testValue: 
+      `
+      print "(" + "" + ")";   // expect: ()
+      print "a string"; // expect: a string
+      
+      // Non-ASCII.
+      print "A~¶Þॐஃ"; // expect: A~¶Þॐஃ
+      `
+    },
+    {
+      testLabel: 'Multiline',
+      testValue: 
+      `
+      var a = "1
+      2
+      3";
+      print a;
+      // expect: 1
+      // expect: 2
+      // expect: 3
+      `
+    },
+    {
+      testLabel: 'Unterminated',
+      testValue: 
+      `
+      // [line 2] Error: Unterminated string.
+      "this string has no close quote
       `
     },
   ],
