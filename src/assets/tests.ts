@@ -1,3 +1,7 @@
+/**
+ * Test cases source
+ *    https://github.com/iechevarria/pylox/tree/master/test
+ */
 export const TESTS = {
   "assignment" : [
     {
