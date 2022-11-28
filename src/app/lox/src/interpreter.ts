@@ -88,7 +88,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
         const distance = this.locals.get(expr);
         if (distance !== undefined) return this.environment.getAt(distance, name);
         else return this.globals.get(name);
-      }
+    }
 
 
     visitBinaryExpr(expr: ast.BinaryExpr) {
@@ -128,7 +128,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
                 if (typeof left === "string" && typeof right === "string") {
                     return left + right;
                 }
-                OutputHandlingService.getInstance().errorOccured(`${expr.operator} operands must be two numbers or two strings.`)
+              throw OutputHandlingService.getInstance().errorOccured(`${expr.operator} operands must be two numbers or two strings.`);
         }
 
         // Unreachable.
@@ -161,7 +161,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
         const value = this.evaluate(expr.value);
 
         const distance = this.locals.get(expr);
-        if (distance != null) {
+        if (distance != undefined) {
             this.environment.assignAt(distance, expr.name, value);
         } else {
             this.globals.assign(expr.name, value);
@@ -186,7 +186,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
         });
 
         if(!(callee instanceof types.LoxCallable)) {
-            OutputHandlingService.getInstance().errorOccured(`Can only call functions and classes, ${expr.paren}`);
+           throw OutputHandlingService.getInstance().errorOccured(`Can only call functions and classes, ${expr.paren}`);
         }
 
         if (args.length !== callee.arity()) {
@@ -196,8 +196,8 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
           return callee.call(this, args);
     }
     visitGetExpr(expr: ast.GetExpr) {
-      const object = this.evaluate(expr.object)
-      if (object instanceof types.LoxInstance) return object.get(expr.name)
+      const object = this.evaluate(expr.object);
+      if (object instanceof types.LoxInstance) return object.get(expr.name);
   
       throw OutputHandlingService.getInstance().errorOccured(`Only class instances have properties ${expr.name}`);
     }
@@ -223,12 +223,22 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
 
        const superClass = this.environment.getAt(distance, expr.keyword);
        const object = this.environment.enclosing?.getThis();
-
        const method = superClass.findMethod(expr.method.lexeme);
+
+       if (!(superClass instanceof types.LoxClass)) {
+        // Unreachable
+        throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage");
+      }
+
+      if (!(object instanceof types.LoxInstance)) {
+        // Unreachable
+        throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage");
+      }
 
        if (method == null) {
         throw OutputHandlingService.getInstance().errorOccured(`Undefined property ${expr.method.lexeme}.`)
        }
+
        return method.bind(object);
 
     }
@@ -246,7 +256,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
         this.environment.define(stmt.name.lexeme, value);
     }
     visitBlockStmt(stmt: ast.BlockStmt): void {
-        throw new Error("Method not implemented.");
+        this.executeBlock(stmt.statements, new Environment(this.environment));
     }
     visitIfStmt(stmt: ast.IfStmt): void {
         if (this.isTruthy(this.evaluate(stmt.condition))) {
@@ -277,7 +287,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
       if (stmt.superclass != null) {
         superclass = this.evaluate(stmt.superclass);
         if(!(superclass instanceof types.LoxClass)) {
-          throw OutputHandlingService.getInstance().errorOccured("Superclass must be a class.");
+          throw OutputHandlingService.getInstance().errorOccured(`Superclass must be a class, ${stmt.superclass.name}`);
         }
       }
 
@@ -347,7 +357,10 @@ export class Environment {
   
     assignAt(distance: number, name: Token, value: any): void {
       const environment = this.ancestor(distance);
-      if (environment !== null) environment.values[name.lexeme] = value;
+      if (environment !== null) {
+        environment.values[name.lexeme] = value;
+        return;
+      }
       // Unreachable (just in case)
       throw OutputHandlingService.getInstance().errorOccured(`Undefined variable '${name.lexeme}', ${name}`);
     }
