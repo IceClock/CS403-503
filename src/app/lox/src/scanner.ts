@@ -173,11 +173,11 @@ const TOKEN_STRING: Record<number, string> = {
             case '"': 
             this.string();
                 break;
-            case 'o':
-                if (this.match('r')) {
-                    this.addToken(TokenType.OR);
-                }
-                break;
+            // case 'o':
+            //     if (this.match('r')) {
+            //         this.addToken(TokenType.OR);
+            //     }
+            //     break;
             default:
                 if (this.isDigit(c)) {
                     this.number();
