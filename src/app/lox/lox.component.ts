@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TESTS } from 'src/assets/tests';
 import { OutputHandlingService } from '../services/error-handling.service';
 import { AstPrinter } from './src/ast';
 import { Interpreter } from './src/interpreter';
@@ -16,6 +17,45 @@ import { Scanner } from './src/scanner';
 export class LoxComponent implements OnInit {
 
   panelOpenState = false;
+
+  testCases = TESTS;
+
+  testCatigories = [
+    "assignment",
+    "block",
+    "bool",
+    "call",
+    "class",
+    "closure",
+    "comments",
+    "constructor",
+    "field",
+    "for",
+    "function",
+    "if",
+    "inheritance",
+    "logical_operator",
+    "method",
+    "misc",
+    "nil",
+    "number",
+    "operator",
+    "print",
+    "regression",
+    "return",
+    "string",
+    "super",
+    "this",
+    "variable",
+    "while",
+  ];
+
+  tests:{
+    testLabel: string;
+    testValue: string;
+    }[] = [];
+
+  selectedCategory = "";
 
   constructor(
     private outputHnadingService: OutputHandlingService,
@@ -41,89 +81,100 @@ export class LoxComponent implements OnInit {
     });
   }
 
-  value = '';
+  categoryChanged(category: string) {
+    switch (category) {
+      case "assignment":
+        this.tests = this.testCases.assignment;
+        break;
+      case "block":
+        this.tests = this.testCases.block;
+        break;
+      case "bool":
+        this.tests = this.testCases.bool;
+        break;
+      case "call":
+        this.tests = this.testCases.call;
+        break;
+      case "class":
+        this.tests = this.testCases.class;
+        break;
+      case "closure":
+        this.tests = this.testCases.closure;
+        break;
+      case "comments":
+        this.tests = this.testCases.comments;
+        break;
+      case "constructor":
+        this.tests = this.testCases.constructors;
+        break;
+      case "field":
+        this.tests = this.testCases.field;
+        break;
+      case "for":
+        this.tests = this.testCases.for;
+        break;
+      case "function":
+        this.tests = this.testCases.function;
+        break;
+      case "if":
+        this.tests = this.testCases.if;
+        break;
+      case "logical_operator":
+        this.tests = this.testCases.logical_operator;
+        break;
+      case "misc":
+        this.tests = this.testCases.misc;
+        break;
+      case "nil":
+        this.tests = this.testCases.nil;
+        break;
+      case "number":
+        this.tests = this.testCases.number;
+        break;
+      case "operator":
+        this.tests = this.testCases.operator;
+        break;
+      case "print":
+        this.tests = this.testCases.print;
+        break;
+      case "regression":
+        this.tests = this.testCases.regression;
+        break;
+      case "return":
+        this.tests = this.testCases.return;
+        break;
+      case "string":
+        this.tests = this.testCases.string;
+        break;
+      case "super":
+        this.tests = this.testCases.super;
+        break;
+      case "this":
+        this.tests = this.testCases.this;
+        break;
+      case "variable":
+        this.tests = this.testCases.variable;
+        break;
+      case "while":
+        this.tests = this.testCases.while;
+        break;
+      default:
+        this.tests = [];
+        break;
+    }
+  }
+
+  testValue = '';
   output = '';
   printingStmts: string[] = [];
   logs: string[] = [];
   errors: string[] = [];
 
-  tests = [
-    {testValue: 'print "Hello, world!";', testLabel: 'Hello World'},
-    {testValue: `
-    var a = "a";
-    var b = "b";
-    var c = "c";
-    
-    // Assignment is right-associative.
-    a = b = c;
-    print a; // expect: c
-    print b; // expect: c
-    print c; // expect: c`, testLabel: 'Associativity'},
-    {testValue: `
-      var a = "before";
-      print a; // expect: before
-
-      a = "after";
-      print a; // expect: after
-
-      print a = "arg"; // expect: arg
-      print a; // expect: arg`, testLabel: 'Global'},
-    {testValue: `
-    var a = "a";
-    (a) = "value"; // Error at '=': Invalid assignment target.
-      `, testLabel: 'Grouping'},
-    {testValue: `
-    var a = "a";
-    var b = "b";
-    a + b = "value"; // Error at '=': Invalid assignment target.
-      `, testLabel: 'Infix operator'},
-    {testValue: `
-    {
-      var a = "before";
-      print a; // expect: before
-    
-      a = "after";
-      print a; // expect: after
-    
-      print a = "arg"; // expect: arg
-      print a; // expect: arg
-    }
-      `, testLabel: 'Local'},
-    {testValue: `
-    var a = "a";
-    !a = "value"; // Error at '=': Invalid assignment target.
-      `, testLabel: 'Prefix operator'},
-    {testValue: `
-    // Assignment on RHS of variable.
-    var a = "before";
-    var c = a = "var";
-    print a; // expect: var
-    print c; // expect: var
-      `, testLabel: 'Syntax'},
-    {testValue: `
-    class Foo {
-      Foo() {
-        this = "value"; // Error at '=': Invalid assignment target.
-      }
-    }
-    
-    Foo();
-      `, testLabel: 'To this'},
-    {testValue: `
-    unknown = "what"; // expect runtime error: Undefined variable 'unknown'.
-      `, testLabel: 'Undefined'},
-    {testValue: `
-      `, testLabel: ''},
-    {testValue: `
-      `, testLabel: ''},
-
-  ]
-
   run() {
     this.printingStmts = [];
     let interpreter = new Interpreter();
     let resolver = new Resolver(interpreter);
-    let scanner = new Scanner(this.value);
+    let scanner = new Scanner(this.testValue);
     let tokens = scanner.scanTokens();
     let parser = new Parser(tokens);
     const [statements, expr] = parser.parseRepl();
@@ -146,7 +197,7 @@ export class LoxComponent implements OnInit {
   }
 
   clear() {
-    this.value = '';
+    this.testValue = '';
     this.run();
     this.errors = [];
     this.logs = [];
