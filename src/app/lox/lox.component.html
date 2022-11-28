@@ -5,29 +5,35 @@
       <h3>
         Parser input
       </h3>
-      <mat-form-field appearance="outline" >
+      <mat-form-field appearance="outline">
+        <mat-label>Pick a category</mat-label>
+        <mat-select [(value)]="selectedCategory" (selectionChange)="categoryChanged(selectedCategory)">
+          <mat-option [value]="''">Select</mat-option>
+          <mat-option *ngFor="let cat of testCatigories" [value]="cat">{{cat}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
         <mat-label>Pick a test</mat-label>
-        <mat-select [(value)]="value" (selectionChange)="run()">
+        <mat-select [(value)]="testValue" (selectionChange)="run()" [disabled]="!selectedCategory">
           <mat-option [value]="''">Select</mat-option>
           <mat-option *ngFor="let test of tests" [value]="test.testValue">{{test.testLabel}}</mat-option>
         </mat-select>
       </mat-form-field>
     </mat-card-subtitle>
     <mat-card-content class="input-container">
-      <mat-form-field class="input-feild " appearance="outline">
+      <mat-form-field class="input-feild " appearance="outline" floatLabel="always">
         <mat-label>Parser input</mat-label>
-        <textarea matInput type="text" style="height: 200px;" placeholder=">" [(ngModel)]="value"></textarea>
+        <textarea matInput type="text" placeholder=">" [(ngModel)]="testValue"></textarea>
         <div class="action-bar">
           <button mat-raised-button color="primary" aria-label="Run" (click)="run()">
             Run 
             <mat-icon>start</mat-icon>
           </button>  
-          <button *ngIf="value" mat-raised-button color="warn" aria-label="Clear" (click)="clear()">
+          <button *ngIf="testValue" mat-raised-button color="warn" aria-label="Clear" (click)="clear()">
             <mat-icon>close</mat-icon>
              Clear
           </button>  
         </div>
-
     </mat-form-field>
     <div class="logs">
       <mat-accordion>
