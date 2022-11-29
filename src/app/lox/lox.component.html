@@ -5,11 +5,12 @@
       <h3>
         Parser input
       </h3>
+      <mat-slide-toggle [(ngModel)]="spanishMode" (change)="modeChanged()">Spanish Mode {{spanishMode ? 'Active' : 'Inactive'}}</mat-slide-toggle>
       <mat-form-field appearance="outline">
         <mat-label>Pick a category</mat-label>
         <mat-select [(value)]="selectedCategory" (selectionChange)="categoryChanged(selectedCategory)">
           <mat-option [value]="''">Select</mat-option>
-          <mat-option *ngFor="let cat of testCatigories" [value]="cat">{{cat}}</mat-option>
+          <mat-option *ngFor="let cat of testCategories" [value]="cat">{{cat}}</mat-option>
         </mat-select>
       </mat-form-field>
       <mat-form-field appearance="outline">

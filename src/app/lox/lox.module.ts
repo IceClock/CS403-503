@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { LoxComponent } from "./lox.component";
 import { LoxRoutingModule } from "./lox-routing.module";
-
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 @NgModule({
     declarations: [
         LoxComponent
@@ -20,7 +20,8 @@ import { LoxRoutingModule } from "./lox-routing.module";
         MatTableModule,
         MatSelectModule,
         MatSnackBarModule,
-        LoxRoutingModule
+        LoxRoutingModule,
+        MatSlideToggleModule
     ],
     exports: [
         LoxComponent

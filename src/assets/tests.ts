@@ -3676,5 +3676,14 @@ export const TESTS = {
 
       `
     },
+  ],
+  "Spanish" : [
+    {
+      testLabel: 'Test 1',
+      testValue: 
+      `
+      123
+      `
+    },
   ]
 }
