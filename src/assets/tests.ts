@@ -18,7 +18,7 @@ export const TESTS = {
     print b; // expect: c
     print c; // expect: c
     `
-  },
+    },
     {
       testLabel: 'Global',
       testValue:
@@ -3679,11 +3679,1193 @@ export const TESTS = {
   ],
   "Spanish" : [
     {
-      testLabel: 'Test 1',
+      testLabel: 'Assignment: Associativity',
       testValue: 
       `
-      123
+      variable a = "a";
+      variable b = "b";
+      variable c = "c";
+      
+      // Assignment is right-associative.
+      a = b = c;
+      imprima a; // expect: c
+      imprima b; // expect: c
+      imprima c; // expect: c
       `
     },
+    {
+      testLabel: 'Assignment: Global',
+      testValue:
+      `
+      variable a = "antes";
+      imprima a; // expect: antes
+
+      a = "después";
+      imprima a; // expect: después
+
+      imprima a = "arg"; // expect: arg
+      imprima a; // expect: arg
+      `
+    },
+    {
+      testLabel: 'Assignment: Grouping',
+      testValue: 
+      `
+      variable a = "a";
+      (a) = "valor"; // Error at '=': Invalid assignment target.
+      `
+    },
+    {
+      testLabel: 'Assignment: Infix operator',
+      testValue: 
+      `
+      variable a = "a";
+      variable b = "b";
+      a + b = "valor"; // Error at '=': Invalid assignment target.
+      `
+    },
+    {
+      testLabel: 'Assignment: Local',
+      testValue: `
+      {
+        variable a = "antes";
+        imprima a; // expect: before
+      
+        a = "después";
+        imprima a; // expect: after
+      
+        imprima a = "arg"; // expect: arg
+        imprima a; // expect: arg
+      }
+      `
+    },
+    {
+      testLabel: 'Assignment: Prefix operator',
+      testValue: 
+      `
+      var a = "a";
+      !a = "value"; // Error at '=': Invalid assignment target.
+      `
+    },
+    {
+      testLabel: 'Assignment: Syntax',
+      testValue: 
+      `
+      // Assignment on RHS of variable.
+      var a = "before";
+      var c = a = "var";
+      print a; // expect: var
+      print c; // expect: var
+      `
+    },
+    {
+      testLabel: 'Assignment: To this',
+      testValue: 
+      `
+      clase Foo {
+        Foo() {
+          este = "valor"; // Error at '=': Invalid assignment target.
+        }
+      }
+      
+      Foo();
+      `, 
+    },
+    {
+      testLabel: 'Assignment: Undefined',
+      testValue: 
+      `
+      desconocido = "qué!!!"; // expect runtime error: Undefined variable 'desconocido'.
+      ` 
+    },
+    {
+      testLabel: 'Block: Empty',
+      testValue: 
+      `
+      {} // By itself.
+      
+      // In a statement.
+      si (verdadero) {}
+      si (falso) {} sino {}
+      
+      imprima "ok"; // expect: ok
+      `
+    },
+    {
+      testLabel: 'Block: Scope',
+      testValue:
+       `
+      variable a = "afuera";
+      
+      {
+        variable a = "adentro";
+        imprima a;                // expect: adentro
+      }
+      
+      imprima a;                  // expect: afuera
+      `
+    },
+    {
+      testLabel: 'Bool: Equality',
+      testValue: 
+      `
+      imprima verdadero == verdadero;    // expect: true
+      imprima verdadero == falso;        // expect: false
+      imprima falso == verdadero;        // expect: false
+      imprima falso == falso;            // expect: true
+      
+      // Not equal to other types.
+      imprima verdadero == 1;            // expect: false
+      imprima falso == 0;                // expect: false
+      imprima verdadero == "verdadero";  // expect: false
+      imprima falso == "falso";          // expect: false
+      imprima falso == "";               // expect: false
+      
+      imprima verdadero != verdadero;    // expect: false
+      imprima verdadero != falso;        // expect: true
+      imprima falso != verdadero;        // expect: true
+      imprima falso != falso;            // expect: false
+      
+      // Not equal to other types.
+      imprima verdadero != 1;            // expect: true
+      imprima falso != 0;                // expect: true
+      imprima verdadero != "verdadero";  // expect: true
+      imprima falso != "falso";          // expect: true
+      imprima falso != "";               // expect: true
+      `
+    },
+    {
+      testLabel: 'Bool: Not',
+      testValue: 
+      `
+      imprima !verdadero;    // expect: false
+      imprima !falso;        // expect: true
+      imprima !!verdadero;   // expect: true
+      `
+    },
+    {
+      testLabel: 'Bool: Bool',
+      testValue: 
+      `
+      verdadero(); // expect runtime error: Can only call functions and classes.
+      `
+    },
+    {
+      testLabel: 'Call: Nil',
+      testValue: 
+      `
+      nulo(); // expect runtime error: Can only call functions and classes.
+      `
+    },
+    {
+      testLabel: 'Call: Num',
+      testValue:
+       `
+      123(); // expect runtime error: Can only call functions and classes.
+      `
+    },
+    {
+      testLabel: 'Call: Object',
+      testValue: 
+      `
+      clase Foo {}
+      
+      variable foo = Foo();
+      foo(); // expect runtime error: Can only call functions and classes.
+      `
+    },
+    {
+      testLabel: 'Call: String',
+      testValue: 
+      `
+      "str"(); // expect runtime error: Can only call functions and classes.
+      `
+    },
+    {
+      testLabel: 'Call: Correct call',
+      testValue: 
+      `
+      funcion Foo() {
+        imprima "Hola";
+      }
+
+      Foo(); // expect: Hola
+      `
+    },
+    {
+      testLabel: 'Class: Empty',
+      testValue: 
+      `
+      clase Foo {}
+
+      imprima Foo; // expect: Foo
+      `
+    },
+    {
+      testLabel: 'Class: Inherit self',
+      testValue: 
+      `
+      clase Foo < Foo {} // Error at 'Foo': A class can't inherit from itself.
+      `
+    },
+    {
+      testLabel: 'Class: Inherited method',
+      testValue: 
+      `
+      clase Foo {
+        enFoo() {
+          imprima "en foo";
+        }
+      }
+      
+      clase Bar < Foo {
+        enBar() {
+          imprima "en bar";
+        }
+      }
+      
+      clase Baz < Bar {
+        enBaz() {
+          imprima "en baz";
+        }
+      }
+      
+      variable baz = Baz();
+      baz.enFoo(); // expect: en foo
+      baz.enBar(); // expect: en bar
+      baz.enBaz(); // expect: en baz
+      `
+    },
+    {
+      testLabel: 'Class: Local inherit other',
+      testValue: 
+      `
+      clase A {}
+
+      fun f() {
+        clase B < A {}
+        retorne B;
+      }
+      
+      imprima f(); // expect: B
+      `
+    },
+    {
+      testLabel: 'Class: Local inherit self',
+      testValue: 
+      `
+      {
+        clase Foo < Foo {} // Error at 'Foo': A class can't inherit from itself.
+      }
+      `
+    },
+    {
+      testLabel: 'Class: Local refrence self',
+      testValue: 
+      `
+      {
+        clase Foo {
+          retorneMisma() {
+            retorne Foo;
+          }
+        }
+      
+        imprima Foo().retorneMisma(); // expect: Foo
+      }
+      `
+    },
+    {
+      testLabel: 'Class: Reference self',
+      testValue: 
+      `
+      clase Foo {
+        retorneMisma() {
+          retorne Foo;
+        }
+      }
+      
+      imprima Foo().retorneMisma(); // expect: Foo
+      `
+    },
+    {
+      testLabel: 'Closure: Assign to closure',
+      testValue: 
+      `
+      variable f;
+      variable g;
+      
+      {
+        variable local = "local";
+        funcion f_() {
+          imprima local;
+          local = "después f";
+          imprima local;
+        }
+        f = f_;
+      
+        funcion g_() {
+          imprima local;
+          local = "después g";
+          imprima local;
+        }
+        g = g_;
+      }
+      
+      f();
+      // expect: local
+      // expect: después f
+      
+      g();
+      // expect: after f
+      // expect: after g
+      `
+    },
+    {
+      testLabel: 'Closure: Assign to shadowed later',
+      testValue: 
+      `
+      variable a = "global";
+
+      {
+        funcion asignar() {
+          a = "asignada";
+        }
+      
+        variable a = "adentro";
+        asignar();
+        imprima a; // expect: adentro
+      }
+      
+      imprima a; // expect: asignada
+      `
+    },
+    {
+      testLabel: 'Closure: Close over fucntion parameter',
+      testValue: 
+      `
+      variable f;
+
+      funcion foo(parametro) {
+        funcion f_() {
+          imprima parametro;
+        }
+        f = f_;
+      }
+      foo("parámetro");
+      
+      f(); // expect: parámetro
+      `
+    },
+    {
+      testLabel: 'Closure: Close over later variable',
+      testValue: 
+      `
+
+      // This is a regression test. There was a bug where if an upvalue for an
+      // earlier local (here "a") was captured *after* a later one ("b"), then it
+      // would crash because it walked to the end of the upvalue list (correct), but
+      // then didn't handle not finding the variable.
+      
+      funcion f() {
+        variable a = "a";
+        variable b = "b";
+        funcion g() {
+          imprima b; // expect: b
+          imprima a; // expect: a
+        }
+        g();
+      }
+      f();
+      `
+    },
+    {
+      testLabel: 'Closure: Close over method parameter',
+      testValue: 
+      `
+      variable f;
+
+      clase Foo {
+        metodo(parametro) {
+          funcion f_() {
+            imprima parametro;
+          }
+          f = f_;
+        }
+      }
+      
+      Foo().metodo("parámetro");
+      f(); // expect: parámetro
+      `
+    },
+    {
+      testLabel: 'Closure: Closed closure in function',
+      testValue: 
+      `
+      variable f;
+
+      {
+        variable local = "local";
+        funcion f_() {
+          imprima local;
+        }
+        f = f_;
+      }
+      
+      f(); // expect: local
+      `
+    },
+    {
+      testLabel: 'Closure: Nested closure',
+      testValue: 
+      `
+      variable f;
+
+      funcion f1() {
+        variable a = "a";
+        funcion f2() {
+          variable b = "b";
+          funcion f3() {
+            variable c = "c";
+            funcion f4() {
+              imprima a;
+              imprima b;
+              imprima c;
+            }
+            f = f4;
+          }
+          f3();
+        }
+        f2();
+      }
+      f1();
+      
+      f();
+      // expect: a
+      // expect: b
+      // expect: c
+      `
+    },
+    {
+      testLabel: 'Closure: Open closure in function',
+      testValue: 
+      `
+      {
+        variable local = "local";
+        funcion f() {
+          imprima local; // expect: local
+        }
+        f();
+      }
+      `
+    },
+    {
+      testLabel: 'Closure: Open closure multiple times',
+      testValue: 
+      `
+      variable f;
+
+      {
+        variable a = "a";
+        funcion f_() {
+          imprima a;
+          imprima a;
+        }
+        f = f_;
+      }
+      
+      f();
+      // expect: a
+      // expect: a
+      `
+    },
+    {
+      testLabel: 'Closure: Reuse closure slot',
+      testValue: 
+      `
+      {
+        variable f;
+      
+        {
+          variable a = "a";
+          funcion f_() { imprima a; }
+          f = f_;
+        }
+      
+        {
+          // Since a is out of scope, the local slot will be reused by b. Make sure
+          // that f still closes over a.
+          variable b = "b";
+          f(); // expect: a
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'Closure: Shadow closure with local',
+      testValue: 
+      `
+      {
+        variable foo = "cierre";
+        funcion f() {
+          {
+            imprima foo; // expect: cierre
+            variable foo = "sombra";
+            imprima foo; // expect: sombra
+          }
+          imprima foo; // expect: cierre
+        }
+        f();
+      }
+      `
+    },
+    {
+      testLabel: 'Closure: Unused closure',
+      testValue: 
+      `
+      // This is a regression test. There was a bug where the VM would try to close
+      // an upvalue even if the upvalue was never created because the codepath for
+      // the closure was not executed.
+      
+      {
+        variable a = "a";
+        if (falso) {
+          funcion foo() { a; }
+        }
+      }
+      
+      // If we get here, we didn't segfault when a went out of scope.
+      imprima "ok"; // expect: ok
+      `
+    },
+    {
+      testLabel: 'Closure: Unused later closure',
+      testValue: 
+      `
+      // This is a regression test. When closing upvalues for discarded locals, it
+      // wouldn't make sure it discarded the upvalue for the correct stack slot.
+      //
+      // Here we create two locals that can be closed over, but only the first one
+      // actually is. When "b" goes out of scope, we need to make sure we don't
+      // prematurely close "a".
+      
+      variable cierre;
+      
+      {
+        variable a = "a";
+      
+        {
+          variable b = "b";
+          funcion retorneA() {
+            retorne a;
+          }
+      
+          cierre = retorneA;
+      
+          si (false) {
+            funcion retorneB() {
+              retorne b;
+            }
+          }
+        }
+      
+        imprima cierre(); // expect: a
+      }
+      `
+    },
+    {
+      testLabel: 'Comments: Line at EOF',
+      testValue: 
+      `
+      imprima "ok"; // expect: ok
+      // comentario
+      `
+    },
+    {
+      testLabel: 'Comments: Only line comment',
+      testValue: 
+      `
+      // comentario
+      `
+    },
+    {
+      testLabel: 'Comments: Only line comment and line',
+      testValue: 
+      `
+      // comentario
+      `
+    },
+    {
+      testLabel: 'Comments: Unicode',
+      testValue: 
+      `
+      // Unicode characters are allowed in comments.
+      //
+      // Latin 1 Supplement: £§¶ÜÞ
+      // Latin Extended-A: ĐĦŋœ
+      // Latin Extended-B: ƂƢƩǁ
+      // Other stuff: ឃᢆ᯽₪ℜ↩⊗┺░
+      // Emoji: ☃☺♣
+      
+      imprima "ok"; // expect: ok
+      `
+    },
+    {
+      testLabel: 'Constructors: Arguments',
+      testValue: 
+      `
+      clase Foo {
+        inicio(a, b) {
+          imprima "inicio"; // expect: inicio
+          este.a = a;
+          este.b = b;
+        }
+      }
+      
+      variable foo = Foo(1, 2);
+      imprima foo.a; // expect: 1
+      imprima foo.b; // expect: 2
+      `
+    },
+    {
+      testLabel: 'Constructors: Call inicio early return',
+      testValue: 
+      `
+      clase Foo {
+        inicio() {
+          imprima "inicio";
+          retorne;
+          imprima "nope";
+        }
+      }
+      
+      variable foo = Foo(); // expect: inicio
+      imprima foo.inicio(); // expect: inicio
+      // expect: Foo instance
+      `
+    },
+    {
+      testLabel: 'Constructors: Call inicio explicitly',
+      testValue: 
+      `
+      clase Foo {
+        inicio(arg) {
+          imprima "Foo.inicio(" + arg + ")";
+          este.campo = "inicio";
+        }
+      }
+      
+      variable foo = Foo("uno"); // expect: Foo.inicio(uno)
+      foo.campo = "campo";
+      
+      variable foo2 = foo.inicio("dos"); // expect: Foo.inicio(dos)
+      imprima foo2; // expect: Foo instance
+      
+      // Make sure inicio() doesn't create a fresh instance.
+      imprima foo.campo; // expect: inicio
+      `
+    },
+    {
+      testLabel: 'Constructors: Default',
+      testValue: 
+      `
+      clase Foo {}
+
+      variable foo = Foo();
+      imprima foo; // expect: Foo instance
+      `
+    },
+    {
+      testLabel: 'Constructors: Default arguments',
+      testValue: 
+      `
+      clase Foo {
+        inicio() {
+          imprima "inicio";
+          retorne;
+          imprima "nope";
+        }
+      }
+      
+      variable foo = Foo(); // expect: inicio
+      imprima foo; // expect: Foo instance
+      `
+    },
+    {
+      testLabel: 'Constructors: Early return',
+      testValue: 
+      `
+      clase Foo {
+        inicio() {
+          imprima "inicio";
+          retorne;
+          imprima "no";
+        }
+      }
+      
+      variable foo = Foo(); // expect: inicio
+      imprima foo; // expect: Foo instance
+      `
+    },
+    {
+      testLabel: 'Constructors: Extra arguments',
+      testValue: 
+      `
+      clase Foo {
+        inicio(a, b) {
+          este.a = a;
+          este.b = b;
+        }
+      }
+      
+      variable foo = Foo(1, 2, 3, 4); // expect runtime error: Expected 2 arguments but got 4.
+      `
+    },
+    {
+      testLabel: 'Constructors: inicio not method',
+      testValue: 
+      `
+      clase Foo {
+        inicio(arg) {
+          imprima "Foo.inicio(" + arg + ")";
+          este.field = "inicio";
+        }
+      }
+      
+      fun inicio() {
+        imprima "no inicializador";
+      }
+      
+      inicio(); // expect: no inicializador
+      `
+    },
+    {
+      testLabel: 'Constructors: Missing arguments',
+      testValue: 
+      `
+      clase Foo {
+        inicio(a, b) {}
+      }
+      
+      variable foo = Foo(1); // expect runtime error: Expected 2 arguments but got 1.
+      `
+    },
+    {
+      testLabel: 'Constructors: Return in nested function',
+      testValue: 
+      `
+      clase Foo {
+        inicio() {
+          fun inicio() {
+            return "bar";
+          }
+          imprima inicio(); // expect: bar
+        }
+      }
+      
+      imprima Foo(); // expect: Foo instance
+      `
+    },
+    {
+      testLabel: 'Constructors: Return value',
+      testValue: 
+      `
+      clase Foo {
+        inicio() {
+          retorne "resultado"; // Error at 'retorne': Can't return a value from an initializer.
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'Field: Call function field',
+      testValue: 
+      `
+      clase Foo {}
+
+      funcion bar(a, b) {
+        imprima "bar";
+        imprima a;
+        imprima b;
+      }
+      
+      variable foo = Foo();
+      foo.bar = bar;
+      
+      foo.bar(1, 2);
+      // expect: bar
+      // expect: 1
+      // expect: 2
+      `
+    },
+    {
+      testLabel: 'Field: Call non-function field',
+      testValue: 
+      `
+      clase Foo {}
+
+      variable foo = Foo();
+      foo.bar = "no es una función";
+      
+      foo.bar(); // expect runtime error: Can only call functions and classes.
+      `
+    },
+    {
+      testLabel: 'Field: Get and set method',
+      testValue: 
+      `
+      // Bound methods have identity equality.
+      clase Foo {
+        metodo(a) {
+          imprima "metodo";
+          imprima a;
+        }
+        other(a) {
+          imprima "otro";
+          imprima a;
+        }
+      }
+      
+      variable foo = Foo();
+      variable metodo = foo.metodo;
+      
+      // Setting a property shadows the instance method.
+      foo.metodo = foo.otro;
+      foo.metodo(1);
+      // expect: otro
+      // expect: 1
+      
+      // The old method handle still points to the original method.
+      metodo(2);
+      // expect: metodo
+      // expect: 2
+      `
+    },
+    {
+      testLabel: 'Field: Get on bool',
+      testValue: 
+      `
+      true.foo; // expect runtime error: Only instances have properties.
+      `
+    },
+    {
+      testLabel: 'Field: Get on class',
+      testValue: 
+      `
+      clase Foo {}
+      Foo.bar; // expect runtime error: Only instances have properties.
+      `
+    },
+    {
+      testLabel: 'Field: Get on function',
+      testValue: 
+      `
+      funcion foo() {}
+
+      foo.bar; // expect runtime error: Only instances have properties.
+      `
+    },
+    {
+      testLabel: 'Field: Get on nil',
+      testValue: 
+      `
+      nulo.foo; // expect runtime error: Only instances have properties.
+      `
+    },
+    {
+      testLabel: 'Field: Get on num',
+      testValue: 
+      `
+      123.foo; // expect runtime error: Only instances have properties.
+      `
+    },
+    {
+      testLabel: 'Field: Get on string',
+      testValue: 
+      `
+      "cadena".foo; // expect runtime error: Only instances have properties.
+      `
+    },
+    {
+      testLabel: 'Field: Many',
+      testValue: 
+      `
+      clase Foo {}
+
+      variable foo = Foo();
+      funcion crearCampos() {
+        foo.aceituna = "aceituna";
+        foo.albaricoque = "albaricoque";
+        foo.arandano = "arándano";
+        foo.boysenberry = "boysenberry";
+        foo.buzon = "buzón";
+        foo.cantalupo = "cantalupo";
+        foo.caqui = "caqui";
+        foo.cereza = "cereza";
+        foo.cherimoya = "cherimoya";
+        foo.ciruela = "ciruela";
+        foo.cirueladamascena = "ciruela damascena";
+        foo.clementina = "clementina";
+        foo.coco = "coco";
+        foo.dragondefruta = "dragon de fruta";
+        foo.durazno = "durazno";
+        foo.duriano = "duriano";
+        foo.enebro = "enebro";
+        foo.fecha = "fecha";
+        foo.feijoa = "feijoa";
+        foo.fisalis = "fisalis";
+        foo.frambuesa = "frambuesa";
+        foo.fresa = "fresa";
+        foo.gotasdemiel = "gotas de miel";
+        foo.granada = "granada";
+        foo.grosella = "grosella";
+        foo.grosellanegra = "grosella negra";
+        foo.guayaba = "guayaba";
+        foo.higo = "higo";
+        foo.jabuticaba = "jabuticaba";
+        foo.jackfruit = "jackfruit";
+        foo.jambul = "jambul";
+        foo.kiwifruit = "kiwifruit";
+        foo.lima = "lima";
+        foo.limon = "limón";
+        foo.longan = "longan";
+        foo.lychee = "lychee";
+        foo.mandarina = "mandarina";
+        foo.mandarino = "mandarino";
+        foo.mango = "mango";
+        foo.manzana = "manzana";
+        foo.maracuya = "maracuyá";
+        foo.marionero = "marionero";
+        foo.melon = "melón";
+        foo.membrillo = "membrillo";
+        foo.milagro = "milagro";
+        foo.mora = "mora";
+        foo.naranja = "naranja";
+        foo.naranjachina = "naranja china";
+        foo.nectarina = "nectarina";
+        foo.nispero = "níspero";
+        foo.nubes = "nubes";
+        foo.palta = "palta";
+        foo.papaya = "papaya";
+        foo.pasa = "pasa";
+        foo.pastilla = "pastilla";
+        foo.pera = "pera";
+        foo.pina = "piña";
+        foo.platano = "plátano";
+        foo.plumcot = "plumcot";
+        foo.pomelo = "pomelo";
+        foo.rambutan = "rambután";
+        foo.salak = "salak";
+        foo.salmon = "salmón";
+        foo.sandia = "sandía";
+        foo.satsuma = "satsuma";
+        foo.tamarillo = "tamarillo";
+        foo.tamarindo = "tamarindo";
+        foo.tomate = "tomate";
+        foo.toronja = "toronja";
+        foo.uva = "uva";
+        foo.yuzu = "yuzu";
+      }
+      
+      crearCampos();
+      
+      funcion imprimaFields() {
+        imprima foo.aceituna;     // expect: aceituna
+        imprima foo.albaricoque;     // expect: albaricoque
+        imprima foo.arandano;     // expect: arandano
+        imprima foo.boysenberry;     // expect: boysenberry
+        imprima foo.buzon;     // expect: buzon
+        imprima foo.cantalupo;     // expect: cantalupo
+        imprima foo.caqui;     // expect: caqui
+        imprima foo.cereza;     // expect: cereza
+        imprima foo.cherimoya;     // expect: cherimoya
+        imprima foo.ciruela;     // expect: ciruela
+        imprima foo.cirueladamascena;     // expect: cirueladamascena
+        imprima foo.clementina;     // expect: clementina
+        imprima foo.coco;     // expect: coco
+        imprima foo.dragondefruta;     // expect: dragondefruta
+        imprima foo.durazno;     // expect: durazno
+        imprima foo.duriano;     // expect: duriano
+        imprima foo.enebro;     // expect: enebro
+        imprima foo.fecha;     // expect: fecha
+        imprima foo.feijoa;     // expect: feijoa
+        imprima foo.fisalis;     // expect: fisalis
+        imprima foo.frambuesa;     // expect: frambuesa
+        imprima foo.fresa;     // expect: fresa
+        imprima foo.gotasdemiel;     // expect: gotasdemiel
+        imprima foo.granada;     // expect: granada
+        imprima foo.grosella;     // expect: grosella
+        imprima foo.grosellanegra;     // expect: grosellanegra
+        imprima foo.guayaba;     // expect: guayaba
+        imprima foo.higo;     // expect: higo
+        imprima foo.jabuticaba;     // expect: jabuticaba
+        imprima foo.jackfruit;     // expect: jackfruit
+        imprima foo.jambul;     // expect: jambul
+        imprima foo.kiwifruit;     // expect: kiwifruit
+        imprima foo.lima;     // expect: lima
+        imprima foo.limon;     // expect: limon
+        imprima foo.longan;     // expect: longan
+        imprima foo.lychee;     // expect: lychee
+        imprima foo.mandarina;     // expect: mandarina
+        imprima foo.mandarino;     // expect: mandarino
+        imprima foo.mango;     // expect: mango
+        imprima foo.manzana;     // expect: manzana
+        imprima foo.maracuya;     // expect: maracuya
+        imprima foo.marionero;     // expect: marionero
+        imprima foo.melon;     // expect: melon
+        imprima foo.membrillo;     // expect: membrillo
+        imprima foo.milagro;     // expect: milagro
+        imprima foo.mora;     // expect: mora
+        imprima foo.naranja;     // expect: naranja
+        imprima foo.naranjachina;     // expect: naranjachina
+        imprima foo.nectarina;     // expect: nectarina
+        imprima foo.nispero;     // expect: nispero
+        imprima foo.nubes;     // expect: nubes
+        imprima foo.palta;     // expect: palta
+        imprima foo.papaya;     // expect: papaya
+        imprima foo.pasa;     // expect: pasa
+        imprima foo.pastilla;     // expect: pastilla
+        imprima foo.pera;     // expect: pera
+        imprima foo.pina;     // expect: pina
+        imprima foo.platano;     // expect: platano
+        imprima foo.plumcot;     // expect: plumcot
+        imprima foo.pomelo;     // expect: pomelo
+        imprima foo.rambutan;     // expect: rambutan
+        imprima foo.salak;     // expect: salak
+        imprima foo.salmon;     // expect: salmon
+        imprima foo.sandia;     // expect: sandia
+        imprima foo.satsuma;     // expect: satsuma
+        imprima foo.tamarillo;     // expect: tamarillo
+        imprima foo.tamarindo;     // expect: tamarindo
+        imprima foo.tomate;     // expect: tomate
+        imprima foo.toronja;     // expect: toronja
+        imprima foo.uva;     // expect: uva
+        imprima foo.yuzu;     // expect: yuzu
+      }
+      
+      imprimaFields();
+      `
+    },
+    {
+      testLabel: 'Field: Method',
+      testValue: 
+      `
+      clase Foo {
+        bar(arg) {
+          imprima arg;
+        }
+      }
+      
+      variable bar = Foo().bar;
+      imprima "método conseguido"; // expect: método conseguido
+      bar("arg");          // expect: arg
+      `
+    },
+    {
+      testLabel: 'Field: Method binds this',
+      testValue: 
+      `
+      clase Foo {
+        sayNombre(a) {
+          imprima este.nombre;
+          imprima a;
+        }
+      }
+      
+      variable foo1 = Foo();
+      foo1.nombre = "foo1";
+      
+      variable foo2 = Foo();
+      foo2.nombre = "foo2";
+      
+      // Store the method reference on another object.
+      foo2.fn = foo1.sayNombre;
+      // Still retains original receiver.
+      foo2.fn(1);
+      // expect: foo1
+      // expect: 1
+      `
+    },
+    {
+      testLabel: 'Field: On instance',
+      testValue: 
+      `
+      clase Foo {}
+
+      variable foo = Foo();
+      
+      imprima foo.bar = "bar value"; // expect: bar value
+      imprima foo.baz = "baz value"; // expect: baz value
+      
+      imprima foo.bar; // expect: bar value
+      imprima foo.baz; // expect: baz value
+      `
+    },
+    {
+      testLabel: 'Field: Set evaluation order',
+      testValue: 
+      `
+      undefined1.bar // expect runtime error: Undefined variable 'undefined1'.
+      = undefined2;
+      `
+    },
+    {
+      testLabel: 'Field: Set on bool',
+      testValue: 
+      `
+      true.foo = “valor”; // expect runtime error: Only instances have fields.
+      `
+    },
+    {
+      testLabel: 'Field: Set on class',
+      testValue: 
+      `
+      clase Foo {}
+      Foo.bar = “valor”; // expect runtime error: Only instances have fields.
+      `
+    },
+    {
+      testLabel: 'Field: Set on function',
+      testValue: 
+      `
+      funcion foo() {}
+
+      foo.bar = “valor”; // expect runtime error: Only instances have fields.
+      `
+    },
+    {
+      testLabel: 'Field: Set on nil',
+      testValue: 
+      `
+      nil.foo = “valor”; // expect runtime error: Only instances have fields.
+      `
+    },
+    {
+      testLabel: 'Field: Set on num',
+      testValue: 
+      `
+      123.foo = “valor”; // expect runtime error: Only instances have fields.
+      `
+    },
+    {
+      testLabel: 'Field: Set on string',
+      testValue: 
+      `
+      "str".foo = “valor”; // expect runtime error: Only instances have fields.
+      `
+    },
+    {
+      testLabel: 'Field: Undefined',
+      testValue: 
+      `
+      clase Foo {}
+      variable foo = Foo();
+      
+      foo.bar; // expect runtime error: Undefined property 'bar'.
+      `
+    },
+ 
+
+   
+
   ]
 }
