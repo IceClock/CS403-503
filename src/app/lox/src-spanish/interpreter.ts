@@ -73,12 +73,12 @@ export class SpanishInterpreter implements ast.SyntaxVisitor<any, void> {
 
     private checkNumberOperand(operator: Token, operand: any) {
         if (typeof operand === "number") return;
-        else throw OutputHandlingService.getInstance().errorOccured(`Operand must be a number, ${operator} operator`)
+        else throw OutputHandlingService.getInstance().errorOccured(`Operand must be a number, ${operator} operator ➔ El operando debe ser un número, ${operator} operador`)
     }
 
     private checkNumberOperands(operator: Token, left: any, right: any) {
         if (typeof left === "number" && typeof right === "number") return;
-        else throw OutputHandlingService.getInstance().errorOccured(`Operands must be numbers, ${operator} operator`)
+        else throw OutputHandlingService.getInstance().errorOccured(`Operands must be numbers, ${operator} operator ➔ `)
     }
 
     private resolve(expr: ast.Expr, depth: number) {
