@@ -224,6 +224,7 @@ export class SpanishResolver implements ast.SyntaxVisitor<void, void> {
     
         this.beginScope();
         this.scopes.peek()["this"] = true;
+        this.scopes.peek()["este"] = true;
         stmt.methods.forEach((method) => {
           const declaration =
             method.name.lexeme === "init" || method.name.lexeme === "inicio"
