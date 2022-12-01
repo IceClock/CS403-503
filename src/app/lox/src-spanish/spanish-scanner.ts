@@ -202,7 +202,7 @@ const TOKEN_STRING: Record<number, string> = {
                     this.identifier();
                 } 
                 else {
-                    OutputHandlingService.getInstance().errorOccured(`${this.line}: Unexpected character.`)
+                    OutputHandlingService.getInstance().errorOccured(`${this.line}: Unexpected character. ➔ ${this.line}: Caracter inesperado.`)
                 }
                 break;
         }
@@ -240,7 +240,7 @@ const TOKEN_STRING: Record<number, string> = {
             this.advance();
         }
         if (this.isAtEnd) {
-            OutputHandlingService.getInstance().errorOccured(`${this.line}: Unterminated string.`);
+            OutputHandlingService.getInstance().errorOccured(`${this.line}: Unterminated string. ➔ ${this.line}: Cadena no finalizada.`);
             return;
         }
         //The closing

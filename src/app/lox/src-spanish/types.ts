@@ -150,7 +150,7 @@ export class LoxInstance {
     const method = this.klass.findMethod(name.lexeme);
     if (method !== null) return method.bind(this);
 
-    OutputHandlingService.getInstance().errorOccured(`Undefined property ${name.lexeme}, name`);
+    OutputHandlingService.getInstance().errorOccured(`Undefined property ${name.lexeme}, name ➔ Propiedad no definida ${name.lexeme}, nombre`);
   }
 
   set(name: Token, value: any): void {

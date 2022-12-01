@@ -70,7 +70,7 @@ export class SpanishResolver implements ast.SyntaxVisitor<void, void> {
 
         const scope = this.scopes.peek();
         if (name.lexeme in scope) {
-            OutputHandlingService.getInstance().errorOccured(`Already variable with this name in this scope ${name.line}`);
+            OutputHandlingService.getInstance().errorOccured(`Already variable with this name in this scope ${name.line} ➔ Ya hay una variable definida con este nombre en este ámbito ${name.line}`);
         }
 
         scope[name.lexeme] = false;
@@ -99,7 +99,7 @@ export class SpanishResolver implements ast.SyntaxVisitor<void, void> {
     }
     visitVariableExpr(expr: ast.VariableExpr): void {
         if (!this.scopes.isEmpty() && this.scopes.peek()[expr.name.lexeme] === false) {
-            OutputHandlingService.getInstance().errorOccured(`Can't read local variable in its own initializer ${expr.name.line}`);
+            OutputHandlingService.getInstance().errorOccured(`Can't read local variable in its own initializer ${expr.name.line} ➔ No es posible leer una variable local en su propio inicializador ${expr.name.line}`);
         }
 
         this.resolveLocal(expr, expr.name);
@@ -132,7 +132,7 @@ export class SpanishResolver implements ast.SyntaxVisitor<void, void> {
     }
     visitThisExpr(expr: ast.ThisExpr): void {
         if (this.currentClass == ClassType.NONE) {
-            OutputHandlingService.getInstance().errorOccured("Can't use 'this' outside of a class.")
+            OutputHandlingService.getInstance().errorOccured("Can't use 'this' or 'este' outside of a class. ➔ No se puede usar 'this' o 'este' fuera de una clase.")
             return;
         }
         this.resolveLocal(expr, expr.keyword);
@@ -140,9 +140,9 @@ export class SpanishResolver implements ast.SyntaxVisitor<void, void> {
     }
     visitSuperExpr(expr: ast.SuperExpr): void {
         if (this.currentClass == ClassType.NONE) {
-            OutputHandlingService.getInstance().errorOccured("Can't use 'super' outside of a class.");
+            OutputHandlingService.getInstance().errorOccured("Can't use 'super' outside of a class. ➔ No se puede usar 'super' fuera de una clase.");
         } else if (this.currentClass != ClassType.SUBCLASS) {
-            OutputHandlingService.getInstance().errorOccured("Can't use 'super' in a class with no superclass.");
+            OutputHandlingService.getInstance().errorOccured("Can't use 'super' in a class with no superclass. ➔ No se puede usar 'super' en una clase sin superclase.");
         }
        this.resolveLocal(expr, expr.keyword);
        return;
@@ -191,11 +191,11 @@ export class SpanishResolver implements ast.SyntaxVisitor<void, void> {
     }
     visitReturnStmt(stmt: ast.ReturnStmt): void {
         if (this.currentFunction == FunctionType.NONE) {
-            OutputHandlingService.getInstance().errorOccured(`Can't return from top-level code.`);
+            OutputHandlingService.getInstance().errorOccured(`Can't return from top-level code. ➔ No se puede retornar desde un nivel superior del código.`);
         }
         if (stmt.value != null) {
             if (this.currentFunction == FunctionType.INITIALIZER) {
-                OutputHandlingService.getInstance().errorOccured("Can't return a value from an initializer.")
+                OutputHandlingService.getInstance().errorOccured("Can't return a value from an initializer. ➔ No se puede retornar un valor desde un inicializador.")
             }
             this.resolve(stmt.value);
         }
@@ -211,7 +211,7 @@ export class SpanishResolver implements ast.SyntaxVisitor<void, void> {
         if (stmt.superclass !== null) {
           if (stmt.name.lexeme === stmt.superclass.name.lexeme) {
          
-            OutputHandlingService.getInstance().errorOccured(`A class can't inherit from itself, ${stmt.superclass.name.line}`);
+            OutputHandlingService.getInstance().errorOccured(`A class can't inherit from itself, ${stmt.superclass.name.line} ➔ Una clase no puede heredar de ella misma, ${stmt.superclass.name.line}`);
 
           } else {
             this.currentClass = ClassType.SUBCLASS;
