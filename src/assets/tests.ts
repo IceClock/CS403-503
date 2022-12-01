@@ -4519,7 +4519,7 @@ export const TESTS = {
           imprima "metodo";
           imprima a;
         }
-        other(a) {
+        otro(a) {
           imprima "otro";
           imprima a;
         }
