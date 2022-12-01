@@ -7,7 +7,10 @@ import { Interpreter } from './src/interpreter';
 import { Parser } from './src/parser';
 import { Resolver } from './src/resolver';
 import { Scanner } from './src/scanner';
-import { SpanishScanner } from './src/spanish-scanner';
+import { SpanishScanner } from './src-spanish/spanish-scanner';
+import { SpanishParser } from './src-spanish/parser';
+import { SpanishInterpreter } from './src-spanish/interpreter';
+import { SpanishResolver } from './src-spanish/resolver';
 
 @Component({
   selector: 'app-lox',
@@ -189,15 +192,15 @@ export class LoxComponent implements OnInit {
 
   run() {
     this.printingStmts = [];
-    let interpreter = new Interpreter();
-    let resolver = new Resolver(interpreter);
     if (this.spanishMode) {
-      let spanishScanner = new SpanishScanner(this.testValue);
-      let tokens = spanishScanner.scanTokens();
-      let parser = new Parser(tokens);
-      const [statements, expr] = parser.parseRepl();
-      const astPrinter = new AstPrinter();
       try {
+        let interpreter = new SpanishInterpreter();
+        let resolver = new SpanishResolver(interpreter);
+        let spanishScanner = new SpanishScanner(this.testValue);
+        let tokens = spanishScanner.scanTokens();
+        let parser = new SpanishParser(tokens);
+        const [statements, expr] = parser.parseRepl();
+        const astPrinter = new AstPrinter();
         if (statements.length > 0) {
          resolver.resolve(statements);
          console.log(astPrinter.stringify(statements));
@@ -214,6 +217,8 @@ export class LoxComponent implements OnInit {
         this.outputHnadingService.errorOccured("Something went wrong.");
       }
     } else {
+      let interpreter = new Interpreter();
+      let resolver = new Resolver(interpreter);
       let scanner = new Scanner(this.testValue);
       let tokens = scanner.scanTokens();
       let parser = new Parser(tokens);
