@@ -3643,39 +3643,828 @@ export const TESTS = {
   ],
   "super" : [
     {
-      testLabel: '',
+      testLabel: 'Bound method',
       testValue: 
       `
+      class A {
+        method(arg) {
+          print "A.method(" + arg + ")";
+        }
+      }
+      
+      class B < A {
+        getClosure() {
+          return super.method;
+        }
+      
+        method(arg) {
+          print "B.method(" + arg + ")";
+        }
+      }
+      
+      
+      var closure = B().getClosure();
+      closure("arg"); // expect: A.method(arg)
+      `
+    },
+    {
+      testLabel: 'Call other method',
+      testValue: 
+      `
+      class Base {
+        foo() {
+          print "Base.foo()";
+        }
+      }
+      
+      class Derived < Base {
+        bar() {
+          print "Derived.bar()";
+          super.foo();
+        }
+      }
+      
+      Derived().bar();
+      // expect: Derived.bar()
+      // expect: Base.foo()
+      `
+    },
+    {
+      testLabel: 'Call same method',
+      testValue: 
+      `
+      class Base {
+        foo() {
+          print "Base.foo()";
+        }
+      }
+      
+      class Derived < Base {
+        foo() {
+          print "Derived.foo()";
+          super.foo();
+        }
+      }
+      
+      Derived().foo();
+      // expect: Derived.foo()
+      // expect: Base.foo()
+      `
+    },
+    {
+      testLabel: 'Closure',
+      testValue: 
+      `
+      class Base {
+        toString() { return "Base"; }
+      }
+      
+      class Derived < Base {
+        getClosure() {
+          fun closure() {
+            return super.toString();
+          }
+          return closure;
+        }
+      
+        toString() { return "Derived"; }
+      }
+      
+      var closure = Derived().getClosure();
+      print closure(); // expect: Base
+      `
+    },
+    {
+      testLabel: 'Constructor',
+      testValue: 
+      `
+      class Base {
+        init(a, b) {
+          print "Base.init(" + a + ", " + b + ")";
+        }
+      }
+      
+      class Derived < Base {
+        init() {
+          print "Derived.init()";
+          super.init("a", "b");
+        }
+      }
+      
+      Derived();
+      // expect: Derived.init()
+      // expect: Base.init(a, b)
+      `
+    },
+    {
+      testLabel: 'Extra arguments',
+      testValue: 
+      `
+      class Base {
+        foo(a, b) {
+          print "Base.foo(" + a + ", " + b + ")";
+        }
+      }
+      
+      class Derived < Base {
+        foo() {
+          super.foo("a", "b", "c", "d"); // expect runtime error: Expected 2 arguments but got 4.
+        }
+      }
+      
+      Derived().foo();
+      `
+    },
+    {
+      testLabel: 'Indirectly inherited',
+      testValue: 
+      `
+      class A {
+        foo() {
+          print "A.foo()";
+        }
+      }
+      
+      class B < A {}
+      
+      class C < B {
+        foo() {
+          print "C.foo()";
+          super.foo();
+        }
+      }
+      
+      C().foo();
+      // expect: C.foo()
+      // expect: A.foo()
+      `
+    },
+    {
+      testLabel: 'Missing arguments',
+      testValue: 
+      `
+      class Base {
+        foo(a, b) {
+          print "Base.foo(" + a + ", " + b + ")";
+        }
+      }
+      
+      class Derived < Base {
+        foo() {
+          super.foo(1); // expect runtime error: Expected 2 arguments but got 1.
+        }
+      }
+      
+      Derived().foo();
+      `
+    },
+    {
+      testLabel: 'No superclass bind',
+      testValue: 
+      `
+      class Base {
+        foo() {
+          super.doesNotExist; // Error at 'super': Can't use 'super' in a class with no superclass.
+        }
+      }
+      
+      Base().foo();
+      `
+    },
+    {
+      testLabel: 'No superclass call',
+      testValue: 
+      `
+      class Base {
+        foo() {
+          super.doesNotExist(1); // Error at 'super': Can't use 'super' in a class with no superclass.
+        }
+      }
+      
+      Base().foo();
+      `
+    },
+    {
+      testLabel: 'Parenthesized',
+      testValue: 
+      `
+      class Base {}
 
+      class Derived < Base {
+        foo() {
+          super.doesNotExist(1); // expect runtime error: Undefined property 'doesNotExist'.
+        }
+      }
+      
+      Derived().foo();
+      `
+    },
+    {
+      testLabel: 'Reassign superclass',
+      testValue: 
+      `
+      class Base {
+        method() {
+          print "Base.method()";
+        }
+      }
+      
+      class Derived < Base {
+        method() {
+          super.method();
+        }
+      }
+      
+      class OtherBase {
+        method() {
+          print "OtherBase.method()";
+        }
+      }
+      
+      var derived = Derived();
+      derived.method(); // expect: Base.method()
+      Base = OtherBase;
+      derived.method(); // expect: Base.method()
+      `
+    },
+    {
+      testLabel: 'Super at top level',
+      testValue: 
+      `
+      super.foo("bar"); // Error at 'super': Can't use 'super' outside of a class.
+      super.foo; // Error at 'super': Can't use 'super' outside of a class.
+      `
+    },
+    {
+      testLabel: 'Super in closure in inherited method',
+      testValue: 
+      `
+      class A {
+        say() {
+          print "A";
+        }
+      }
+      
+      class B < A {
+        getClosure() {
+          fun closure() {
+            super.say();
+          }
+          return closure;
+        }
+      
+        say() {
+          print "B";
+        }
+      }
+      
+      class C < B {
+        say() {
+          print "C";
+        }
+      }
+      
+      C().getClosure()(); // expect: A
+      `
+    },
+    {
+      testLabel: 'Super in inherited method',
+      testValue: 
+      `
+      class A {
+        say() {
+          print "A";
+        }
+      }
+      
+      class B < A {
+        test() {
+          super.say();
+        }
+      
+        say() {
+          print "B";
+        }
+      }
+      
+      class C < B {
+        say() {
+          print "C";
+        }
+      }
+      
+      C().test(); // expect: A
+      `
+    },
+    {
+      testLabel: 'Super in top level function',
+      testValue: 
+      `
+      super.bar(); // Error at 'super': Can't use 'super' outside of a class.
+      fun foo() {
+      }
+      `
+    },
+    {
+      testLabel: 'Super without dot',
+      testValue: 
+      `
+      class A {}
+
+      class B < A {
+        method() {
+          // [line 6] Error at ';': Expect '.' after 'super'.
+          super;
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'Super without name',
+      testValue: 
+      `
+      class A {}
+
+      class B < A {
+        method() {
+          super.; // Error at ';': Expect superclass method name.
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'This is superclass method',
+      testValue: 
+      `
+      class Base {
+        init(a) {
+          this.a = a;
+        }
+      }
+      
+      class Derived < Base {
+        init(a, b) {
+          super.init(a);
+          this.b = b;
+        }
+      }
+      
+      var derived = Derived("a", "b");
+      print derived.a; // expect: a
+      print derived.b; // expect: b
       `
     },
   ],
   "this" : [
     {
-      testLabel: '',
+      testLabel: 'Closure',
       testValue: 
       `
-
+      class Foo {
+        getClosure() {
+          fun closure() {
+            return this.toString();
+          }
+          return closure;
+        }
+      
+        toString() { return "Foo"; }
+      }
+      
+      var closure = Foo().getClosure();
+      print closure(); // expect: Foo
       `
     },
+    {
+      testLabel: 'Nested',
+      testValue: 
+      `
+      class Outer {
+        method() {
+          print this; // expect: Outer instance
+      
+          fun f() {
+            print this; // expect: Outer instance
+      
+            class Inner {
+              method() {
+                print this; // expect: Inner instance
+              }
+            }
+      
+            Inner().method();
+          }
+          f();
+        }
+      }
+      
+      Outer().method();
+      `
+    },
+    {
+      testLabel: 'Nested Closure',
+      testValue: 
+      `
+      class Outer {
+        method() {
+          print this; // expect: Outer instance
+      
+          fun f() {
+            print this; // expect: Outer instance
+      
+            class Inner {
+              method() {
+                print this; // expect: Inner instance
+              }
+            }
+      
+            Inner().method();
+          }
+          f();
+        }
+      }
+      
+      Outer().method();
+      `
+    },
+    {
+      testLabel: 'This at top level',
+      testValue: 
+      `
+      this; // Error at 'this': Can't use 'this' outside of a class.
+      `
+    },
+    {
+      testLabel: 'This in method',
+      testValue: 
+      `
+      class Foo {
+        bar() { return this; }
+        baz() { return "baz"; }
+      }
+      
+      print Foo().bar().baz(); // expect: baz
+      `
+    },
+    {
+      testLabel: 'This in top level function',
+      testValue: 
+      `
+      fun foo() {
+        this; // Error at 'this': Can't use 'this' outside of a class.
+      }
+      `
+    }
   ],
   "variable" : [
     {
-      testLabel: '',
+      testLabel: 'Collide with parameter',
       testValue: 
       `
-
+      fun foo(a) {
+        var a; // Error at 'a': Already variable with this name in this scope.
+      }
       `
     },
+    {
+      testLabel: 'Duplicate local',
+      testValue: 
+      `
+      {
+        var a = "value";
+        var a = "other"; // Error at 'a': Already variable with this name in this scope.
+      }
+      `
+    },
+    {
+      testLabel: 'Duplicate parameter',
+      testValue: 
+      `
+      fun foo(arg,
+        arg) { // Error at 'arg': Already variable with this name in this scope.
+                "body";
+              }
+      `
+    },
+    {
+      testLabel: 'Early bound',
+      testValue: 
+      `
+      var a = "outer";
+      {
+        fun foo() {
+          print a;
+        }
+      
+        foo(); // expect: outer
+        var a = "inner";
+        foo(); // expect: outer
+      }
+      `
+    },
+    {
+      testLabel: 'In middle of block',
+      testValue: 
+      `
+      {
+        var a = "a";
+        print a; // expect: a
+        var b = a + " b";
+        print b; // expect: a b
+        var c = a + " c";
+        print c; // expect: a c
+        var d = b + " d";
+        print d; // expect: a b d
+      }
+      `
+    },
+    {
+      testLabel: 'In nested block',
+      testValue: 
+      `
+      {
+        var a = "outer";
+        {
+          print a; // expect: outer
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'Local from method',
+      testValue: 
+      `
+      var foo = "variable";
+
+      class Foo {
+        method() {
+          print foo;
+        }
+      }
+      
+      Foo().method(); // expect: variable
+      `
+    },
+    {
+      testLabel: 'Redeclare global',
+      testValue: 
+      `
+      var a = "1";
+      var a;
+      print a; // expect: nil
+      `
+    },
+    {
+      testLabel: 'Redefine global',
+      testValue: 
+      `
+      var a = "1";
+      var a = "2";
+      print a; // expect: 2
+      `
+    },
+    {
+      testLabel: 'Scope reuse in different blocks',
+      testValue: 
+      `
+      {
+        var a = "first";
+        print a; // expect: first
+      }
+      
+      {
+        var a = "second";
+        print a; // expect: second
+      }
+      `
+    },
+    {
+      testLabel: 'Shadow and local',
+      testValue: 
+      `
+      {
+        var a = "outer";
+        {
+          print a; // expect: outer
+          var a = "inner";
+          print a; // expect: inner
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'Shadow global',
+      testValue: 
+      `
+      var a = "global";
+      {
+        var a = "shadow";
+        print a; // expect: shadow
+      }
+      print a; // expect: global
+      `
+    },
+    {
+      testLabel: 'Shadow local',
+      testValue: 
+      `
+      {
+        var a = "local";
+        {
+          var a = "shadow";
+          print a; // expect: shadow
+        }
+        print a; // expect: local
+      }
+      `
+    },
+    {
+      testLabel: 'Undefined global',
+      testValue: 
+      `
+      print notDefined;  // expect runtime error: Undefined variable 'notDefined'.
+      `
+    },
+    {
+      testLabel: 'Undefined local',
+      testValue: 
+      `
+      {
+        print notDefined;  // expect runtime error: Undefined variable 'notDefined'.
+      }
+      `
+    },
+    {
+      testLabel: 'Uninitialized',
+      testValue: 
+      `
+      var a;
+      print a; // expect: nil
+      `
+    },
+    {
+      testLabel: 'Unreached undefined',
+      testValue: 
+      `
+      if (false) {
+        print notDefined;
+      }
+      
+      print "ok"; // expect: ok
+      `
+    },
+    {
+      testLabel: 'Use false as var',
+      testValue: 
+      `
+      // [line 2] Error at 'false': Expect variable name.
+      var false = "value";
+      `
+    },
+    {
+      testLabel: 'Use global in initializer',
+      testValue: 
+      `
+      var a = "value";
+      var a = a;
+      print a; // expect: value
+      `
+    },
+    {
+      testLabel: 'Use local in initializer',
+      testValue: 
+      `
+      var a = "outer";
+      {
+        var a = a; // Error at 'a': Can't read local variable in its own declaration.
+      }
+      `
+    },
+    {
+      testLabel: 'Use nil as var',
+      testValue: 
+      `
+      // [line 2] Error at 'nil': Expect variable name.
+      var nil = "value";
+      `
+    },
+    {
+      testLabel: 'Use this as var',
+      testValue: 
+      `
+      // [line 2] Error at 'this': Expect variable name.
+      var this = "value";
+      `
+    }
   ],
   "while" : [
     {
-      testLabel: '',
+      testLabel: 'Class in body',
       testValue: 
       `
-
+      // [line 2] Error at 'class': Expect expression.
+      while (true) class Foo {}
       `
     },
+    {
+      testLabel: 'Closure in body',
+      testValue: 
+      `
+      var f1;
+      var f2;
+      var f3;
+      
+      var i = 1;
+      while (i < 4) {
+        var j = i;
+        fun f() { print j; }
+      
+        if (j == 1) f1 = f;
+        else if (j == 2) f2 = f;
+        else f3 = f;
+      
+        i = i + 1;
+      }
+      
+      f1(); // expect: 1
+      f2(); // expect: 2
+      f3(); // expect: 3
+      `
+    },
+    {
+      testLabel: 'Function in body',
+      testValue: 
+      `
+      // [line 2] Error at 'fun': Expect expression.
+      while (true) fun foo() {}
+      `
+    },
+    {
+      testLabel: 'Return closure',
+      testValue: 
+      `
+      fun f() {
+        while (true) {
+          var i = "i";
+          fun g() { print i; }
+          return g;
+        }
+      }
+      
+      var h = f();
+      h(); // expect: i
+      `
+    },
+    {
+      testLabel: 'Return inside',
+      testValue: 
+      `
+      fun f() {
+        while (true) {
+          var i = "i";
+          return i;
+        }
+      }
+      
+      print f();
+      // expect: i
+      `
+    },
+    {
+      testLabel: 'Syntax',
+      testValue: 
+      `
+      // Single-expression body.
+      var c = 0;
+      while (c < 3) print c = c + 1;
+      // expect: 1
+      // expect: 2
+      // expect: 3
+      
+      // Block body.
+      var a = 0;
+      while (a < 3) {
+        print a;
+        a = a + 1;
+      }
+      // expect: 0
+      // expect: 1
+      // expect: 2
+      
+      // Statement bodies.
+      while (false) if (true) 1; else 2;
+      while (false) while (true) 1;
+      while (false) for (;;) 1;
+      `
+    },
+    {
+      testLabel: 'Var in body',
+      testValue: 
+      `
+      // [line 2] Error at 'var': Expect expression.
+      while (true) var foo;
+      `
+    }
   ],
   "Spanish" : [
     {
