@@ -24,7 +24,7 @@ export class LoxComponent implements OnInit {
 
   testCases = TESTS;
 
-  spanishMode = true;
+  spanishMode = false;
 
   testCategories = [
     "assignment",

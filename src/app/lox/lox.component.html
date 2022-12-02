@@ -2,28 +2,28 @@
 
 <mat-card>
     <mat-card-subtitle>
-      <h3>
-        Input
-      </h3>
+      <h3>Input</h3>
       <mat-slide-toggle [(ngModel)]="spanishMode" (change)="modeChanged()">Spanish Mode {{spanishMode ? 'Active' : 'Inactive'}}</mat-slide-toggle>
-      <mat-form-field appearance="outline">
-        <mat-label>Pick a category</mat-label>
-        <mat-select [(value)]="selectedCategory" (selectionChange)="categoryChanged(selectedCategory)">
-          <mat-option [value]="''">Select</mat-option>
-          <mat-option *ngFor="let cat of testCategories" [value]="cat">{{cat}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Pick a test</mat-label>
-        <mat-select [(value)]="testValue" (selectionChange)="run()" [disabled]="!selectedCategory">
-          <mat-option [value]="''">Select</mat-option>
-          <mat-option *ngFor="let test of tests" [value]="test.testValue">{{test.testLabel}}</mat-option>
-        </mat-select>
-      </mat-form-field>
     </mat-card-subtitle>
     <mat-card-content class="input-container">
+      <div class="options">
+        <mat-form-field appearance="outline">
+          <mat-label>Pick a category</mat-label>
+          <mat-select [(value)]="selectedCategory" (selectionChange)="categoryChanged(selectedCategory)">
+            <mat-option [value]="''">Select</mat-option>
+            <mat-option *ngFor="let cat of testCategories" [value]="cat">{{cat}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Pick a test</mat-label>
+          <mat-select [(value)]="testValue" (selectionChange)="run()" [disabled]="!selectedCategory">
+            <mat-option [value]="''">Select</mat-option>
+            <mat-option *ngFor="let test of tests" [value]="test.testValue">{{test.testLabel}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
       <mat-form-field class="input-feild " appearance="outline" floatLabel="always">
-        <mat-label>Parser input</mat-label>
+        <mat-label>Input</mat-label>
         <textarea matInput type="text" placeholder=">" [(ngModel)]="testValue"></textarea>
         <div class="action-bar">
           <button mat-raised-button color="primary" aria-label="Run" (click)="run()">

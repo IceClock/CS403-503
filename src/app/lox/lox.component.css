@@ -49,10 +49,16 @@ table {
         font-family: monospace;
     }
   
-  mat-card-subtitle {
+  .options {
       display: flex;
       justify-content: space-between;
-  
+  }
+  .options > mat-form-field {
+    width: 40%;
+  }
+
+  :host ::ng-deep .mat-form-field-infix {
+    width:100%;
   }
 
   .action-bar {
