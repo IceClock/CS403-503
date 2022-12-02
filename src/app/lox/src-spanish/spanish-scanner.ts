@@ -77,6 +77,22 @@ const TOKEN_STRING: Record<number, string> = {
 
     /** Add Spanish keywords here. */
     private static readonly keywords: Record<string, TokenType>  =  {
+        y: TokenType.AND,
+        clase: TokenType.CLASS,
+        sino: TokenType.ELSE,
+        falso: TokenType.FALSE,
+        para: TokenType.FOR,
+        funcion: TokenType.FUN,
+        si: TokenType.IF,
+        nulo: TokenType.NIL,
+        o: TokenType.OR,
+        imprima: TokenType.PRINT,
+        retorne: TokenType.RETURN,
+        super: TokenType.SUPER,
+        este: TokenType.THIS,
+        verdadero: TokenType.TRUE,
+        variable: TokenType.VAR,
+        mientras: TokenType.WHILE,
         and: TokenType.AND,
         class: TokenType.CLASS,
         else: TokenType.ELSE,
@@ -88,11 +104,10 @@ const TOKEN_STRING: Record<number, string> = {
         or: TokenType.OR,
         print: TokenType.PRINT,
         return: TokenType.RETURN,
-        super: TokenType.SUPER,
         this: TokenType.THIS,
         true: TokenType.TRUE,
         var: TokenType.VAR,
-        while: TokenType.WHILE
+        while: TokenType.WHILE,
       };
 
     constructor(source: string) {
@@ -187,7 +202,7 @@ const TOKEN_STRING: Record<number, string> = {
                     this.identifier();
                 } 
                 else {
-                    OutputHandlingService.getInstance().errorOccured(`${this.line}: Unexpected character.`)
+                    OutputHandlingService.getInstance().errorOccured(`${this.line}: Unexpected character. ➔ ${this.line}: Caracter inesperado.`)
                 }
                 break;
         }
@@ -225,7 +240,7 @@ const TOKEN_STRING: Record<number, string> = {
             this.advance();
         }
         if (this.isAtEnd) {
-            OutputHandlingService.getInstance().errorOccured(`${this.line}: Unterminated string.`);
+            OutputHandlingService.getInstance().errorOccured(`${this.line}: Unterminated string. ➔ ${this.line}: Cadena no finalizada.`);
             return;
         }
         //The closing

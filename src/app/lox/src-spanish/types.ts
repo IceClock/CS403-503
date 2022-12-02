@@ -1,11 +1,11 @@
-import { Token } from "./scanner"
+import { Token } from "./spanish-scanner"
 import * as ast from "./ast"
-import { Interpreter, Environment } from "./interpreter"
+import { SpanishInterpreter, Environment } from "./interpreter"
 import { OutputHandlingService } from "src/app/services/error-handling.service"
 
 export abstract class TypeCallable {
   abstract arity(): number;
-  abstract call(interpreter: Interpreter, args: any[]): any;
+  abstract call(interpreter: SpanishInterpreter, args: any[]): any;
   abstract toString(): string;
 }
 
@@ -51,7 +51,7 @@ export class TypeFunction extends TypeCallable {
     return this.declaration.params.length;
   }
 
-  call(interpreter: Interpreter, args: any[]): any {
+  call(interpreter: SpanishInterpreter, args: any[]): any {
     const environment = new Environment(this.closure);
     for (const [i, param] of this.declaration.params.entries()) {
       environment.define(param.lexeme, args[i]);
@@ -77,6 +77,7 @@ export class TypeFunction extends TypeCallable {
   bind(instance: TypeInstance): TypeFunction {
     const environment = new Environment(this.closure);
     environment.define("this", instance);
+    environment.define("este", instance);
     return new TypeFunction(this.declaration, environment, this.isInitializer);
   }
 }
@@ -99,14 +100,24 @@ export class TypeClass extends TypeCallable {
 
   arity(): number {
     const initializer = this.findMethod("init");
-    if (initializer === null) return 0;
-    return initializer.arity();
+    const spanishInitializer = this.findMethod("inicio");
+    if (initializer !== null) {
+      return initializer.arity();
+    } else if(spanishInitializer !== null) {
+      return spanishInitializer.arity();
+    }
+    return 0;
   }
 
-  call(interpreter: Interpreter, args: any[]): any {
+  call(interpreter: SpanishInterpreter, args: any[]): any {
     const instance = new TypeInstance(this);
     const initializer = this.findMethod("init");
-    if (initializer !== null) initializer.bind(instance).call(interpreter, args);
+    const spanishInitializer = this.findMethod("inicio");
+    if (initializer !== null) {
+      initializer.bind(instance).call(interpreter, args);
+    } else if(spanishInitializer !== null) {
+      spanishInitializer.bind(instance).call(interpreter, args);
+    }
     return instance;
   }
 
@@ -139,7 +150,7 @@ export class TypeInstance {
     const method = this.klass.findMethod(name.lexeme);
     if (method !== null) return method.bind(this);
 
-    OutputHandlingService.getInstance().errorOccured(`Undefined property ${name.lexeme}, name`);
+    OutputHandlingService.getInstance().errorOccured(`Undefined property ${name.lexeme}, name ➔ Propiedad no definida ${name.lexeme}, nombre`);
   }
 
   set(name: Token, value: any): void {

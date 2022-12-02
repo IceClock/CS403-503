@@ -1,9 +1,10 @@
 import * as ast from "./ast"
-import { Token, TokenType } from "./scanner";
+
 import { OutputHandlingService } from "src/app/services/error-handling.service";
 import * as types from "./types"
+import { Token, TokenType } from "./spanish-scanner";
 
-export class Interpreter implements ast.SyntaxVisitor<any, void> {
+export class SpanishInterpreter implements ast.SyntaxVisitor<any, void> {
     globals = new Environment();
     private environment = this.globals;
     private locals: Map<ast.Expr, number> = new Map();
@@ -72,12 +73,12 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
 
     private checkNumberOperand(operator: Token, operand: any) {
         if (typeof operand === "number") return;
-        else throw OutputHandlingService.getInstance().errorOccured(`Operand must be a number, ${operator} operator`)
+        else throw OutputHandlingService.getInstance().errorOccured(`Operand must be a number, ${operator} operator ➔ El operando debe ser un número, ${operator} operador`)
     }
 
     private checkNumberOperands(operator: Token, left: any, right: any) {
         if (typeof left === "number" && typeof right === "number") return;
-        else throw OutputHandlingService.getInstance().errorOccured(`Operands must be numbers, ${operator} operator`)
+        else throw OutputHandlingService.getInstance().errorOccured(`Operands must be numbers, ${operator} operator ➔ Los operandos deben ser números, ${operator} operador`)
     }
 
     private resolve(expr: ast.Expr, depth: number) {
@@ -128,7 +129,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
                 if (typeof left === "string" && typeof right === "string") {
                     return left + right;
                 }
-              throw OutputHandlingService.getInstance().errorOccured(`${expr.operator} operands must be two numbers or two strings.`);
+              throw OutputHandlingService.getInstance().errorOccured(`${expr.operator} operands must be two numbers or two strings. ➔ ${expr.operator} operandos deben ser dos números o dos cadenas.`);
         }
 
         // Unreachable.
@@ -186,11 +187,11 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
         });
 
         if(!(callee instanceof types.TypeCallable)) {
-           throw OutputHandlingService.getInstance().errorOccured(`Can only call functions and classes, ${expr.paren}`);
+           throw OutputHandlingService.getInstance().errorOccured(`Can only call functions and classes, ${expr.paren} ➔ Sólo se pueden llamar funciones y clases, ${expr.paren}`);
         }
 
         if (args.length !== callee.arity()) {
-            throw OutputHandlingService.getInstance().errorOccured(`Expected ${callee.arity()} arguments but got ${args.length}, ${expr.paren}`);
+            throw OutputHandlingService.getInstance().errorOccured(`Expected ${callee.arity()} arguments but got ${args.length}, ${expr.paren} ➔ Se esperaban ${callee.arity()} argumentos pero se introdujeron ${args.length}, ${expr.paren}`);
           }
       
           return callee.call(this, args);
@@ -199,12 +200,12 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
       const object = this.evaluate(expr.object);
       if (object instanceof types.TypeInstance) return object.get(expr.name);
   
-      throw OutputHandlingService.getInstance().errorOccured(`Only class instances have properties ${expr.name}`);
+      throw OutputHandlingService.getInstance().errorOccured(`Only class instances have properties ${expr.name} ➔ Sólo las instancias de las clases tienen propiedades ${expr.name}`);
     }
     visitSetExpr(expr: ast.SetExpr) {
         let object = this.evaluate(expr.object);
         if (!(object instanceof types.TypeInstance)) {
-          throw OutputHandlingService.getInstance().errorOccured("Only instances have fields");
+          throw OutputHandlingService.getInstance().errorOccured("Only instances have fields ➔ Sólo las instancias tienen campos");
         }
         let value = this.evaluate(expr.value);
         object.set(expr.name, value);
@@ -218,7 +219,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
 
        if (distance === undefined) {
         /** Unreachable. */
-        throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage");
+        throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage ➔ Uso inválido de 'super'");
        }
 
        const superClass = this.environment.getAt(distance, expr.keyword);
@@ -227,16 +228,16 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
 
        if (!(superClass instanceof types.TypeClass)) {
         // Unreachable
-        throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage");
+        throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage ➔ Uso inválido de 'super'");
       }
 
       if (!(object instanceof types.TypeInstance)) {
         // Unreachable
-        throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage");
+        throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage ➔ Uso inválido de 'super'");
       }
 
        if (method == null) {
-        throw OutputHandlingService.getInstance().errorOccured(`Undefined property ${expr.method.lexeme}.`)
+        throw OutputHandlingService.getInstance().errorOccured(`Undefined property ${expr.method.lexeme}. ➔ Propiedad no definida ${expr.method.lexeme}.`)
        }
 
        return method.bind(object);
@@ -287,7 +288,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
       if (stmt.superclass != null) {
         superclass = this.evaluate(stmt.superclass);
         if(!(superclass instanceof types.TypeClass)) {
-          throw OutputHandlingService.getInstance().errorOccured(`Superclass must be a class, ${stmt.superclass.name}`);
+          throw OutputHandlingService.getInstance().errorOccured(`Superclass must be a class, ${stmt.superclass.name} ➔ La superclase debe ser una clase, ${stmt.superclass.name}`);
         }
       }
 
@@ -301,7 +302,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
 
       let methods: Record<string, types.TypeFunction> = {};
       stmt.methods.forEach((method) => {
-        const func = new types.TypeFunction(method, this.environment, method.name.lexeme === "init");
+        const func = new types.TypeFunction(method, this.environment, method.name.lexeme === "init" || method.name.lexeme === "inicio");
         methods[method.name.lexeme] = func;
       });
       
@@ -352,7 +353,7 @@ export class Environment {
         return;
       }
   
-      throw OutputHandlingService.getInstance().errorOccured(`Undefined variable '${name.lexeme}', ${name}`);
+      throw OutputHandlingService.getInstance().errorOccured(`Undefined variable '${name.lexeme}', ${name} ➔ Variable no definida '${name.lexeme}', ${name}`);
     }
   
     assignAt(distance: number, name: Token, value: any): void {
@@ -362,21 +363,21 @@ export class Environment {
         return;
       }
       // Unreachable (just in case)
-      throw OutputHandlingService.getInstance().errorOccured(`Undefined variable '${name.lexeme}', ${name}`);
+      throw OutputHandlingService.getInstance().errorOccured(`Undefined variable '${name.lexeme}', ${name} ➔ Variable no definida '${name.lexeme}', ${name}`);
     }
   
     get(name: Token): any {
       if (name.lexeme in this.values) return this.values[name.lexeme];
       if (this.enclosing !== null) return this.enclosing.get(name);
   
-      throw OutputHandlingService.getInstance().errorOccured(`Undefined variable '${name.lexeme}', ${name}`);
+      throw OutputHandlingService.getInstance().errorOccured(`Undefined variable '${name.lexeme}', ${name} ➔ Variable no definida '${name.lexeme}', ${name}`);
     }
   
     getAt(distance: number, name: Token): any {
       const environment = this.ancestor(distance);
       if (environment !== null) return environment.values[name.lexeme];
       // Unreachable
-      throw OutputHandlingService.getInstance().errorOccured(`Undefined variable '${name.lexeme}', ${name}`);
+      throw OutputHandlingService.getInstance().errorOccured(`Undefined variable '${name.lexeme}', ${name} ➔ Variable no definida '${name.lexeme}', ${name}`);
     }
   
     getThis(): any {

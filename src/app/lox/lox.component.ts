@@ -7,7 +7,10 @@ import { Interpreter } from './src/interpreter';
 import { Parser } from './src/parser';
 import { Resolver } from './src/resolver';
 import { Scanner } from './src/scanner';
-import { SpanishScanner } from './src/spanish-scanner';
+import { SpanishScanner } from './src-spanish/spanish-scanner';
+import { SpanishParser } from './src-spanish/parser';
+import { SpanishInterpreter } from './src-spanish/interpreter';
+import { SpanishResolver } from './src-spanish/resolver';
 
 @Component({
   selector: 'app-lox',
@@ -21,7 +24,7 @@ export class LoxComponent implements OnInit {
 
   testCases = TESTS;
 
-  spanishMode = false;
+  spanishMode = true;
 
   testCategories = [
     "assignment",
@@ -76,7 +79,7 @@ export class LoxComponent implements OnInit {
       this._snackBar.open(x, 'close', {
         panelClass: ['mat-toolbar', 'mat-warn', 'error'],
         politeness: 'assertive',
-        duration: 6000
+        duration: 8000
       });
       this.errors.push(x);
     })
@@ -189,52 +192,50 @@ export class LoxComponent implements OnInit {
 
   run() {
     this.printingStmts = [];
-    let interpreter = new Interpreter();
-    let resolver = new Resolver(interpreter);
+    const astPrinter = new AstPrinter();
     if (this.spanishMode) {
+      let interpreter = new SpanishInterpreter();
+      let resolver = new SpanishResolver(interpreter);
       let spanishScanner = new SpanishScanner(this.testValue);
       let tokens = spanishScanner.scanTokens();
-      let parser = new Parser(tokens);
+      let parser = new SpanishParser(tokens);
       const [statements, expr] = parser.parseRepl();
-      const astPrinter = new AstPrinter();
       try {
         if (statements.length > 0) {
          resolver.resolve(statements);
          console.log(astPrinter.stringify(statements));
          this.output = interpreter.interpret(statements);
-         this.logs.push(`Parsed ${astPrinter.stringify(statements)} |  Interpreted: ${this.output}`);
+         this.logs.push(`Parsed ${astPrinter.stringify(statements)} ➔  Interpreted: ${this.output}`);
         }
         if (expr !== null) {
           resolver.resolve(expr)
           console.log(astPrinter.stringify(expr));
           this.output = interpreter.interpret(expr);
-          this.logs.push(`Parsed: ${astPrinter.stringify(expr)} | Interpreted: ${this.output}`);
+          this.logs.push(`Parsed: ${astPrinter.stringify(expr)} ➔ Interpreted: ${this.output}`);
         }
-      } catch {
-        this.outputHnadingService.errorOccured("Something went wrong.");
-      }
+      } catch {}
     } else {
+      let interpreter = new Interpreter();
+      let resolver = new Resolver(interpreter);
       let scanner = new Scanner(this.testValue);
       let tokens = scanner.scanTokens();
       let parser = new Parser(tokens);
       const [statements, expr] = parser.parseRepl();
-      const astPrinter = new AstPrinter();
+
       try {
         if (statements.length > 0) {
          resolver.resolve(statements);
          console.log(astPrinter.stringify(statements));
          this.output = interpreter.interpret(statements);
-         this.logs.push(`Parsed ${astPrinter.stringify(statements)} |  Interpreted: ${this.output}`);
+         this.logs.push(`Parsed ${astPrinter.stringify(statements)} ➔  Interpreted: ${this.output}`);
         }
         if (expr !== null) {
           resolver.resolve(expr)
           console.log(astPrinter.stringify(expr));
           this.output = interpreter.interpret(expr);
-          this.logs.push(`Parsed: ${astPrinter.stringify(expr)} | Interpreted: ${this.output}`);
+          this.logs.push(`Parsed: ${astPrinter.stringify(expr)} ➔ Interpreted: ${this.output}`);
         }
-      } catch {
-        this.outputHnadingService.errorOccured("Something went wrong.");
-      }
+      } catch {}
     }
 
   
