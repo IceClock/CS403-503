@@ -398,20 +398,20 @@ export class SpanishParser {
         return body;
     }
 
-    private consume(type: TokenType, messege: string): Token {
+    private consume(type: TokenType, message: string): Token {
 
         if (this.check(type)) return this.advance();
 
-        throw this.error(this.peek(), messege);
+        throw this.error(this.peek(), message);
     }
 
-    error(token: Token, messege: string) {
+    error(token: Token, message: string) {
         if (token.type == TokenType.EOF) {
-            new SyntaxError(`${messege} ${token.line} at end`);
-            OutputHandlingService.getInstance().errorOccured(`${messege} ${token.line} at end. ➔ ${messege} ${token.line} al final.`);
+            new SyntaxError(`${message} ${token.line} at end`);
+            OutputHandlingService.getInstance().errorOccured(`${message} ${token.line} at end. ➔ ${message} ${token.line} al final.`);
         } else {
-            new SyntaxError(`${token.line} at ${token.lexeme} ${messege}`);
-            OutputHandlingService.getInstance().errorOccured(`Line: ${token.line} at Lexeme: ${token.lexeme}, notes: ${messege} ➔ Línea: ${token.line} en Lexema: ${token.lexeme}, notas: ${messege}`);
+            new SyntaxError(`${token.line} at ${token.lexeme} ${message}`);
+            OutputHandlingService.getInstance().errorOccured(`Line: ${token.line} at Lexeme: ${token.lexeme}, notes: ${message} ➔ Línea: ${token.line} en Lexema: ${token.lexeme}, notas: ${message}`);
         }
     }
 
