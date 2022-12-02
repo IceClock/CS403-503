@@ -3,7 +3,7 @@
 <mat-card>
     <mat-card-subtitle>
       <h3>
-        Parser input
+        Input
       </h3>
       <mat-slide-toggle [(ngModel)]="spanishMode" (change)="modeChanged()">Spanish Mode {{spanishMode ? 'Active' : 'Inactive'}}</mat-slide-toggle>
       <mat-form-field appearance="outline">
@@ -68,7 +68,7 @@
     <mat-card-header>
       <mat-card-title>Output</mat-card-title>
     </mat-card-header>
-    <mat-card-content style="padding: 30px; border: 1px #b8b6b6 solid; border-radius: 1%; box-shadow: 1px 1px 5px black;">
+    <mat-card-content style="padding: 30px; border: 1px #b8b6b6 solid; border-radius: 1%; box-shadow: 1px 1px 2px black;">
         <p *ngFor="let print of printingStmts">{{print}}</p>
     </mat-card-content>
   </mat-card>
