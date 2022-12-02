@@ -4,21 +4,25 @@
   "main": "main.js",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node server.js",
+    "start-app": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "start-pwa": "ng build --configuration production --aot && http-server -p 8080 -c-1 dist/cs403-503",
     "electron": "ng build && electron .",
-    "electron-win" : "electron-packager . --platform=win32 --no-prune --ignore=/node_modules --ignore=/e2e --ignore=/src",
-    "electron-mac" : "electron-packager . --platform=darwin --no-prune --ignore=/node_modules --ignore=/e2e --ignore=/src"
+    "electron-win": "electron-packager . --platform=win32 --no-prune --ignore=/node_modules --ignore=/e2e --ignore=/src",
+    "electron-mac": "electron-packager . --platform=darwin --no-prune --ignore=/node_modules --ignore=/e2e --ignore=/src",
+    "heroku-postbuild": "ng build"
   },
   "private": true,
   "dependencies": {
     "@angular/animations": "^14.0.0",
     "@angular/cdk": "^14.2.0",
+    "@angular/cli": "~14.2.1",
     "@angular/common": "^14.0.0",
     "@angular/compiler": "^14.0.0",
+    "@angular/compiler-cli": "^14.0.0",
     "@angular/core": "^14.2.3",
     "@angular/forms": "^14.0.0",
     "@angular/material": "^14.2.0",
@@ -28,8 +32,11 @@
     "@angular/service-worker": "^14.2.3",
     "@ngxs/router-plugin": "^3.7.5",
     "@ngxs/store": "^3.7.5",
+    "express": "^4.18.2",
+    "path": "^0.12.7",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
+    "typescript": "~4.7.2",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
@@ -39,6 +46,7 @@
     "@types/jasmine": "~4.0.0",
     "electron": "^20.2.0",
     "electron-packager": "^16.0.0",
+    "enhanced-resolve": "^3.3.0",
     "jasmine-core": "~4.3.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.1.0",
@@ -46,5 +54,9 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
     "typescript": "~4.7.2"
+  },
+  "engines": {
+    "node": "16.17.0",
+    "npm": "8.18.0"
   }
 }
