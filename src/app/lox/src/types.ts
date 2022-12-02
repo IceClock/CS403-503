@@ -3,13 +3,13 @@ import * as ast from "./ast"
 import { Interpreter, Environment } from "./interpreter"
 import { OutputHandlingService } from "src/app/services/error-handling.service"
 
-export abstract class LoxCallable {
+export abstract class TypeCallable {
   abstract arity(): number;
   abstract call(interpreter: Interpreter, args: any[]): any;
   abstract toString(): string;
 }
 
-export class LoxClockFunction extends LoxCallable {
+export class TypeClockFunction extends TypeCallable {
   arity(): number {
     return 0;
   }
@@ -23,7 +23,7 @@ export class LoxClockFunction extends LoxCallable {
   }
 }
 
-export class LoxFunction extends LoxCallable {
+export class TypeFunction extends TypeCallable {
   static Return = class Return {
     value: any;
 
@@ -60,7 +60,7 @@ export class LoxFunction extends LoxCallable {
     try {
       interpreter.executeBlock(this.declaration.body, environment)
     } catch (e) {
-      if (e instanceof LoxFunction.Return) {
+      if (e instanceof TypeFunction.Return) {
         if (this.isInitializer) return this.closure.getThis();
         else return e.value
       } else throw e // Propagate if a real error occurs
@@ -74,22 +74,22 @@ export class LoxFunction extends LoxCallable {
     return `<fun ${this.declaration.name.lexeme}>`;
   }
 
-  bind(instance: LoxInstance): LoxFunction {
+  bind(instance: TypeInstance): TypeFunction {
     const environment = new Environment(this.closure);
     environment.define("this", instance);
-    return new LoxFunction(this.declaration, environment, this.isInitializer);
+    return new TypeFunction(this.declaration, environment, this.isInitializer);
   }
 }
 
-export class LoxClass extends LoxCallable {
+export class TypeClass extends TypeCallable {
   name: string;
-  superclass: LoxClass | null;
-  methods: Record<string, LoxFunction>;
+  superclass: TypeClass | null;
+  methods: Record<string, TypeFunction>;
 
   constructor(
     name: string,
-    superclass: LoxClass | null | any,
-    methods: Record<string, LoxFunction>
+    superclass: TypeClass | null | any,
+    methods: Record<string, TypeFunction>
   ) {
     super()
     this.name = name;
@@ -104,7 +104,7 @@ export class LoxClass extends LoxCallable {
   }
 
   call(interpreter: Interpreter, args: any[]): any {
-    const instance = new LoxInstance(this);
+    const instance = new TypeInstance(this);
     const initializer = this.findMethod("init");
     if (initializer !== null) initializer.bind(instance).call(interpreter, args);
     return instance;
@@ -114,7 +114,7 @@ export class LoxClass extends LoxCallable {
     return `<class ${this.name}>`;
   }
 
-  findMethod(name: string): LoxFunction | null {
+  findMethod(name: string): TypeFunction | null {
     if (name in this.methods) return this.methods[name];
 
     if (this.superclass !== null) {
@@ -125,11 +125,11 @@ export class LoxClass extends LoxCallable {
   }
 }
   
-export class LoxInstance {
-  private klass: LoxClass;
+export class TypeInstance {
+  private klass: TypeClass;
   private fields: Record<string, any> = {};
 
-  constructor(klass: LoxClass) {
+  constructor(klass: TypeClass) {
     this.klass = klass;
   }
 

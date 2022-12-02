@@ -186,7 +186,7 @@ export class SpanishInterpreter implements ast.SyntaxVisitor<any, void> {
             args.push(this.evaluate(arg));
         });
 
-        if(!(callee instanceof types.LoxCallable)) {
+        if(!(callee instanceof types.TypeCallable)) {
            throw OutputHandlingService.getInstance().errorOccured(`Can only call functions and classes, ${expr.paren} ➔ Sólo se pueden llamar funciones y clases, ${expr.paren}`);
         }
 
@@ -198,13 +198,13 @@ export class SpanishInterpreter implements ast.SyntaxVisitor<any, void> {
     }
     visitGetExpr(expr: ast.GetExpr) {
       const object = this.evaluate(expr.object);
-      if (object instanceof types.LoxInstance) return object.get(expr.name);
+      if (object instanceof types.TypeInstance) return object.get(expr.name);
   
       throw OutputHandlingService.getInstance().errorOccured(`Only class instances have properties ${expr.name} ➔ Sólo las instancias de las clases tienen propiedades ${expr.name}`);
     }
     visitSetExpr(expr: ast.SetExpr) {
         let object = this.evaluate(expr.object);
-        if (!(object instanceof types.LoxInstance)) {
+        if (!(object instanceof types.TypeInstance)) {
           throw OutputHandlingService.getInstance().errorOccured("Only instances have fields ➔ Sólo las instancias tienen campos");
         }
         let value = this.evaluate(expr.value);
@@ -226,12 +226,12 @@ export class SpanishInterpreter implements ast.SyntaxVisitor<any, void> {
        const object = this.environment.enclosing?.getThis();
        const method = superClass.findMethod(expr.method.lexeme);
 
-       if (!(superClass instanceof types.LoxClass)) {
+       if (!(superClass instanceof types.TypeClass)) {
         // Unreachable
         throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage ➔ Uso inválido de 'super'");
       }
 
-      if (!(object instanceof types.LoxInstance)) {
+      if (!(object instanceof types.TypeInstance)) {
         // Unreachable
         throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage ➔ Uso inválido de 'super'");
       }
@@ -273,21 +273,21 @@ export class SpanishInterpreter implements ast.SyntaxVisitor<any, void> {
        return;
     }
     visitFunctionStmt(stmt: ast.FunctionStmt): void {
-        const func = new types.LoxFunction(stmt, this.environment, false);
+        const func = new types.TypeFunction(stmt, this.environment, false);
         this.environment.define(stmt.name.lexeme, func);
     }
     visitReturnStmt(stmt: ast.ReturnStmt): void {
         let value = null;
         if (stmt.value !== null) value = this.evaluate(stmt.value);
     
-        throw new types.LoxFunction.Return(value);
+        throw new types.TypeFunction.Return(value);
     }
     visitClassStmt(stmt: ast.ClassStmt): void {
       let superclass: any = null
 
       if (stmt.superclass != null) {
         superclass = this.evaluate(stmt.superclass);
-        if(!(superclass instanceof types.LoxClass)) {
+        if(!(superclass instanceof types.TypeClass)) {
           throw OutputHandlingService.getInstance().errorOccured(`Superclass must be a class, ${stmt.superclass.name} ➔ La superclase debe ser una clase, ${stmt.superclass.name}`);
         }
       }
@@ -300,13 +300,13 @@ export class SpanishInterpreter implements ast.SyntaxVisitor<any, void> {
         environment.define("super", superclass);
       }
 
-      let methods: Record<string, types.LoxFunction> = {};
+      let methods: Record<string, types.TypeFunction> = {};
       stmt.methods.forEach((method) => {
-        const func = new types.LoxFunction(method, this.environment, method.name.lexeme === "init" || method.name.lexeme === "inicio");
+        const func = new types.TypeFunction(method, this.environment, method.name.lexeme === "init" || method.name.lexeme === "inicio");
         methods[method.name.lexeme] = func;
       });
       
-      let klass = new types.LoxClass(stmt.name.lexeme, superclass, methods);
+      let klass = new types.TypeClass(stmt.name.lexeme, superclass, methods);
 
       if (superclass !== null && environment.enclosing !== null) {
         environment = environment.enclosing;
