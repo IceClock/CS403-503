@@ -1565,8 +1565,6 @@ export const TESTS = {
       `
       fun foo() {}
       print foo; // expect: <fn foo>
-      
-      print clock; // expect: <native fn>
       `
     },
     {
@@ -3126,7 +3124,7 @@ export const TESTS = {
       print 123;     // expect: 123
       print 987654;  // expect: 987654
       print 0;       // expect: 0
-      print -0;      // expect: -0
+      print -0;      // expect: 0
       
       print 123.456; // expect: 123.456
       print -0.001;  // expect: -0.001
@@ -3524,20 +3522,6 @@ export const TESTS = {
       testLabel: 'After else',
       testValue: 
       `
-
-      `
-    },
-    {
-      testLabel: 'After if',
-      testValue: 
-      `
-
-      `
-    },
-    {
-      testLabel: 'After while',
-      testValue: 
-      `
       fun f() {
         if (false) "no"; else return "ok";
       }
@@ -3546,7 +3530,7 @@ export const TESTS = {
       `
     },
     {
-      testLabel: 'At top level',
+      testLabel: 'After if',
       testValue: 
       `
       fun f() {
@@ -3557,11 +3541,30 @@ export const TESTS = {
       `
     },
     {
-      testLabel: 'In function',
+      testLabel: 'After while',
       testValue: 
       `
       fun f() {
         while (true) return "ok";
+      }
+      
+      print f(); // expect: ok
+      `
+    },
+    {
+      testLabel: 'At top level',
+      testValue: 
+      `
+      return "wat"; // Error at 'return': Can't return from top-level code.
+      `
+    },
+    {
+      testLabel: 'In function',
+      testValue: 
+      `
+      fun f() {
+        return "ok";
+        print "bad";
       }
       
       print f(); // expect: ok
@@ -3643,39 +3646,826 @@ export const TESTS = {
   ],
   "super" : [
     {
-      testLabel: '',
+      testLabel: 'Bound method',
       testValue: 
       `
+      class A {
+        method(arg) {
+          print "A.method(" + arg + ")";
+        }
+      }
+      
+      class B < A {
+        getClosure() {
+          return super.method;
+        }
+      
+        method(arg) {
+          print "B.method(" + arg + ")";
+        }
+      }
+      
+      
+      var closure = B().getClosure();
+      closure("arg"); // expect: A.method(arg)
+      `
+    },
+    {
+      testLabel: 'Call other method',
+      testValue: 
+      `
+      class Base {
+        foo() {
+          print "Base.foo()";
+        }
+      }
+      
+      class Derived < Base {
+        bar() {
+          print "Derived.bar()";
+          super.foo();
+        }
+      }
+      
+      Derived().bar();
+      // expect: Derived.bar()
+      // expect: Base.foo()
+      `
+    },
+    {
+      testLabel: 'Call same method',
+      testValue: 
+      `
+      class Base {
+        foo() {
+          print "Base.foo()";
+        }
+      }
+      
+      class Derived < Base {
+        foo() {
+          print "Derived.foo()";
+          super.foo();
+        }
+      }
+      
+      Derived().foo();
+      // expect: Derived.foo()
+      // expect: Base.foo()
+      `
+    },
+    {
+      testLabel: 'Closure',
+      testValue: 
+      `
+      class Base {
+        toString() { return "Base"; }
+      }
+      
+      class Derived < Base {
+        getClosure() {
+          fun closure() {
+            return super.toString();
+          }
+          return closure;
+        }
+      
+        toString() { return "Derived"; }
+      }
+      
+      var closure = Derived().getClosure();
+      print closure(); // expect: Base
+      `
+    },
+    {
+      testLabel: 'Constructor',
+      testValue: 
+      `
+      class Base {
+        init(a, b) {
+          print "Base.init(" + a + ", " + b + ")";
+        }
+      }
+      
+      class Derived < Base {
+        init() {
+          print "Derived.init()";
+          super.init("a", "b");
+        }
+      }
+      
+      Derived();
+      // expect: Derived.init()
+      // expect: Base.init(a, b)
+      `
+    },
+    {
+      testLabel: 'Extra arguments',
+      testValue: 
+      `
+      class Base {
+        foo(a, b) {
+          print "Base.foo(" + a + ", " + b + ")";
+        }
+      }
+      
+      class Derived < Base {
+        foo() {
+          super.foo("a", "b", "c", "d"); // expect runtime error: Expected 2 arguments but got 4.
+        }
+      }
+      
+      Derived().foo();
+      `
+    },
+    {
+      testLabel: 'Indirectly inherited',
+      testValue: 
+      `
+      class A {
+        foo() {
+          print "A.foo()";
+        }
+      }
+      
+      class B < A {}
+      
+      class C < B {
+        foo() {
+          print "C.foo()";
+          super.foo();
+        }
+      }
+      
+      C().foo();
+      // expect: C.foo()
+      // expect: A.foo()
+      `
+    },
+    {
+      testLabel: 'Missing arguments',
+      testValue: 
+      `
+      class Base {
+        foo(a, b) {
+          print "Base.foo(" + a + ", " + b + ")";
+        }
+      }
+      
+      class Derived < Base {
+        foo() {
+          super.foo(1); // expect runtime error: Expected 2 arguments but got 1.
+        }
+      }
+      
+      Derived().foo();
+      `
+    },
+    {
+      testLabel: 'No superclass bind',
+      testValue: 
+      `
+      class Base {
+        foo() {
+          super.doesNotExist; // Error at 'super': Can't use 'super' in a class with no superclass.
+        }
+      }
+      
+      Base().foo();
+      `
+    },
+    {
+      testLabel: 'No superclass call',
+      testValue: 
+      `
+      class Base {
+        foo() {
+          super.doesNotExist(1); // Error at 'super': Can't use 'super' in a class with no superclass.
+        }
+      }
+      
+      Base().foo();
+      `
+    },
+    {
+      testLabel: 'Parenthesized',
+      testValue: 
+      `
+      class Base {}
 
+      class Derived < Base {
+        foo() {
+          super.doesNotExist(1); // expect runtime error: Undefined property 'doesNotExist'.
+        }
+      }
+      
+      Derived().foo();
+      `
+    },
+    {
+      testLabel: 'Reassign superclass',
+      testValue: 
+      `
+      class Base {
+        method() {
+          print "Base.method()";
+        }
+      }
+      
+      class Derived < Base {
+        method() {
+          super.method();
+        }
+      }
+      
+      class OtherBase {
+        method() {
+          print "OtherBase.method()";
+        }
+      }
+      
+      var derived = Derived();
+      derived.method(); // expect: Base.method()
+      Base = OtherBase;
+      derived.method(); // expect: Base.method()
+      `
+    },
+    {
+      testLabel: 'Super at top level',
+      testValue: 
+      `
+      super.foo("bar"); // Error at 'super': Can't use 'super' outside of a class.
+      super.foo; // Error at 'super': Can't use 'super' outside of a class.
+      `
+    },
+    {
+      testLabel: 'Super in closure in inherited method',
+      testValue: 
+      `
+      class A {
+        say() {
+          print "A";
+        }
+      }
+      
+      class B < A {
+        getClosure() {
+          fun closure() {
+            super.say();
+          }
+          return closure;
+        }
+      
+        say() {
+          print "B";
+        }
+      }
+      
+      class C < B {
+        say() {
+          print "C";
+        }
+      }
+      
+      C().getClosure()(); // expect: A
+      `
+    },
+    {
+      testLabel: 'Super in inherited method',
+      testValue: 
+      `
+      class A {
+        say() {
+          print "A";
+        }
+      }
+      
+      class B < A {
+        test() {
+          super.say();
+        }
+      
+        say() {
+          print "B";
+        }
+      }
+      
+      class C < B {
+        say() {
+          print "C";
+        }
+      }
+      
+      C().test(); // expect: A
+      `
+    },
+    {
+      testLabel: 'Super in top level function',
+      testValue: 
+      `
+      super.bar(); // Error at 'super': Can't use 'super' outside of a class.
+      fun foo() {
+      }
+      `
+    },
+    {
+      testLabel: 'Super without dot',
+      testValue: 
+      `
+      class A {}
+
+      class B < A {
+        method() {
+          // [line 6] Error at ';': Expect '.' after 'super'.
+          super;
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'Super without name',
+      testValue: 
+      `
+      class A {}
+
+      class B < A {
+        method() {
+          super.; // Error at ';': Expect superclass method name.
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'This is superclass method',
+      testValue: 
+      `
+      class Base {
+        init(a) {
+          this.a = a;
+        }
+      }
+      
+      class Derived < Base {
+        init(a, b) {
+          super.init(a);
+          this.b = b;
+        }
+      }
+      
+      var derived = Derived("a", "b");
+      print derived.a; // expect: a
+      print derived.b; // expect: b
       `
     },
   ],
   "this" : [
     {
-      testLabel: '',
+      testLabel: 'Closure',
       testValue: 
       `
-
+      class Foo {
+        getClosure() {
+          fun closure() {
+            return this.toString();
+          }
+          return closure;
+        }
+      
+        toString() { return "Foo"; }
+      }
+      
+      var closure = Foo().getClosure();
+      print closure(); // expect: Foo
       `
     },
+    {
+      testLabel: 'Nested',
+      testValue: 
+      `
+      class Outer {
+        method() {
+          print this; // expect: Outer instance
+      
+          fun f() {
+            print this; // expect: Outer instance
+      
+            class Inner {
+              method() {
+                print this; // expect: Inner instance
+              }
+            }
+      
+            Inner().method();
+          }
+          f();
+        }
+      }
+      
+      Outer().method();
+      `
+    },
+    {
+      testLabel: 'Nested Closure',
+      testValue: 
+      `
+      class Foo {
+        getClosure() {
+          fun f() {
+            fun g() {
+              fun h() {
+                return this.toString();
+              }
+              return h;
+            }
+            return g;
+          }
+          return f;
+        }
+      
+        toString() { return "Foo"; }
+      }
+      
+      var closure = Foo().getClosure();
+      print closure()()(); // expect: Foo      `
+    },
+    {
+      testLabel: 'This at top level',
+      testValue: 
+      `
+      this; // Error at 'this': Can't use 'this' outside of a class.
+      `
+    },
+    {
+      testLabel: 'This in method',
+      testValue: 
+      `
+      class Foo {
+        bar() { return this; }
+        baz() { return "baz"; }
+      }
+      
+      print Foo().bar().baz(); // expect: baz
+      `
+    },
+    {
+      testLabel: 'This in top level function',
+      testValue: 
+      `
+      fun foo() {
+        this; // Error at 'this': Can't use 'this' outside of a class.
+      }
+      `
+    }
   ],
   "variable" : [
     {
-      testLabel: '',
+      testLabel: 'Collide with parameter',
       testValue: 
       `
-
+      fun foo(a) {
+        var a; // Error at 'a': Already variable with this name in this scope.
+      }
       `
     },
+    {
+      testLabel: 'Duplicate local',
+      testValue: 
+      `
+      {
+        var a = "value";
+        var a = "other"; // Error at 'a': Already variable with this name in this scope.
+      }
+      `
+    },
+    {
+      testLabel: 'Duplicate parameter',
+      testValue: 
+      `
+      fun foo(arg,
+        arg) { // Error at 'arg': Already variable with this name in this scope.
+                "body";
+              }
+      `
+    },
+    {
+      testLabel: 'Early bound',
+      testValue: 
+      `
+      var a = "outer";
+      {
+        fun foo() {
+          print a;
+        }
+      
+        foo(); // expect: outer
+        var a = "inner";
+        foo(); // expect: outer
+      }
+      `
+    },
+    {
+      testLabel: 'In middle of block',
+      testValue: 
+      `
+      {
+        var a = "a";
+        print a; // expect: a
+        var b = a + " b";
+        print b; // expect: a b
+        var c = a + " c";
+        print c; // expect: a c
+        var d = b + " d";
+        print d; // expect: a b d
+      }
+      `
+    },
+    {
+      testLabel: 'In nested block',
+      testValue: 
+      `
+      {
+        var a = "outer";
+        {
+          print a; // expect: outer
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'Local from method',
+      testValue: 
+      `
+      var foo = "variable";
+
+      class Foo {
+        method() {
+          print foo;
+        }
+      }
+      
+      Foo().method(); // expect: variable
+      `
+    },
+    {
+      testLabel: 'Redeclare global',
+      testValue: 
+      `
+      var a = "1";
+      var a;
+      print a; // expect: nil
+      `
+    },
+    {
+      testLabel: 'Redefine global',
+      testValue: 
+      `
+      var a = "1";
+      var a = "2";
+      print a; // expect: 2
+      `
+    },
+    {
+      testLabel: 'Scope reuse in different blocks',
+      testValue: 
+      `
+      {
+        var a = "first";
+        print a; // expect: first
+      }
+      
+      {
+        var a = "second";
+        print a; // expect: second
+      }
+      `
+    },
+    {
+      testLabel: 'Shadow and local',
+      testValue: 
+      `
+      {
+        var a = "outer";
+        {
+          print a; // expect: outer
+          var a = "inner";
+          print a; // expect: inner
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'Shadow global',
+      testValue: 
+      `
+      var a = "global";
+      {
+        var a = "shadow";
+        print a; // expect: shadow
+      }
+      print a; // expect: global
+      `
+    },
+    {
+      testLabel: 'Shadow local',
+      testValue: 
+      `
+      {
+        var a = "local";
+        {
+          var a = "shadow";
+          print a; // expect: shadow
+        }
+        print a; // expect: local
+      }
+      `
+    },
+    {
+      testLabel: 'Undefined global',
+      testValue: 
+      `
+      print notDefined;  // expect runtime error: Undefined variable 'notDefined'.
+      `
+    },
+    {
+      testLabel: 'Undefined local',
+      testValue: 
+      `
+      {
+        print notDefined;  // expect runtime error: Undefined variable 'notDefined'.
+      }
+      `
+    },
+    {
+      testLabel: 'Uninitialized',
+      testValue: 
+      `
+      var a;
+      print a; // expect: nil
+      `
+    },
+    {
+      testLabel: 'Unreached undefined',
+      testValue: 
+      `
+      if (false) {
+        print notDefined;
+      }
+      
+      print "ok"; // expect: ok
+      `
+    },
+    {
+      testLabel: 'Use false as var',
+      testValue: 
+      `
+      // [line 2] Error at 'false': Expect variable name.
+      var false = "value";
+      `
+    },
+    {
+      testLabel: 'Use global in initializer',
+      testValue: 
+      `
+      var a = "value";
+      var a = a;
+      print a; // expect: value
+      `
+    },
+    {
+      testLabel: 'Use local in initializer',
+      testValue: 
+      `
+      var a = "outer";
+      {
+        var a = a; // Error at 'a': Can't read local variable in its own declaration.
+      }
+      `
+    },
+    {
+      testLabel: 'Use nil as var',
+      testValue: 
+      `
+      // [line 2] Error at 'nil': Expect variable name.
+      var nil = "value";
+      `
+    },
+    {
+      testLabel: 'Use this as var',
+      testValue: 
+      `
+      // [line 2] Error at 'this': Expect variable name.
+      var this = "value";
+      `
+    }
   ],
   "while" : [
     {
-      testLabel: '',
+      testLabel: 'Class in body',
       testValue: 
       `
-
+      // [line 2] Error at 'class': Expect expression.
+      while (true) class Foo {}
       `
     },
+    {
+      testLabel: 'Closure in body',
+      testValue: 
+      `
+      var f1;
+      var f2;
+      var f3;
+      
+      var i = 1;
+      while (i < 4) {
+        var j = i;
+        fun f() { print j; }
+      
+        if (j == 1) f1 = f;
+        else if (j == 2) f2 = f;
+        else f3 = f;
+      
+        i = i + 1;
+      }
+      
+      f1(); // expect: 1
+      f2(); // expect: 2
+      f3(); // expect: 3
+      `
+    },
+    {
+      testLabel: 'Function in body',
+      testValue: 
+      `
+      // [line 2] Error at 'fun': Expect expression.
+      while (true) fun foo() {}
+      `
+    },
+    {
+      testLabel: 'Return closure',
+      testValue: 
+      `
+      fun f() {
+        while (true) {
+          var i = "i";
+          fun g() { print i; }
+          return g;
+        }
+      }
+      
+      var h = f();
+      h(); // expect: i
+      `
+    },
+    {
+      testLabel: 'Return inside',
+      testValue: 
+      `
+      fun f() {
+        while (true) {
+          var i = "i";
+          return i;
+        }
+      }
+      
+      print f();
+      // expect: i
+      `
+    },
+    {
+      testLabel: 'Syntax',
+      testValue: 
+      `
+      // Single-expression body.
+      var c = 0;
+      while (c < 3) print c = c + 1;
+      // expect: 1
+      // expect: 2
+      // expect: 3
+      
+      // Block body.
+      var a = 0;
+      while (a < 3) {
+        print a;
+        a = a + 1;
+      }
+      // expect: 0
+      // expect: 1
+      // expect: 2
+      
+      // Statement bodies.
+      while (false) if (true) 1; else 2;
+      while (false) while (true) 1;
+      while (false) for (;;) 1;
+      `
+    },
+    {
+      testLabel: 'Var in body',
+      testValue: 
+      `
+      // [line 2] Error at 'var': Expect expression.
+      while (true) var foo;
+      `
+    }
   ],
   "Spanish" : [
     {
@@ -4863,9 +5653,3224 @@ export const TESTS = {
       foo.bar; // expect runtime error: Undefined property 'bar'.
       `
     },
- 
+    {
+      testLabel: 'For: Class in body',
+      testValue: 
+      `
+      // [line 2] Error at 'class': Expect expression.
+      para (;;) class Foo {}
+      `
+    },
+    {
+      testLabel: 'For: Closure in body',
+      testValue: 
+      `
+      variable f1;
+      variable f2;
+      variable f3;
+      
+      para (variable i = 1; i < 4; i = i + 1) {
+        variable j = i;
+        funcion f() {
+          imprima i;
+          imprima j;
+        }
+      
+        si (j == 1) f1 = f;
+        sino si (j == 2) f2 = f;
+        sino f3 = f;
+      }
+      
+      f1(); // expect: 4
+            // expect: 1
+      f2(); // expect: 4
+            // expect: 2
+      f3(); // expect: 4
+            // expect: 3
+      `
+    },
+    {
+      testLabel: 'For: Function in body',
+      testValue: 
+      `
+      // [line 2] Error at 'funcion': Expect expression.
+      para (;;) funcion foo() {}
+      `
+    },
+    {
+      testLabel: 'For: Return closure',
+      testValue: 
+      `
+      funcion f() {
+        para (;;) {
+          variable i = "i";
+          funcion g() { imprima i; }
+          return g;
+        }
+      }
+      
+      variable h = f();
+      h(); // expect: i
+      `
+    },
+    {
+      testLabel: 'For: Return inside',
+      testValue: 
+      `
+      funcion f() {
+        para (;;) {
+          variable i = "i";
+          retorne i;
+        }
+      }
+      
+      imprima f();
+      // expect: i
+      `
+    },
+    {
+      testLabel: 'For: Scope',
+      testValue: 
+      `
+      {
+        variable i = "before";
+      
+        // New variable is in inner scope.
+        para (variable i = 0; i < 1; i = i + 1) {
+          imprima i; // expect: 0
+      
+          // Loop body is in second inner scope.
+          variable i = -1;
+          imprima i; // expect: -1
+        }
+      }
+      
+      {
+        // New variable shadows outer variable.
+        para (variable i = 0; i > 0; i = i + 1) {}
+      
+        // Goes out of scope after loop.
+        variable i = "después";
+        imprima i; // expect: después
+      
+        // Can reuse an existing variable.
+        para (i = 0; i < 1; i = i + 1) {
+          imprima i; // expect: 0
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'For: Statement condition',
+      testValue: 
+      `
+      // [line 3] Error at '{': Expect expression.
+      // [line 3] Error at ')': Expect ';' after expression.
+      para (variable a = 1; {}; a = a + 1) {}
+      `
+    },
+    {
+      testLabel: 'For: Statement increment',
+      testValue: 
+      `
+      // [line 2] Error at '{': Expect expression.
+      para (variable a = 1; a < 2; {}) {}
+      `
+    },
+    {
+      testLabel: 'For: Statement initalizer',
+      testValue: 
+      `
+      // [line 3] Error at '{': Expect expression.
+      // [line 3] Error at ')': Expect ';' after expression.
+      para ({}; a < 2; a = a + 1) {}
+      `
+    },
+    {
+      testLabel: 'For: Syntax',
+      testValue: 
+      `
+      // Single-expression body.
+      para (variable c = 0; c < 3;) imprima c = c + 1;
+      // expect: 1
+      // expect: 2
+      // expect: 3
+      
+      // Block body.
+      para (variable a = 0; a < 3; a = a + 1) {
+        imprima a;
+      }
+      // expect: 0
+      // expect: 1
+      // expect: 2
+      
+      // No clauses.
+      funcion foo() {
+        para (;;) return "hecho";
+      }
+      imprima foo(); // expect: hecho
+      
+      // No variable.
+      variable i = 0;
+      para (; i < 2; i = i + 1) imprima i;
+      // expect: 0
+      // expect: 1
+      
+      // No condition.
+      funcion bar() {
+        para (variable i = 0;; i = i + 1) {
+          imprima i;
+          si (i >= 2) retorne;
+        }
+      }
+      bar();
+      // expect: 0
+      // expect: 1
+      // expect: 2
+      
+      // No increment.
+      para (variable i = 0; i < 2;) {
+        imprima i;
+        i = i + 1;
+      }
+      // expect: 0
+      // expect: 1
+      
+      // Statement bodies.
+      para (; falso;) si (verdadero) 1; sino 2;
+      para (; falso;) mientras (verdadero) 1;
+      para (; falso;) para (;;) 1;
+      `
+    },
+    {
+      testLabel: 'For: Variable in body',
+      testValue: 
+      `
+      // [line 2] Error at 'var': Expect expression.
+      para (;;) variable foo;
+      `
+    },
+    {
+      testLabel: 'Function: Body must be block',
+      testValue: 
+      `
+      // [line 2] Error at '123': Expect '{' before function body.
+      funcion f() 123;
+      `
+    },
+    {
+      testLabel: 'Function: Empty body',
+      testValue: 
+      `
+      funcion f() {}
+      imprima f(); // expect: nil
+      `
+    },
+    {
+      testLabel: 'Function: Extra arguments',
+      testValue: 
+      `
+      funcion f(a, b) {
+        imprima a;
+        imprima b;
+      }
+      
+      f(1, 2, 3, 4); // expect runtime error: Expected 2 arguments but got 4.
+      `
+    },
+    {
+      testLabel: 'Function: Local mutual recursion',
+      testValue: 
+      `
+      {
+        funcion isEven(n) {
+          si (n == 0) retorne verdadero;
+          retorne isOdd(n - 1); // expect runtime error: Undefined variable 'isOdd'.
+        }
+      
+        funcion isOdd(n) {
+          si (n == 0) retorne falso;
+          retorne isEven(n - 1);
+        }
+      
+        isEven(4);
+      }
+      `
+    },
+    {
+      testLabel: 'Function: Local recursion',
+      testValue: 
+      `
+      {
+        funcion fib(n) {
+          si (n < 2) retorne n;
+          retorne fib(n - 1) + fib(n - 2);
+        }
+      
+        imprima fib(8); // expect: 21
+      }
+      `
+    },
+    {
+      testLabel: 'Function: Missing arguments',
+      testValue: 
+      `
+      funcion f(a, b) {}
 
-   
+      f(1); // expect runtime error: Expected 2 arguments but got 1.
+      `
+    },
+    {
+      testLabel: 'Function: Missing comma in parameters',
+      testValue: 
+      `
+      // [line 2] Error at 'c': Expect ')' after parameters.
+      funcion foo(a, b c, d, e, f) {}
+      `
+    },
+    {
+      testLabel: 'Function: Mutual recursion',
+      testValue: 
+      `
+      funcion isEven(n) {
+        si (n == 0) retorne verdadero;
+        retorne isOdd(n - 1);
+      }
+      
+      funcion isOdd(n) {
+        si (n == 0) retorne falso;
+        retorne isEven(n - 1);
+      }
+      
+      imprima isEven(4); // expect: true
+      imprima isOdd(3); // expect: true
+      `
+    },
+    {
+      testLabel: 'Function: Nested call with arguments',
+      testValue: 
+      `
+      funcion returnArg(arg) {
+        retorne arg;
+      }
+      
+      funcion returnFunCallWithArg(func, arg) {
+        retorne returnArg(func)(arg);
+      }
+      
+      funcion printArg(arg) {
+        imprima arg;
+      }
+      
+      returnFunCallWithArg(printArg, "hola mundo"); // expect: hola mundo
+      `
+    },
+    {
+      testLabel: 'Function: Parameters',
+      testValue: 
+      `
+      funcion f0() { retorne 0; }
+      imprima f0(); // expect: 0
+      
+      funcion f1(a) { retorne a; }
+      imprima f1(1); // expect: 1
+      
+      funcion f2(a, b) { retorne a + b; }
+      imprima f2(1, 2); // expect: 3
+      
+      funcion f3(a, b, c) { retorne a + b + c; }
+      imprima f3(1, 2, 3); // expect: 6
+      
+      funcion f4(a, b, c, d) { retorne a + b + c + d; }
+      imprima f4(1, 2, 3, 4); // expect: 10
+      
+      funcion f5(a, b, c, d, e) { retorne a + b + c + d + e; }
+      imprima f5(1, 2, 3, 4, 5); // expect: 15
+      
+      funcion f6(a, b, c, d, e, f) { retorne a + b + c + d + e + f; }
+      imprima f6(1, 2, 3, 4, 5, 6); // expect: 21
+      
+      funcion f7(a, b, c, d, e, f, g) { retorne a + b + c + d + e + f + g; }
+      imprima f7(1, 2, 3, 4, 5, 6, 7); // expect: 28
+      
+      funcion f8(a, b, c, d, e, f, g, h) { retorne a + b + c + d + e + f + g + h; }
+      imprima f8(1, 2, 3, 4, 5, 6, 7, 8); // expect: 36
+      `
+    },
+    {
+      testLabel: 'Function: Print',
+      testValue: 
+      `
+      funcion foo() {}
+      imprima foo; // expect: <fn foo>
+      `
+    },
+    {
+      testLabel: 'Function: Recursion',
+      testValue: 
+      `
+      funcion fib(n) {
+        si (n < 2) retorne n;
+        retorne fib(n - 1) + fib(n - 2);
+      }
+      
+      imprima fib(8); // expect: 21
+      `
+    },
+    {
+      testLabel: 'Function: Too many arguments',
+      testValue: 
+      `
+      funcion foo() {}
+      {
+        var a = 1;
+        foo(
+           a, // 1
+           a, // 2
+           a, // 3
+           a, // 4
+           a, // 5
+           a, // 6
+           a, // 7
+           a, // 8
+           a, // 9
+           a, // 10
+           a, // 11
+           a, // 12
+           a, // 13
+           a, // 14
+           a, // 15
+           a, // 16
+           a, // 17
+           a, // 18
+           a, // 19
+           a, // 20
+           a, // 21
+           a, // 22
+           a, // 23
+           a, // 24
+           a, // 25
+           a, // 26
+           a, // 27
+           a, // 28
+           a, // 29
+           a, // 30
+           a, // 31
+           a, // 32
+           a, // 33
+           a, // 34
+           a, // 35
+           a, // 36
+           a, // 37
+           a, // 38
+           a, // 39
+           a, // 40
+           a, // 41
+           a, // 42
+           a, // 43
+           a, // 44
+           a, // 45
+           a, // 46
+           a, // 47
+           a, // 48
+           a, // 49
+           a, // 50
+           a, // 51
+           a, // 52
+           a, // 53
+           a, // 54
+           a, // 55
+           a, // 56
+           a, // 57
+           a, // 58
+           a, // 59
+           a, // 60
+           a, // 61
+           a, // 62
+           a, // 63
+           a, // 64
+           a, // 65
+           a, // 66
+           a, // 67
+           a, // 68
+           a, // 69
+           a, // 70
+           a, // 71
+           a, // 72
+           a, // 73
+           a, // 74
+           a, // 75
+           a, // 76
+           a, // 77
+           a, // 78
+           a, // 79
+           a, // 80
+           a, // 81
+           a, // 82
+           a, // 83
+           a, // 84
+           a, // 85
+           a, // 86
+           a, // 87
+           a, // 88
+           a, // 89
+           a, // 90
+           a, // 91
+           a, // 92
+           a, // 93
+           a, // 94
+           a, // 95
+           a, // 96
+           a, // 97
+           a, // 98
+           a, // 99
+           a, // 100
+           a, // 101
+           a, // 102
+           a, // 103
+           a, // 104
+           a, // 105
+           a, // 106
+           a, // 107
+           a, // 108
+           a, // 109
+           a, // 110
+           a, // 111
+           a, // 112
+           a, // 113
+           a, // 114
+           a, // 115
+           a, // 116
+           a, // 117
+           a, // 118
+           a, // 119
+           a, // 120
+           a, // 121
+           a, // 122
+           a, // 123
+           a, // 124
+           a, // 125
+           a, // 126
+           a, // 127
+           a, // 128
+           a, // 129
+           a, // 130
+           a, // 131
+           a, // 132
+           a, // 133
+           a, // 134
+           a, // 135
+           a, // 136
+           a, // 137
+           a, // 138
+           a, // 139
+           a, // 140
+           a, // 141
+           a, // 142
+           a, // 143
+           a, // 144
+           a, // 145
+           a, // 146
+           a, // 147
+           a, // 148
+           a, // 149
+           a, // 150
+           a, // 151
+           a, // 152
+           a, // 153
+           a, // 154
+           a, // 155
+           a, // 156
+           a, // 157
+           a, // 158
+           a, // 159
+           a, // 160
+           a, // 161
+           a, // 162
+           a, // 163
+           a, // 164
+           a, // 165
+           a, // 166
+           a, // 167
+           a, // 168
+           a, // 169
+           a, // 170
+           a, // 171
+           a, // 172
+           a, // 173
+           a, // 174
+           a, // 175
+           a, // 176
+           a, // 177
+           a, // 178
+           a, // 179
+           a, // 180
+           a, // 181
+           a, // 182
+           a, // 183
+           a, // 184
+           a, // 185
+           a, // 186
+           a, // 187
+           a, // 188
+           a, // 189
+           a, // 190
+           a, // 191
+           a, // 192
+           a, // 193
+           a, // 194
+           a, // 195
+           a, // 196
+           a, // 197
+           a, // 198
+           a, // 199
+           a, // 200
+           a, // 201
+           a, // 202
+           a, // 203
+           a, // 204
+           a, // 205
+           a, // 206
+           a, // 207
+           a, // 208
+           a, // 209
+           a, // 210
+           a, // 211
+           a, // 212
+           a, // 213
+           a, // 214
+           a, // 215
+           a, // 216
+           a, // 217
+           a, // 218
+           a, // 219
+           a, // 220
+           a, // 221
+           a, // 222
+           a, // 223
+           a, // 224
+           a, // 225
+           a, // 226
+           a, // 227
+           a, // 228
+           a, // 229
+           a, // 230
+           a, // 231
+           a, // 232
+           a, // 233
+           a, // 234
+           a, // 235
+           a, // 236
+           a, // 237
+           a, // 238
+           a, // 239
+           a, // 240
+           a, // 241
+           a, // 242
+           a, // 243
+           a, // 244
+           a, // 245
+           a, // 246
+           a, // 247
+           a, // 248
+           a, // 249
+           a, // 250
+           a, // 251
+           a, // 252
+           a, // 253
+           a, // 254
+           a, // 255
+           a); // Error at 'a': Can't have more than 255 arguments.
+      }
+      `
+    },
+    {
+      testLabel: 'Function: Too many parameters',
+      testValue: 
+      `
+      // 256 parameters.
+      funcion f(
+          a1,
+          a2,
+          a3,
+          a4,
+          a5,
+          a6,
+          a7,
+          a8,
+          a9,
+          a10,
+          a11,
+          a12,
+          a13,
+          a14,
+          a15,
+          a16,
+          a17,
+          a18,
+          a19,
+          a20,
+          a21,
+          a22,
+          a23,
+          a24,
+          a25,
+          a26,
+          a27,
+          a28,
+          a29,
+          a30,
+          a31,
+          a32,
+          a33,
+          a34,
+          a35,
+          a36,
+          a37,
+          a38,
+          a39,
+          a40,
+          a41,
+          a42,
+          a43,
+          a44,
+          a45,
+          a46,
+          a47,
+          a48,
+          a49,
+          a50,
+          a51,
+          a52,
+          a53,
+          a54,
+          a55,
+          a56,
+          a57,
+          a58,
+          a59,
+          a60,
+          a61,
+          a62,
+          a63,
+          a64,
+          a65,
+          a66,
+          a67,
+          a68,
+          a69,
+          a70,
+          a71,
+          a72,
+          a73,
+          a74,
+          a75,
+          a76,
+          a77,
+          a78,
+          a79,
+          a80,
+          a81,
+          a82,
+          a83,
+          a84,
+          a85,
+          a86,
+          a87,
+          a88,
+          a89,
+          a90,
+          a91,
+          a92,
+          a93,
+          a94,
+          a95,
+          a96,
+          a97,
+          a98,
+          a99,
+          a100,
+          a101,
+          a102,
+          a103,
+          a104,
+          a105,
+          a106,
+          a107,
+          a108,
+          a109,
+          a110,
+          a111,
+          a112,
+          a113,
+          a114,
+          a115,
+          a116,
+          a117,
+          a118,
+          a119,
+          a120,
+          a121,
+          a122,
+          a123,
+          a124,
+          a125,
+          a126,
+          a127,
+          a128,
+          a129,
+          a130,
+          a131,
+          a132,
+          a133,
+          a134,
+          a135,
+          a136,
+          a137,
+          a138,
+          a139,
+          a140,
+          a141,
+          a142,
+          a143,
+          a144,
+          a145,
+          a146,
+          a147,
+          a148,
+          a149,
+          a150,
+          a151,
+          a152,
+          a153,
+          a154,
+          a155,
+          a156,
+          a157,
+          a158,
+          a159,
+          a160,
+          a161,
+          a162,
+          a163,
+          a164,
+          a165,
+          a166,
+          a167,
+          a168,
+          a169,
+          a170,
+          a171,
+          a172,
+          a173,
+          a174,
+          a175,
+          a176,
+          a177,
+          a178,
+          a179,
+          a180,
+          a181,
+          a182,
+          a183,
+          a184,
+          a185,
+          a186,
+          a187,
+          a188,
+          a189,
+          a190,
+          a191,
+          a192,
+          a193,
+          a194,
+          a195,
+          a196,
+          a197,
+          a198,
+          a199,
+          a200,
+          a201,
+          a202,
+          a203,
+          a204,
+          a205,
+          a206,
+          a207,
+          a208,
+          a209,
+          a210,
+          a211,
+          a212,
+          a213,
+          a214,
+          a215,
+          a216,
+          a217,
+          a218,
+          a219,
+          a220,
+          a221,
+          a222,
+          a223,
+          a224,
+          a225,
+          a226,
+          a227,
+          a228,
+          a229,
+          a230,
+          a231,
+          a232,
+          a233,
+          a234,
+          a235,
+          a236,
+          a237,
+          a238,
+          a239,
+          a240,
+          a241,
+          a242,
+          a243,
+          a244,
+          a245,
+          a246,
+          a247,
+          a248,
+          a249,
+          a250,
+          a251,
+          a252,
+          a253,
+          a254,
+          a255, a) {} // Error at 'a': Can't have more than 255 parameters.
+      `
+    },
+    {
+      testLabel: 'If: Class in else',
+      testValue: 
+      `
+      // [line 2] Error at 'class': Expect expression.
+      si (verdadero) "ok"; sino class Foo {}
+      `
+    },
+    {
+      testLabel: 'If: Class in then',
+      testValue: 
+      `
+      // [line 2] Error at 'class': Expect expression.
+      si (verdadero) class Foo {}
+      `
+    },
+    {
+      testLabel: 'If: Dangling else',
+      testValue: 
+      `
+      // A dangling else binds to the right-most if.
+      si (verdadero) si (falso) imprima "bad"; sino imprima "good"; // expect: good
+      si (falso) si (verdadero) imprima "bad"; sino imprima "bad";
+      `
+    },
+    {
+      testLabel: 'If: Else',
+      testValue: 
+      `
+      // Evaluate the 'else' expression if the condition is false.
+      si (verdadero) imprima "good"; sino imprima "bad"; // expect: good
+      si (falso) imprima "bad"; sino imprima "good"; // expect: good
+      
+      // Allow block body.
+      si (falso) nulo; sino { imprima "block"; } // expect: block
+      `
+    },
+    {
+      testLabel: 'If: Function in else',
+      testValue: 
+      `
+      // [line 2] Error at 'fun': Expect expression.
+      si (verdadero) "ok"; sino funcion foo() {}
+      `
+    },
+    {
+      testLabel: 'If: Function in then',
+      testValue: 
+      `
+      // [line 2] Error at 'fun': Expect expression.
+      si (verdadero) funcion foo() {}
+      `
+    },
+    {
+      testLabel: 'If: If',
+      testValue: 
+      `
+      // Evaluate the 'then' expression if the condition is true.
+      si (verdadero) imprima "good"; // expect: good
+      si (falso) imprima "bad";
+      
+      // Allow block body.
+      si (verdadero) { imprima "block"; } // expect: block
+      
+      // Assignment in if condition.
+      variable a = false;
+      si (a = verdadero) imprima a; // expect: true
+      `
+    },
+    {
+      testLabel: 'If: Truth',
+      testValue: 
+      `
+      // False and nil are false.
+      si (falso) imprima "bad"; sino imprima "false"; // expect: false
+      si (nulo) imprima "bad"; sino imprima "nulo"; // expect: nulo
+      
+      // Everything else is true.
+      si (verdadero) imprima verdadero; // expect: true
+      si (0) imprima 0; // expect: 0
+      si ("") imprima "empty"; // expect: empty
+      `
+    },
+    {
+      testLabel: 'If: Variable in else',
+      testValue: 
+      `
+      // [line 2] Error at 'var': Expect expression.
+      si (verdadero) "ok"; sino variable foo;
+      `
+    },
+    {
+      testLabel: 'If: Variable in then',
+      testValue: 
+      `
+      // [line 2] Error at 'var': Expect expression.
+      si (verdadero) variable foo;
+      `
+    },
+    {
+      testLabel: 'Inheritance: Constructor',
+      testValue: 
+      `
+      clase A {
+        inicio(param) {
+          este.field = param;
+        }
+      
+        test() {
+          imprima este.field;
+        }
+      }
+      
+      clase B < A {}
+      
+      variable b = B("value");
+      b.test(); // expect: value
+      `
+    },
+    {
+      testLabel: 'Inheritance: Inherit from function',
+      testValue: 
+      `
+      fun foo() {}
 
+      clase Subclase < foo {} // expect runtime error: Superclass must be a class.
+      `
+    },
+    {
+      testLabel: 'Inheritance: Inherit from nil',
+      testValue: 
+      `
+      variable Nulo = nulo;
+      clase Foo < Nulo {} // expect runtime error: Superclass must be a class.
+      `
+    },
+    {
+      testLabel: 'Inheritance: Inherit from number',
+      testValue: 
+      `
+      variable Number = 123;
+      clase Foo < Number {} // expect runtime error: Superclass must be a class.
+      `
+    },
+    {
+      testLabel: 'Inheritance: Inherit methods',
+      testValue: 
+      `
+      clase Foo {
+        methodOnFoo() { imprima "foo"; }
+        sobreescriba() { imprima "foo"; }
+      }
+      
+      clase Bar < Foo {
+        methodOnBar() { imprima "bar"; }
+        sobreescriba() { imprima "bar"; }
+      }
+      
+      variable bar = Bar();
+      bar.methodOnFoo(); // expect: foo
+      bar.methodOnBar(); // expect: bar
+      bar.sobreescriba(); // expect: bar
+      `
+    },
+    {
+      testLabel: 'Inheritance: Parenthesized superclass',
+      testValue: 
+      `
+      clase Foo {}
+
+      // [line 4] Error at '(': Expect superclass name.
+      clase Bar < (Foo) {}
+      `
+    },
+    {
+      testLabel: 'Inheritance: Set fields from base class',
+      testValue: 
+      `
+      clase Foo {
+        foo(a, b) {
+          este.field1 = a;
+          este.field2 = b;
+        }
+      
+        fooImprima() {
+          imprima este.field1;
+          imprima este.field2;
+        }
+      }
+      
+      clase Bar < Foo {
+        bar(a, b) {
+          este.field1 = a;
+          este.field2 = b;
+        }
+      
+        barImprima() {
+          imprima este.field1;
+          imprima este.field2;
+        }
+      }
+      
+      variable bar = Bar();
+      bar.foo("foo 1", "foo 2");
+      bar.fooImprima();
+      // expect: foo 1
+      // expect: foo 2
+      
+      bar.bar("bar 1", "bar 2");
+      bar.barImprima();
+      // expect: bar 1
+      // expect: bar 2
+      
+      bar.fooImprima();
+      // expect: bar 1
+      // expect: bar 2
+      `
+    },
+    {
+      testLabel: 'Logical Operator: And',
+      testValue: 
+      `
+      // Note: These tests implicitly depend on ints being truthy.
+
+      // Return the first non-true argument.
+      imprima falso y 1; // expect: false
+      imprima verdadero y 1; // expect: 1
+      imprima 1 y 2 y falso; // expect: false
+      
+      // Return the last argument if all are true.
+      imprima 1 y verdadero; // expect: true
+      imprima 1 y 2 y 3; // expect: 3
+      
+      // Short-circuit at the first false argument.
+      variable a = "before";
+      variable b = "before";
+      (a = verdadero) and
+          (b = falso) and
+          (a = "bad");
+      imprima a; // expect: true
+      imprima b; // expect: false
+      `
+    },
+    {
+      testLabel: 'Logical Operator: And truth',
+      testValue: 
+      `
+      // False and nil are false.
+      imprima falso y "bad"; // expect: false
+      imprima nulo y "bad"; // expect: nil
+      
+      // Everything else is true.
+      imprima verdadero y "ok"; // expect: ok
+      imprima 0 y "ok"; // expect: ok
+      imprima "" y "ok"; // expect: ok
+      `
+    },
+    {
+      testLabel: 'Logical Operator: Or',
+      testValue: 
+      `
+      // Note: These tests implicitly depend on ints being truthy.
+
+      // Return the first true argument.
+      imprima 1 o verdadero; // expect: 1
+      imprima falso o 1; // expect: 1
+      imprima falso o falso o verdadero; // expect: true
+      
+      // Return the last argument if all are false.
+      imprima falso o falso; // expect: false
+      imprima falso o falso o falso; // expect: false
+      
+      // Short-circuit at the first true argument.
+      variable a = "before";
+      variable b = "before";
+      (a = falso) or
+          (b = verdadero) or
+          (a = "bad");
+      imprima a; // expect: false
+      imprima b; // expect: true
+      `
+    },
+    {
+      testLabel: 'Logical Operator: Or truth',
+      testValue: 
+      `
+      // False and nil are false.
+      imprima falso o "ok"; // expect: ok
+      imprima nulo o "ok"; // expect: ok
+      
+      // Everything else is true.
+      imprima verdadero o "ok"; // expect: true
+      imprima 0 o "ok"; // expect: 0
+      imprima "s" o "ok"; // expect: s
+      `
+    },
+    {
+      testLabel: 'Method: Arity',
+      testValue: 
+      `
+      clase Foo {
+        metodo0() { retorne "no args"; }
+        metodo1(a) { retorne a; }
+        metodo2(a, b) { retorne a + b; }
+        metodo3(a, b, c) { retorne a + b + c; }
+        metodo4(a, b, c, d) { retorne a + b + c + d; }
+        metodo5(a, b, c, d, e) { retorne a + b + c + d + e; }
+        metodo6(a, b, c, d, e, f) { retorne a + b + c + d + e + f; }
+        metodo7(a, b, c, d, e, f, g) { retorne a + b + c + d + e + f + g; }
+        metodo8(a, b, c, d, e, f, g, h) { retorne a + b + c + d + e + f + g + h; }
+      }
+      
+      variable foo = Foo();
+      imprima foo.metodo0(); // expect: no args
+      imprima foo.metodo1(1); // expect: 1
+      imprima foo.metodo2(1, 2); // expect: 3
+      imprima foo.metodo3(1, 2, 3); // expect: 6
+      imprima foo.metodo4(1, 2, 3, 4); // expect: 10
+      imprima foo.metodo5(1, 2, 3, 4, 5); // expect: 15
+      imprima foo.metodo6(1, 2, 3, 4, 5, 6); // expect: 21
+      imprima foo.metodo7(1, 2, 3, 4, 5, 6, 7); // expect: 28
+      imprima foo.metodo8(1, 2, 3, 4, 5, 6, 7, 8); // expect: 36
+      `
+    },
+    {
+      testLabel: 'Method: Empty block',
+      testValue: 
+      `
+      clase Foo {
+        bar() {}
+      }
+      
+      imprima Foo().bar(); // expect: nil
+      `
+    },
+    {
+      testLabel: 'Method: Extra argument',
+      testValue: 
+      `
+      clase Foo {
+        metodo(a, b) {
+          imprima a;
+          imprima b;
+        }
+      }
+      
+      Foo().metodo(1, 2, 3, 4); // expect runtime error: Expected 2 arguments but got 4.
+      `
+    },
+    {
+      testLabel: 'Method: Missing argument',
+      testValue: 
+      `
+      clase Foo {
+        metodo(a, b) {}
+      }
+      
+      Foo().metodo(1); // expect runtime error: Expected 2 arguments but got 1.
+      `
+    },
+    {
+      testLabel: 'Method: Not found',
+      testValue: 
+      `
+      clase Foo {}
+
+      Foo().unknown(); // expect runtime error: Undefined property 'unknown'.
+      `
+    },
+    {
+      testLabel: 'Method: Print bound method',
+      testValue: 
+      `
+      clase Foo {
+        metodo() { }
+      }
+      variable foo = Foo();
+      imprima foo.metodo; // expect: <fn method>
+      `
+    },
+    {
+      testLabel: 'Method: Refer to name',
+      testValue: 
+      `
+      clase Foo {
+        metodo() {
+          imprima metodo; // expect runtime error: Undefined variable 'metodo'.
+        }
+      }
+      
+      Foo().metodo();
+      `
+    },
+    {
+      testLabel: 'Method: Too many arguments',
+      testValue: 
+      `
+      {
+        variable a = 1;
+        true.metodo(
+           a, // 1
+           a, // 2
+           a, // 3
+           a, // 4
+           a, // 5
+           a, // 6
+           a, // 7
+           a, // 8
+           a, // 9
+           a, // 10
+           a, // 11
+           a, // 12
+           a, // 13
+           a, // 14
+           a, // 15
+           a, // 16
+           a, // 17
+           a, // 18
+           a, // 19
+           a, // 20
+           a, // 21
+           a, // 22
+           a, // 23
+           a, // 24
+           a, // 25
+           a, // 26
+           a, // 27
+           a, // 28
+           a, // 29
+           a, // 30
+           a, // 31
+           a, // 32
+           a, // 33
+           a, // 34
+           a, // 35
+           a, // 36
+           a, // 37
+           a, // 38
+           a, // 39
+           a, // 40
+           a, // 41
+           a, // 42
+           a, // 43
+           a, // 44
+           a, // 45
+           a, // 46
+           a, // 47
+           a, // 48
+           a, // 49
+           a, // 50
+           a, // 51
+           a, // 52
+           a, // 53
+           a, // 54
+           a, // 55
+           a, // 56
+           a, // 57
+           a, // 58
+           a, // 59
+           a, // 60
+           a, // 61
+           a, // 62
+           a, // 63
+           a, // 64
+           a, // 65
+           a, // 66
+           a, // 67
+           a, // 68
+           a, // 69
+           a, // 70
+           a, // 71
+           a, // 72
+           a, // 73
+           a, // 74
+           a, // 75
+           a, // 76
+           a, // 77
+           a, // 78
+           a, // 79
+           a, // 80
+           a, // 81
+           a, // 82
+           a, // 83
+           a, // 84
+           a, // 85
+           a, // 86
+           a, // 87
+           a, // 88
+           a, // 89
+           a, // 90
+           a, // 91
+           a, // 92
+           a, // 93
+           a, // 94
+           a, // 95
+           a, // 96
+           a, // 97
+           a, // 98
+           a, // 99
+           a, // 100
+           a, // 101
+           a, // 102
+           a, // 103
+           a, // 104
+           a, // 105
+           a, // 106
+           a, // 107
+           a, // 108
+           a, // 109
+           a, // 110
+           a, // 111
+           a, // 112
+           a, // 113
+           a, // 114
+           a, // 115
+           a, // 116
+           a, // 117
+           a, // 118
+           a, // 119
+           a, // 120
+           a, // 121
+           a, // 122
+           a, // 123
+           a, // 124
+           a, // 125
+           a, // 126
+           a, // 127
+           a, // 128
+           a, // 129
+           a, // 130
+           a, // 131
+           a, // 132
+           a, // 133
+           a, // 134
+           a, // 135
+           a, // 136
+           a, // 137
+           a, // 138
+           a, // 139
+           a, // 140
+           a, // 141
+           a, // 142
+           a, // 143
+           a, // 144
+           a, // 145
+           a, // 146
+           a, // 147
+           a, // 148
+           a, // 149
+           a, // 150
+           a, // 151
+           a, // 152
+           a, // 153
+           a, // 154
+           a, // 155
+           a, // 156
+           a, // 157
+           a, // 158
+           a, // 159
+           a, // 160
+           a, // 161
+           a, // 162
+           a, // 163
+           a, // 164
+           a, // 165
+           a, // 166
+           a, // 167
+           a, // 168
+           a, // 169
+           a, // 170
+           a, // 171
+           a, // 172
+           a, // 173
+           a, // 174
+           a, // 175
+           a, // 176
+           a, // 177
+           a, // 178
+           a, // 179
+           a, // 180
+           a, // 181
+           a, // 182
+           a, // 183
+           a, // 184
+           a, // 185
+           a, // 186
+           a, // 187
+           a, // 188
+           a, // 189
+           a, // 190
+           a, // 191
+           a, // 192
+           a, // 193
+           a, // 194
+           a, // 195
+           a, // 196
+           a, // 197
+           a, // 198
+           a, // 199
+           a, // 200
+           a, // 201
+           a, // 202
+           a, // 203
+           a, // 204
+           a, // 205
+           a, // 206
+           a, // 207
+           a, // 208
+           a, // 209
+           a, // 210
+           a, // 211
+           a, // 212
+           a, // 213
+           a, // 214
+           a, // 215
+           a, // 216
+           a, // 217
+           a, // 218
+           a, // 219
+           a, // 220
+           a, // 221
+           a, // 222
+           a, // 223
+           a, // 224
+           a, // 225
+           a, // 226
+           a, // 227
+           a, // 228
+           a, // 229
+           a, // 230
+           a, // 231
+           a, // 232
+           a, // 233
+           a, // 234
+           a, // 235
+           a, // 236
+           a, // 237
+           a, // 238
+           a, // 239
+           a, // 240
+           a, // 241
+           a, // 242
+           a, // 243
+           a, // 244
+           a, // 245
+           a, // 246
+           a, // 247
+           a, // 248
+           a, // 249
+           a, // 250
+           a, // 251
+           a, // 252
+           a, // 253
+           a, // 254
+           a, // 255
+           a); // Error at 'a': Can't have more than 255 arguments.
+      }
+      `
+    },
+    {
+      testLabel: 'Method: Too many parameters',
+      testValue: 
+      `
+      clase Foo {
+        // 256 parameters.
+        metodo(
+          a1,
+          a2,
+          a3,
+          a4,
+          a5,
+          a6,
+          a7,
+          a8,
+          a9,
+          a10,
+          a11,
+          a12,
+          a13,
+          a14,
+          a15,
+          a16,
+          a17,
+          a18,
+          a19,
+          a20,
+          a21,
+          a22,
+          a23,
+          a24,
+          a25,
+          a26,
+          a27,
+          a28,
+          a29,
+          a30,
+          a31,
+          a32,
+          a33,
+          a34,
+          a35,
+          a36,
+          a37,
+          a38,
+          a39,
+          a40,
+          a41,
+          a42,
+          a43,
+          a44,
+          a45,
+          a46,
+          a47,
+          a48,
+          a49,
+          a50,
+          a51,
+          a52,
+          a53,
+          a54,
+          a55,
+          a56,
+          a57,
+          a58,
+          a59,
+          a60,
+          a61,
+          a62,
+          a63,
+          a64,
+          a65,
+          a66,
+          a67,
+          a68,
+          a69,
+          a70,
+          a71,
+          a72,
+          a73,
+          a74,
+          a75,
+          a76,
+          a77,
+          a78,
+          a79,
+          a80,
+          a81,
+          a82,
+          a83,
+          a84,
+          a85,
+          a86,
+          a87,
+          a88,
+          a89,
+          a90,
+          a91,
+          a92,
+          a93,
+          a94,
+          a95,
+          a96,
+          a97,
+          a98,
+          a99,
+          a100,
+          a101,
+          a102,
+          a103,
+          a104,
+          a105,
+          a106,
+          a107,
+          a108,
+          a109,
+          a110,
+          a111,
+          a112,
+          a113,
+          a114,
+          a115,
+          a116,
+          a117,
+          a118,
+          a119,
+          a120,
+          a121,
+          a122,
+          a123,
+          a124,
+          a125,
+          a126,
+          a127,
+          a128,
+          a129,
+          a130,
+          a131,
+          a132,
+          a133,
+          a134,
+          a135,
+          a136,
+          a137,
+          a138,
+          a139,
+          a140,
+          a141,
+          a142,
+          a143,
+          a144,
+          a145,
+          a146,
+          a147,
+          a148,
+          a149,
+          a150,
+          a151,
+          a152,
+          a153,
+          a154,
+          a155,
+          a156,
+          a157,
+          a158,
+          a159,
+          a160,
+          a161,
+          a162,
+          a163,
+          a164,
+          a165,
+          a166,
+          a167,
+          a168,
+          a169,
+          a170,
+          a171,
+          a172,
+          a173,
+          a174,
+          a175,
+          a176,
+          a177,
+          a178,
+          a179,
+          a180,
+          a181,
+          a182,
+          a183,
+          a184,
+          a185,
+          a186,
+          a187,
+          a188,
+          a189,
+          a190,
+          a191,
+          a192,
+          a193,
+          a194,
+          a195,
+          a196,
+          a197,
+          a198,
+          a199,
+          a200,
+          a201,
+          a202,
+          a203,
+          a204,
+          a205,
+          a206,
+          a207,
+          a208,
+          a209,
+          a210,
+          a211,
+          a212,
+          a213,
+          a214,
+          a215,
+          a216,
+          a217,
+          a218,
+          a219,
+          a220,
+          a221,
+          a222,
+          a223,
+          a224,
+          a225,
+          a226,
+          a227,
+          a228,
+          a229,
+          a230,
+          a231,
+          a232,
+          a233,
+          a234,
+          a235,
+          a236,
+          a237,
+          a238,
+          a239,
+          a240,
+          a241,
+          a242,
+          a243,
+          a244,
+          a245,
+          a246,
+          a247,
+          a248,
+          a249,
+          a250,
+          a251,
+          a252,
+          a253,
+          a254,
+          a255, a) {} // Error at 'a': Can't have more than 255 parameters.
+      }
+      `
+    },
+    {
+      testLabel: 'Misc: Precedence',
+      testValue: 
+      `
+      // * has higher precedence than +.
+      imprima 2 + 3 * 4; // expect: 14
+      
+      // * has higher precedence than -.
+      imprima 20 - 3 * 4; // expect: 8
+      
+      // / has higher precedence than +.
+      imprima 2 + 6 / 3; // expect: 4
+      
+      // / has higher precedence than -.
+      imprima 2 - 6 / 3; // expect: 0
+      
+      // < has higher precedence than ==.
+      imprima falso == 2 < 1; // expect: true
+      
+      // > has higher precedence than ==.
+      imprima falso == 1 > 2; // expect: true
+      
+      // <= has higher precedence than ==.
+      imprima falso == 2 <= 1; // expect: true
+      
+      // >= has higher precedence than ==.
+      imprima falso == 1 >= 2; // expect: true
+      
+      // 1 - 1 is not space-sensitive.
+      imprima 1 - 1; // expect: 0
+      imprima 1 -1;  // expect: 0
+      imprima 1- 1;  // expect: 0
+      imprima 1-1;   // expect: 0
+      
+      // Using () for grouping.
+      imprima (2 * (6 - (2 + 2))); // expect: 4
+      `
+    },
+    {
+      testLabel: 'Misc: Unexpected character',
+      testValue: 
+      `
+      // [line 3] Error: Unexpected character: |
+      // [line 3] Error at 'b': Expect ')' after arguments.
+      foo(a | b);
+      `
+    },
+    {
+      testLabel: 'Nil Litral',
+      testValue: 
+      `
+      imprima nulo; // expect: nil
+      `
+    },
+    {
+      testLabel: 'Numbers: Decimal point at EOF',
+      testValue: 
+      `
+      // [line 2] Error at end: Expect property name after '.'.
+      123.
+      `
+    },
+    {
+      testLabel: 'Numbers: Leading dot',
+      testValue: 
+      `
+      // [line 2] Error at '.': Expect expression.
+      .123;
+      `
+    },
+    {
+      testLabel: 'Numbers: Litrals',
+      testValue: 
+      `
+      imprima 123;     // expect: 123
+      imprima 987654;  // expect: 987654
+      imprima 0;       // expect: 0
+      imprima -0;      // expect: 0
+      
+      imprima 123.456; // expect: 123.456
+      imprima -0.001;  // expect: -0.001
+      `
+    },
+    {
+      testLabel: 'Numbers: Trailing dot',
+      testValue: 
+      `
+      // [line 2] Error at ';': Expect property name after '.'.
+      123.;
+      `
+    },
+    {
+      testLabel: 'Operator: Add',
+      testValue: 
+      `
+      imprima 123 + 456; // expect: 579
+      imprima "str" + "ing"; // expect: string
+      `
+    },
+    {
+      testLabel: 'Operator: Add bool',
+      testValue: 
+      `
+      verdadero + nil; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Operator: Add bool num',
+      testValue: 
+      `
+      verdadero + 123; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Operator: Add bool string',
+      testValue: 
+      `
+      verdadero + "s"; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Operator: Add nil nil',
+      testValue: 
+      `
+      nil + nil; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Operator: Add num nil',
+      testValue: 
+      `
+      1 + nil; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Operator: Add string nil',
+      testValue: 
+      `
+      "s" + nil; // expect runtime error: Operands must be two numbers or two strings.
+      `
+    },
+    {
+      testLabel: 'Operator: Comparision',
+      testValue: 
+      `
+      imprima 1 < 2;    // expect: true
+      imprima 2 < 2;    // expect: false
+      imprima 2 < 1;    // expect: false
+      
+      imprima 1 <= 2;    // expect: true
+      imprima 2 <= 2;    // expect: true
+      imprima 2 <= 1;    // expect: false
+      
+      imprima 1 > 2;    // expect: false
+      imprima 2 > 2;    // expect: false
+      imprima 2 > 1;    // expect: true
+      
+      imprima 1 >= 2;    // expect: false
+      imprima 2 >= 2;    // expect: true
+      imprima 2 >= 1;    // expect: true
+      
+      // Zero and negative zero compare the same.
+      imprima 0 < -0; // expect: false
+      imprima -0 < 0; // expect: false
+      imprima 0 > -0; // expect: false
+      imprima -0 > 0; // expect: false
+      imprima 0 <= -0; // expect: true
+      imprima -0 <= 0; // expect: true
+      imprima 0 >= -0; // expect: true
+      imprima -0 >= 0; // expect: true
+      `
+    },
+    {
+      testLabel: 'Operator: Divide',
+      testValue: 
+      `
+      imprima 8 / 2;         // expect: 4
+      imprima 12.34 / 12.34;  // expect: 1
+      `
+    },
+    {
+      testLabel: 'Operator: Divide non-num num',
+      testValue: 
+      `
+      "1" / 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Divide num non-num',
+      testValue: 
+      `
+      1 / "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Equals',
+      testValue: 
+      `
+      imprima nil == nil; // expect: true
+  
+      imprima verdadero == verdadero; // expect: true
+      imprima verdadero == falso; // expect: false
+      
+      imprima 1 == 1; // expect: true
+      imprima 1 == 2; // expect: false
+      
+      imprima "str" == "str"; // expect: true
+      imprima "str" == "ing"; // expect: false
+      
+      imprima nil == falso; // expect: false
+      imprima falso == 0; // expect: false
+      imprima 0 == "0"; // expect: false
+      `
+    },
+    {
+      testLabel: 'Operator: Equals class',
+      testValue: 
+      `
+      // Bound methods have identity equality.
+      clase Foo {}
+      clase Bar {}
+      
+      imprima Foo == Foo; // expect: true
+      imprima Foo == Bar; // expect: false
+      imprima Bar == Foo; // expect: false
+      imprima Bar == Bar; // expect: true
+      
+      imprima Foo == "Foo"; // expect: false
+      imprima Foo == nil;   // expect: false
+      imprima Foo == 123;   // expect: false
+      imprima Foo == verdadero;  // expect: false
+      `
+    },
+    {
+      testLabel: 'Operator: Equals method',
+      testValue: 
+      `
+      // Bound methods have identity equality.
+      clase Foo {
+        metodo() {}
+      }
+      
+      variable foo = Foo();
+      variable fooMethod = foo.metodo;
+      
+      // Same bound method.
+      imprima fooMethod == fooMethod; // expect: true
+      
+      // Different closurizations.
+      imprima foo.metodo == foo.metodo; // expect: false
+      `
+    },
+    {
+      testLabel: 'Operator: Greater non-num num',
+      testValue: 
+      `
+      "1" > 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Greater num non-num',
+      testValue: 
+      `
+      1 > "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Greater or equal non-num num',
+      testValue: 
+      `
+      "1" >= 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Greater or equal num non-num',
+      testValue: 
+      `
+      1 >= "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Less non-num num',
+      testValue: 
+      `
+      "1" < 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Less num non-num',
+      testValue: 
+      `
+      1 < "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Less or equal non-num num',
+      testValue: 
+      `
+      "1" <= 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Less or equal num non-num',
+      testValue: 
+      `
+      1 <= "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Multiply',
+      testValue: 
+      `
+      imprima 5 * 3; // expect: 15
+      imprima 12.34 * 0.3; // expect: 3.702
+      `
+    },
+    {
+      testLabel: 'Operator: Multiply non-num num',
+      testValue: 
+      `
+      "1" * 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Multiply num non-num',
+      testValue: 
+      `
+      1 * "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Negate',
+      testValue: 
+      `
+      imprima -(3); // expect: -3
+      imprima --(3); // expect: 3
+      imprima ---(3); // expect: -3
+      `
+    },
+    {
+      testLabel: 'Operator: Negate non-num',
+      testValue: 
+      `
+      -"s"; // expect runtime error: Operand must be a number.
+      `
+    },
+    {
+      testLabel: 'Operator: Not',
+      testValue: 
+      `
+      imprima !verdadero;     // expect: false
+      imprima !falso;    // expect: true
+      imprima !!verdadero;    // expect: true
+      
+      imprima !123;      // expect: false
+      imprima !0;        // expect: false
+      
+      imprima !nulo;     // expect: true
+      
+      imprima !"";       // expect: false
+      
+      fun foo() {}
+      imprima !foo;      // expect: false
+      `
+    },
+    {
+      testLabel: 'Operator: Not class',
+      testValue: 
+      `
+      clase Bar {}
+      imprima !Bar;      // expect: false
+      imprima !Bar();    // expect: false
+      `
+    },
+    {
+      testLabel: 'Operator: Not equals',
+      testValue: 
+      `
+      imprima nulo != nulo; // expect: false
+  
+      imprima verdadero != verdadero; // expect: false
+      imprima verdadero != falso; // expect: true
+      
+      imprima 1 != 1; // expect: false
+      imprima 1 != 2; // expect: true
+      
+      imprima "str" != "str"; // expect: false
+      imprima "str" != "ing"; // expect: true
+      
+      imprima nulo != falso; // expect: true
+      imprima falso != 0; // expect: true
+      imprima 0 != "0"; // expect: true
+      `
+    },
+    {
+      testLabel: 'Operator: Subtract',
+      testValue: 
+      `
+      imprima 4 - 3; // expect: 1
+      imprima 1.2 - 1.2; // expect: 0
+      `
+    },
+    {
+      testLabel: 'Operator: Subtract non-num num',
+      testValue: 
+      `
+      "1" - 1; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Operator: Subtract num non-num',
+      testValue: 
+      `
+      1 - "1"; // expect runtime error: Operands must be numbers.
+      `
+    },
+    {
+      testLabel: 'Print: Missing argument',
+      testValue: 
+      `
+      // [line 2] Error at ';': Expect expression.
+      imprima;
+      `
+    },
+    {
+      testLabel: 'Regression: 394',
+      testValue: 
+      `
+      {
+        clase A {}
+        clase B < A {}
+        imprima B; // expect: B
+      }
+      `
+    },
+    {
+      testLabel: 'Regression: 40',
+      testValue: 
+      `
+      funcion caller(g) {
+        g();
+        // g should be a function, not nil.
+        imprima g == nulo; // expect: false
+      }
+      
+      funcion callCaller() {
+        variable capturedVar = "antes";
+        variable a = "a";
+      
+        funcion f() {
+          // Commenting the next line out prevents the bug!
+          capturedVar = "despues";
+      
+          // Returning anything also fixes it, even nil:
+          //return nil;
+        }
+      
+        caller(f);
+      }
+      
+      callCaller();
+      `
+    },
+    {
+      testLabel: 'Return: After else',
+      testValue: 
+      `
+      funcion f() {
+        si (falso) "no"; else retorne "ok";
+      }
+      
+      imprima f(); // expect: ok
+      `
+    },
+    {
+      testLabel: 'Return: After if',
+      testValue: 
+      `
+      funcion f() {
+        si (true) retorne "ok";
+      }
+      
+      imprima f(); // expect: ok
+      `
+    },
+    {
+      testLabel: 'Return: After while',
+      testValue: 
+      `
+      funcion f() {
+        mientras (true) retorne "ok";
+      }
+      
+      imprima f(); // expect: ok
+      `
+    },
+    {
+      testLabel: 'Return: At top level',
+      testValue: 
+      `
+      retorne "wat"; // Error at 'return': Can't return from top-level code.
+      `
+    },
+    {
+      testLabel: 'Return: In function',
+      testValue: 
+      `
+      funcion f() {
+        retorne "ok";
+        imprima "bad";
+      }
+      
+      imprima f(); // expect: ok
+      `
+    },
+    {
+      testLabel: 'Return: In method',
+      testValue: 
+      `
+      clase Foo {
+        method() {
+          retorne "ok";
+          imprima "bad";
+        }
+      }
+      
+      imprima Foo().method(); // expect: ok
+      `
+    },
+    {
+      testLabel: 'Return: Return nil if no value',
+      testValue: 
+      `
+      funcion f() {
+          retorne;
+        imprima "bad";
+      }
+      
+      imprima f(); // expect: nil
+      `
+    },
+    {
+      testLabel: 'String: Error after multiline',
+      testValue: 
+      `
+      // Tests that we correctly track the line info across multiline strings.
+      variable a = "1
+      2
+      3
+      ";
+      
+      err; // // expect runtime error: Undefined variable 'err'.
+      `
+    },
+    {
+      testLabel: 'String: Litrals',
+      testValue: 
+      `
+      imprima "(" + "" + ")";   // expect: ()
+      imprima "a string"; // expect: a string
+      
+      // Non-ASCII.
+      imprima "A~¶Þॐஃ"; // expect: A~¶Þॐஃ
+      `
+    },
+    {
+      testLabel: 'String: Multiline',
+      testValue: 
+      `
+      variable a = "1
+      2
+      3";
+      imprima a;
+      // expect: 1
+      // expect: 2
+      // expect: 3
+      `
+    },
+    {
+      testLabel: 'String: Unterminated',
+      testValue: 
+      `
+      // [line 2] Error: Unterminated string.
+      "this string has no close quote
+      `
+    },
+    {
+      testLabel: 'super: Bound metodo',
+      testValue: 
+      `
+      clase A {
+        metodo(arg) {
+          imprima "A.metodo(" + arg + ")";
+        }
+      }
+      
+      clase B < A {
+        getClosure() {
+          retorne super.metodo;
+        }
+      
+        metodo(arg) {
+          imprima "B.metodo(" + arg + ")";
+        }
+      }
+      
+      
+      variable closure = B().getClosure();
+      closure("arg"); // expect: A.method(arg)
+      `
+    },
+    {
+      testLabel: 'super: Call other method',
+      testValue: 
+      `
+      clase Base {
+        foo() {
+          imprima "Base.foo()";
+        }
+      }
+      
+      clase Derived < Base {
+        bar() {
+          imprima "Derived.bar()";
+          super.foo();
+        }
+      }
+      
+      Derived().bar();
+      // expect: Derived.bar()
+      // expect: Base.foo()
+      `
+    },
+    {
+      testLabel: 'super: Call same method',
+      testValue: 
+      `
+      clase Base {
+        foo() {
+          imprima "Base.foo()";
+        }
+      }
+      
+      clase Derived < Base {
+        foo() {
+          imprima "Derived.foo()";
+          super.foo();
+        }
+      }
+      
+      Derived().foo();
+      // expect: Derived.foo()
+      // expect: Base.foo()
+      `
+    },
+    {
+      testLabel: 'super: Closure',
+      testValue: 
+      `
+      clase Base {
+        toString() { retorne "Base"; }
+      }
+      
+      clase Derived < Base {
+        getClosure() {
+          funcion closure() {
+            retorne super.toString();
+          }
+          retorne closure;
+        }
+      
+        toString() { retorne "Derived"; }
+      }
+      
+      variable closure = Derived().getClosure();
+      imprima closure(); // expect: Base
+      `
+    },
+    {
+      testLabel: 'super: Constructor',
+      testValue: 
+      `
+      clase Base {
+        inicio(a, b) {
+          imprima "Base.inicio(" + a + ", " + b + ")";
+        }
+      }
+      
+      clase Derived < Base {
+        inicio() {
+          imprima "Derived.inicio()";
+          super.inicio("a", "b");
+        }
+      }
+      
+      Derived();
+      // expect: Derived.init()
+      // expect: Base.init(a, b)
+      `
+    },
+    {
+      testLabel: 'super: Extra arguments',
+      testValue: 
+      `
+      clase Base {
+        foo(a, b) {
+          imprima "Base.foo(" + a + ", " + b + ")";
+        }
+      }
+      
+      clase Derived < Base {
+        foo() {
+          super.foo("a", "b", "c", "d"); // expect runtime error: Expected 2 arguments but got 4.
+        }
+      }
+      
+      Derived().foo();
+      `
+    },
+    {
+      testLabel: 'super: Indirectly inherited',
+      testValue: 
+      `
+      clase A {
+        foo() {
+          imprima "A.foo()";
+        }
+      }
+      
+      clase B < A {}
+      
+      clase C < B {
+        foo() {
+          imprima "C.foo()";
+          super.foo();
+        }
+      }
+      
+      C().foo();
+      // expect: C.foo()
+      // expect: A.foo()
+      `
+    },
+    {
+      testLabel: 'super: Missing arguments',
+      testValue: 
+      `
+      clase Base {
+        foo(a, b) {
+          imprima "Base.foo(" + a + ", " + b + ")";
+        }
+      }
+      
+      clase Derived < Base {
+        foo() {
+          super.foo(1); // expect runtime error: Expected 2 arguments but got 1.
+        }
+      }
+      
+      Derived().foo();
+      `
+    },
+    {
+      testLabel: 'super: No superclass bind',
+      testValue: 
+      `
+      clase Base {
+        foo() {
+          super.doesNotExist; // Error at 'super': Can't use 'super' in a class with no superclass.
+        }
+      }
+      
+      Base().foo();
+      `
+    },
+    {
+      testLabel: 'super: No superclass call',
+      testValue: 
+      `
+      clase Base {
+        foo() {
+          super.doesNotExist(1); // Error at 'super': Can't use 'super' in a class with no superclass.
+        }
+      }
+      
+      Base().foo();
+      `
+    },
+    {
+      testLabel: 'super: Parenthesized',
+      testValue: 
+      `
+      clase Base {}
+  
+      clase Derived < Base {
+        foo() {
+          super.doesNotExist(1); // expect runtime error: Undefined property 'doesNotExist'.
+        }
+      }
+      
+      Derived().foo();
+      `
+    },
+    {
+      testLabel: 'super: Reassign superclass',
+      testValue: 
+      `
+      clase Base {
+        metodo() {
+          imprima "Base.metodo()";
+        }
+      }
+      
+      clase Derived < Base {
+        metodo() {
+          super.metodo();
+        }
+      }
+      
+      clase OtherBase {
+        metodo() {
+          imprima "OtherBase.metodo()";
+        }
+      }
+      
+      variable derived = Derived();
+      derived.metodo(); // expect: Base.method()
+      Base = OtherBase;
+      derived.metodo(); // expect: Base.method()
+      `
+    },
+    {
+      testLabel: 'super: Super at top level',
+      testValue: 
+      `
+      super.foo("bar"); // Error at 'super': Can't use 'super' outside of a class.
+      super.foo; // Error at 'super': Can't use 'super' outside of a class.
+      `
+    },
+    {
+      testLabel: 'super: Super in closure in inherited method',
+      testValue: 
+      `
+      clase A {
+        say() {
+          imprima "A";
+        }
+      }
+      
+      clase B < A {
+        getClosure() {
+          funcion closure() {
+            super.say();
+          }
+          retorne closure;
+        }
+      
+        say() {
+          imprima "B";
+        }
+      }
+      
+      clase C < B {
+        say() {
+          imprima "C";
+        }
+      }
+      
+      C().getClosure()(); // expect: A
+      `
+    },
+    {
+      testLabel: 'super: Super in inherited method',
+      testValue: 
+      `
+      clase A {
+        say() {
+          imprima "A";
+        }
+      }
+      
+      clase B < A {
+        test() {
+          super.say();
+        }
+      
+        say() {
+          imprima "B";
+        }
+      }
+      
+      clase C < B {
+        say() {
+          imprima "C";
+        }
+      }
+      
+      C().test(); // expect: A
+      `
+    },
+    {
+      testLabel: 'super: Super in top level function',
+      testValue: 
+      `
+      super.bar(); // Error at 'super': Can't use 'super' outside of a class.
+      funcion foo() {
+      }
+      `
+    },
+    {
+      testLabel: 'super: Super without dot',
+      testValue: 
+      `
+      clase A {}
+  
+      clase B < A {
+        metodo() {
+          // [line 6] Error at ';': Expect '.' after 'super'.
+          super;
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'super: Super without name',
+      testValue: 
+      `
+      clase A {}
+  
+      clase B < A {
+        metodo() {
+          super.; // Error at ';': Expect superclass method name.
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'super: This is superclass method',
+      testValue: 
+      `
+      clase Base {
+        inicio(a) {
+          este.a = a;
+        }
+      }
+      
+      clase Derived < Base {
+        inicio(a, b) {
+          super.inicio(a);
+          este.b = b;
+        }
+      }
+      
+      variable derived = Derived("a", "b");
+      imprima derived.a; // expect: a
+      imprima derived.b; // expect: b
+      `
+    },
+    {
+      testLabel: 'This: Closure',
+      testValue: 
+      `
+      clase Foo {
+        getClosure() {
+          funcion closure() {
+            retorne este.toString();
+          }
+          retorne closure;
+        }
+      
+        toString() { retorne "Foo"; }
+      }
+      
+      variable closure = Foo().getClosure();
+      imprima closure(); // expect: Foo
+      `
+    },
+    {
+      testLabel: 'This: Nested',
+      testValue: 
+      `
+      clase Outer {
+        metodo() {
+          imprima este; // expect: Outer instance
+      
+          funcion f() {
+            imprima este; // expect: Outer instance
+      
+            clase Inner {
+              metodo() {
+                imprima este; // expect: Inner instance
+              }
+            }
+      
+            Inner().metodo();
+          }
+          f();
+        }
+      }
+      
+      Outer().metodo();
+      `
+    },
+    {
+      testLabel: 'This: Nested Closure',
+      testValue: 
+      `
+      clase Foo {
+        getClosure() {
+          funcion f() {
+            funcion g() {
+              funcion h() {
+                retorne este.toString();
+              }
+              retorne h;
+            }
+            retorne g;
+          }
+          retorne f;
+        }
+      
+        toString() { retorne "Foo"; }
+      }
+      variable closure = Foo().getClosure();
+      imprima closure()()(); // expect: Foo
+      `
+    },
+    {
+      testLabel: 'This: This at top level',
+      testValue: 
+      `
+      este; // Error at 'this': Can't use 'this' outside of a class.
+      `
+    },
+    {
+      testLabel: 'This: This in method',
+      testValue: 
+      `
+      clase Foo {
+        bar() { retorne este; }
+        baz() { retorne "baz"; }
+      }
+      
+      imprima Foo().bar().baz(); // expect: baz
+      `
+    },
+    {
+      testLabel: 'This: This in top level function',
+      testValue: 
+      `
+      funcion foo() {
+        este; // Error at 'this': Can't use 'this' outside of a class.
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: Collide with parameter',
+      testValue: 
+      `
+      funcion foo(a) {
+        variable a; // Error at 'a': Already variable with this name in this scope.
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: Duplicate local',
+      testValue: 
+      `
+      {
+        variable a = "value";
+        variable a = "other"; // Error at 'a': Already variable with this name in this scope.
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: Duplicate parameter',
+      testValue: 
+      `
+      funcion foo(arg,
+        arg) { // Error at 'arg': Already variable with this name in this scope.
+                "body";
+              }
+      `
+    },
+    {
+      testLabel: 'Variable: Early bound',
+      testValue: 
+      `
+      variable a = "outer";
+      {
+        funcion foo() {
+          imprima a;
+        }
+      
+        foo(); // expect: outer
+        variable a = "inner";
+        foo(); // expect: outer
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: In middle of block',
+      testValue: 
+      `
+      {
+        variable a = "a";
+        imprima a; // expect: a
+        variable b = a + " b";
+        imprima b; // expect: a b
+        variable c = a + " c";
+        imprima c; // expect: a c
+        variable d = b + " d";
+        imprima d; // expect: a b d
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: In nested block',
+      testValue: 
+      `
+      {
+        variable a = "outer";
+        {
+          imprima a; // expect: outer
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: Local from method',
+      testValue: 
+      `
+      variable foo = "variable";
+  
+      class Foo {
+        method() {
+          imprima foo;
+        }
+      }
+      
+      Foo().method(); // expect: variable
+      `
+    },
+    {
+      testLabel: 'Variable: Redeclare global',
+      testValue: 
+      `
+      variable a = "1";
+      variable a;
+      imprima a; // expect: nil
+      `
+    },
+    {
+      testLabel: 'Variable: Redefine global',
+      testValue: 
+      `
+      variable a = "1";
+      variable a = "2";
+      imprima a; // expect: 2
+      `
+    },
+    {
+      testLabel: 'Variable: Scope reuse in dsiferent blocks',
+      testValue: 
+      `
+      {
+        variable a = "first";
+        imprima a; // expect: first
+      }
+      
+      {
+        variable a = "second";
+        imprima a; // expect: second
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: Shadow and local',
+      testValue: 
+      `
+      {
+        variable a = "outer";
+        {
+          imprima a; // expect: outer
+          variable a = "inner";
+          imprima a; // expect: inner
+        }
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: Shadow global',
+      testValue: 
+      `
+      variable a = "global";
+      {
+        variable a = "shadow";
+        imprima a; // expect: shadow
+      }
+      imprima a; // expect: global
+      `
+    },
+    {
+      testLabel: 'Variable: Shadow local',
+      testValue: 
+      `
+      {
+        variable a = "local";
+        {
+          variable a = "shadow";
+          imprima a; // expect: shadow
+        }
+        imprima a; // expect: local
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: Undefined global',
+      testValue: 
+      `
+      imprima notDefined;  // expect runtime error: Undefined variable 'notDefined'.
+      `
+    },
+    {
+      testLabel: 'Variable: Undefined local',
+      testValue: 
+      `
+      {
+        imprima notDefined;  // expect runtime error: Undefined variable 'notDefined'.
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: Uninitialized',
+      testValue: 
+      `
+      variable a;
+      imprima a; // expect: nil
+      `
+    },
+    {
+      testLabel: 'Variable: Unreached undefined',
+      testValue: 
+      `
+      si (falso) {
+        imprima notDefined;
+      }
+      
+      imprima "ok"; // expect: ok
+      `
+    },
+    {
+      testLabel: 'Variable: Use false as var',
+      testValue: 
+      `
+      // [line 2] Error at 'false': Expect variable name.
+      variable falso = "value";
+      `
+    },
+    {
+      testLabel: 'Variable: Use global in initializer',
+      testValue: 
+      `
+      variable a = "value";
+      variable a = a;
+      imprima a; // expect: value
+      `
+    },
+    {
+      testLabel: 'Variable: Use local in initializer',
+      testValue: 
+      `
+      variable a = "outer";
+      {
+        variable a = a; // Error at 'a': Can't read local variable in its own declaration.
+      }
+      `
+    },
+    {
+      testLabel: 'Variable: Use nil as var',
+      testValue: 
+      `
+      // [line 2] Error at 'nil': Expect variable name.
+      variable nil = "value";
+      `
+    },
+    {
+      testLabel: 'Variable: Use this as var',
+      testValue: 
+      `
+      // [line 2] Error at 'this' ('este'): Expect variable name.
+      variable este = "value";
+      `
+    },
+    {
+      testLabel: 'While: Class in body',
+      testValue: 
+      `
+      // [line 2] Error at 'class': Expect expression.
+      mientras (verdadero) class Foo {}
+      `
+    },
+    {
+      testLabel: 'While: Closure in body',
+      testValue: 
+      `
+      variable f1;
+      variable f2;
+      variable f3;
+      
+      variable i = 1;
+      mientras (i < 4) {
+        variable j = i;
+        funcion f() { imprima j; }
+      
+        si (j == 1) f1 = f;
+        sino si (j == 2) f2 = f;
+        sino f3 = f;
+      
+        i = i + 1;
+      }
+      
+      f1(); // expect: 1
+      f2(); // expect: 2
+      f3(); // expect: 3
+      `
+    },
+    {
+      testLabel: 'While: Function in body',
+      testValue: 
+      `
+      // [line 2] Error at 'fun': Expect expression.
+      mientras (verdadero) funcion foo() {}
+      `
+    },
+    {
+      testLabel: 'While: Return closure',
+      testValue: 
+      `
+      funcion f() {
+        mientras (verdadero) {
+          variable i = "i";
+          funcion g() { imprima i; }
+          retorne g;
+        }
+      }
+      
+      variable h = f();
+      h(); // expect: i
+      `
+    },
+    {
+      testLabel: 'While: Return inside',
+      testValue: 
+      `
+      funcion f() {
+        mientras (verdadero) {
+          variable i = "i";
+          retorne i;
+        }
+      }
+      
+      imprima f();
+      // expect: i
+      `
+    },
+    {
+      testLabel: 'While: Syntax',
+      testValue: 
+      `
+      // Single-expression body.
+      variable c = 0;
+      mientras (c < 3) imprima c = c + 1;
+      // expect: 1
+      // expect: 2
+      // expect: 3
+      
+      // Block body.
+      variable a = 0;
+      mientras (a < 3) {
+        imprima a;
+        a = a + 1;
+      }
+      // expect: 0
+      // expect: 1
+      // expect: 2
+      
+      // Statement bodies.
+      mientras (falso) si (verdadero) 1; sino 2;
+      mientras (falso) mientras (verdadero) 1;
+      mientras (falso) para (;;) 1;
+      `
+    },
+    {
+      testLabel: 'While: Var in body',
+      testValue: 
+      `
+      // [line 2] Error at 'var': Expect expression.
+      mientras (verdadero) variable foo;
+      `
+    },
   ]
 }
