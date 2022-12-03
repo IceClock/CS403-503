@@ -83,12 +83,14 @@ const TOKEN_STRING: Record<number, string> = {
         falso: TokenType.FALSE,
         para: TokenType.FOR,
         funcion: TokenType.FUN,
+        función: TokenType.FUN,
         si: TokenType.IF,
         nulo: TokenType.NIL,
         o: TokenType.OR,
         imprima: TokenType.PRINT,
         retorne: TokenType.RETURN,
         super: TokenType.SUPER,
+        súper: TokenType.SUPER,
         este: TokenType.THIS,
         verdadero: TokenType.TRUE,
         variable: TokenType.VAR,
@@ -290,10 +292,18 @@ const TOKEN_STRING: Record<number, string> = {
         this.addToken(type);
     }
 
+    /** Alphabetic characters include Spanish special characters */
     private isAlpha(c: string): boolean {
         return  (c.charCodeAt(0) >='a'.charCodeAt(0) && c.charCodeAt(0) <= 'z'.charCodeAt(0)) ||
                 (c.charCodeAt(0) >= 'A'.charCodeAt(0) && c.charCodeAt(0) <= 'Z'.charCodeAt(0)) ||
-                (c.charCodeAt(0) == '_'.charCodeAt(0));
+                (c.charCodeAt(0) == '_'.charCodeAt(0)) || 
+                (c.charCodeAt(0) == 'ñ'.charCodeAt(0)) || (c.charCodeAt(0) == 'Ñ'.charCodeAt(0)) || 
+                (c.charCodeAt(0) == 'ü'.charCodeAt(0)) || (c.charCodeAt(0) == 'Ü'.charCodeAt(0)) || 
+                (c.charCodeAt(0) == 'á'.charCodeAt(0)) || (c.charCodeAt(0) == 'Á'.charCodeAt(0)) || 
+                (c.charCodeAt(0) == 'é'.charCodeAt(0)) || (c.charCodeAt(0) == 'É'.charCodeAt(0)) || 
+                (c.charCodeAt(0) == 'í'.charCodeAt(0)) || (c.charCodeAt(0) == 'Í'.charCodeAt(0)) || 
+                (c.charCodeAt(0) == 'ó'.charCodeAt(0)) || (c.charCodeAt(0) == 'Ó'.charCodeAt(0)) || 
+                (c.charCodeAt(0) == 'ú'.charCodeAt(0)) || (c.charCodeAt(0) == 'Ú'.charCodeAt(0)); 
     }
 
     private isAlphaNumeric(c: string): boolean {
