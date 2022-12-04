@@ -222,22 +222,20 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
        }
 
        const superClass = this.environment.getAt(distance, expr.keyword);
-       const object = this.environment.enclosing?.getThis();
-       const method = superClass.findMethod(expr.method.lexeme);
-
        if (!(superClass instanceof types.TypeClass)) {
         // Unreachable
         throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage");
       }
-
+      const object = this.environment.enclosing?.getThis();
       if (!(object instanceof types.TypeInstance)) {
         // Unreachable
         throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage");
       }
-
-       if (method == null) {
-        throw OutputHandlingService.getInstance().errorOccured(`Undefined property ${expr.method.lexeme}.`)
-       }
+      
+      const method = superClass.findMethod(expr.method.lexeme);
+      if (method == null) {
+      throw OutputHandlingService.getInstance().errorOccured(`Undefined property ${expr.method.lexeme}.`)
+      }
 
        return method.bind(object);
 
@@ -301,7 +299,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
 
       let methods: Record<string, types.TypeFunction> = {};
       stmt.methods.forEach((method) => {
-        const func = new types.TypeFunction(method, this.environment, method.name.lexeme === "init");
+        const func = new types.TypeFunction(method, environment, method.name.lexeme === "init");
         methods[method.name.lexeme] = func;
       });
       
@@ -311,7 +309,7 @@ export class Interpreter implements ast.SyntaxVisitor<any, void> {
         environment = environment.enclosing;
       }
 
-      this.environment.assign(stmt.name, klass);
+      environment.assign(stmt.name, klass);
       return;
     }
     

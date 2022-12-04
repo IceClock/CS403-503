@@ -223,19 +223,19 @@ export class SpanishInterpreter implements ast.SyntaxVisitor<any, void> {
        }
 
        const superClass = this.environment.getAt(distance, expr.keyword);
-       const object = this.environment.enclosing?.getThis();
-       const method = superClass.findMethod(expr.method.lexeme);
 
        if (!(superClass instanceof types.TypeClass)) {
         // Unreachable
         throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage ➔ Uso inválido de 'super'");
       }
 
+      const object = this.environment.enclosing?.getThis();
       if (!(object instanceof types.TypeInstance)) {
         // Unreachable
         throw OutputHandlingService.getInstance().errorOccured("Invalid 'super' usage ➔ Uso inválido de 'super'");
       }
 
+      const method = superClass.findMethod(expr.method.lexeme);
        if (method == null) {
         throw OutputHandlingService.getInstance().errorOccured(`Undefined property ${expr.method.lexeme}. ➔ Propiedad no definida ${expr.method.lexeme}.`)
        }
@@ -302,7 +302,7 @@ export class SpanishInterpreter implements ast.SyntaxVisitor<any, void> {
 
       let methods: Record<string, types.TypeFunction> = {};
       stmt.methods.forEach((method) => {
-        const func = new types.TypeFunction(method, this.environment, method.name.lexeme === "init" || method.name.lexeme === "inicio");
+        const func = new types.TypeFunction(method, environment, method.name.lexeme === "init" || method.name.lexeme === "inicio");
         methods[method.name.lexeme] = func;
       });
       
@@ -312,7 +312,7 @@ export class SpanishInterpreter implements ast.SyntaxVisitor<any, void> {
         environment = environment.enclosing;
       }
 
-      this.environment.assign(stmt.name, klass);
+      environment.assign(stmt.name, klass);
       return;
     }
     

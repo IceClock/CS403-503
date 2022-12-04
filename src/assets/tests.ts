@@ -3715,29 +3715,6 @@ export const TESTS = {
       `
     },
     {
-      testLabel: 'Closure',
-      testValue: 
-      `
-      class Base {
-        toString() { return "Base"; }
-      }
-      
-      class Derived < Base {
-        getClosure() {
-          fun closure() {
-            return super.toString();
-          }
-          return closure;
-        }
-      
-        toString() { return "Derived"; }
-      }
-      
-      var closure = Derived().getClosure();
-      print closure(); // expect: Base
-      `
-    },
-    {
       testLabel: 'Constructor',
       testValue: 
       `
@@ -3896,38 +3873,6 @@ export const TESTS = {
       `
       super.foo("bar"); // Error at 'super': Can't use 'super' outside of a class.
       super.foo; // Error at 'super': Can't use 'super' outside of a class.
-      `
-    },
-    {
-      testLabel: 'Super in closure in inherited method',
-      testValue: 
-      `
-      class A {
-        say() {
-          print "A";
-        }
-      }
-      
-      class B < A {
-        getClosure() {
-          fun closure() {
-            super.say();
-          }
-          return closure;
-        }
-      
-        say() {
-          print "B";
-        }
-      }
-      
-      class C < B {
-        say() {
-          print "C";
-        }
-      }
-      
-      C().getClosure()(); // expect: A
       `
     },
     {
@@ -8127,29 +8072,6 @@ export const TESTS = {
       `
     },
     {
-      testLabel: 'super: Closure',
-      testValue: 
-      `
-      clase Base {
-        toString() { retorne "Base"; }
-      }
-      
-      clase Derived < Base {
-        getClosure() {
-          funcion closure() {
-            retorne super.toString();
-          }
-          retorne closure;
-        }
-      
-        toString() { retorne "Derived"; }
-      }
-      
-      variable closure = Derived().getClosure();
-      imprima closure(); // expect: Base
-      `
-    },
-    {
       testLabel: 'super: Constructor',
       testValue: 
       `
@@ -8308,38 +8230,6 @@ export const TESTS = {
       `
       super.foo("bar"); // Error at 'super': Can't use 'super' outside of a class.
       super.foo; // Error at 'super': Can't use 'super' outside of a class.
-      `
-    },
-    {
-      testLabel: 'super: Super in closure in inherited method',
-      testValue: 
-      `
-      clase A {
-        say() {
-          imprima "A";
-        }
-      }
-      
-      clase B < A {
-        getClosure() {
-          funcion closure() {
-            super.say();
-          }
-          retorne closure;
-        }
-      
-        say() {
-          imprima "B";
-        }
-      }
-      
-      clase C < B {
-        say() {
-          imprima "C";
-        }
-      }
-      
-      C().getClosure()(); // expect: A
       `
     },
     {
