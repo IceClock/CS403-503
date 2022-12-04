@@ -8872,5 +8872,37 @@ export const TESTS = {
       mientras (verdadero) variable foo;
       `
     },
+    {
+      testLabel: 'Spanish characters for identifiers and declarations',
+      testValue: 
+      `
+
+      funcion Andrés() {
+        variable á = 0;
+        variable é = 1;
+        variable í = 2;
+        variable ó = 3;
+        variable ú = 4;
+        variable ñ = 4;
+        variable ü = 6;
+        imprima á + é + í + ó + ú + ñ + ü;
+      }
+    
+      función Ramírez() {
+        variable Á = 1;
+        variable É = 2;
+        variable Í = 3;
+        variable Ó = 4;
+        variable Ú = 5;
+        variable Ñ = 6;
+        variable Ü = 7;
+        imprima Á + É + Í + Ó + Ú + Ñ + Ü;
+      }
+    
+      Andrés();  //Expect: 20;
+    
+      Ramírez();  //Expect: 28;
+      `
+    },
   ]
 }

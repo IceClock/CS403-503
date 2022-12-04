@@ -136,10 +136,16 @@ export class LoxComponent implements OnInit {
       case "if":
         this.tests = this.testCases.if;
         break;
+      case "inheritance":
+        this.tests = this.testCases.if;
+        break;
       case "logical_operator":
         this.tests = this.testCases.logical_operator;
         break;
       case "misc":
+        this.tests = this.testCases.misc;
+        break;
+      case "method":
         this.tests = this.testCases.misc;
         break;
       case "nil":
