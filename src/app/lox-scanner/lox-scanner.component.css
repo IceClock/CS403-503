@@ -51,6 +51,7 @@ mat-card-subtitle {
 
 :host ::ng-deep .mat-form-field-wrapper {
     padding: 0 !important;
+    font-family: monospace;
 }
 
 :host {
