@@ -6,12 +6,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { LoxComponent } from "./lox.component";
-import { LoxRoutingModule } from "./lox-routing.module";
+import { InterpreterComponent } from "./interpreter.component";
+import { InterpreterRoutingModule } from "./interpreter-routing.module";
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 @NgModule({
     declarations: [
-        LoxComponent
+        InterpreterComponent
     ],
     imports: [
         CommonModule,
@@ -20,11 +20,11 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
         MatTableModule,
         MatSelectModule,
         MatSnackBarModule,
-        LoxRoutingModule,
+        InterpreterRoutingModule,
         MatSlideToggleModule
     ],
     exports: [
-        LoxComponent
+        InterpreterComponent
     ]
 })
 export class LoxModule {}

@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoxComponent } from './lox.component';
+import { InterpreterComponent } from './interpreter.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: LoxComponent,
+    component: InterpreterComponent,
   }
 ];
 
@@ -13,4 +13,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class LoxRoutingModule { }
+export class InterpreterRoutingModule { }

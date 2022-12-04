@@ -17,7 +17,7 @@ const routes: Routes = [
       },
       {
         path: 'lox',
-        loadChildren: () => import('./lox/lox.module').then(m => m.LoxModule)
+        loadChildren: () => import('./interpreter-component/interpreter.module').then(m => m.LoxModule)
       }
     ]
   }

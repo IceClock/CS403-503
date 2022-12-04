@@ -2,23 +2,23 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TESTS } from 'src/assets/tests';
 import { OutputHandlingService } from '../services/error-handling.service';
-import { AstPrinter } from './src/ast';
-import { Interpreter } from './src/interpreter';
-import { Parser } from './src/parser';
-import { Resolver } from './src/resolver';
-import { Scanner } from './src/scanner';
-import { SpanishScanner } from './src-spanish/spanish-scanner';
-import { SpanishParser } from './src-spanish/parser';
-import { SpanishInterpreter } from './src-spanish/interpreter';
-import { SpanishResolver } from './src-spanish/resolver';
+import { AstPrinter } from '../interpreter/src/ast';
+import { Interpreter } from '../interpreter/src/interpreter';
+import { Parser } from '../interpreter/src/parser';
+import { Resolver } from '../interpreter/src/resolver';
+import { Scanner } from '../interpreter/src/scanner';
+import { SpanishScanner } from '../interpreter/src-spanish/spanish-scanner';
+import { SpanishParser } from '../interpreter/src-spanish/parser';
+import { SpanishInterpreter } from '../interpreter/src-spanish/interpreter';
+import { SpanishResolver } from '../interpreter/src-spanish/resolver';
 
 @Component({
   selector: 'app-lox',
-  templateUrl: './lox.component.html',
-  styleUrls: ['./lox.component.css'],
+  templateUrl: './interpreter.component.html',
+  styleUrls: ['./interpreter.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LoxComponent implements OnInit {
+export class InterpreterComponent implements OnInit {
 
   panelOpenState = false;
 
