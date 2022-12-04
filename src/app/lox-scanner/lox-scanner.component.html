@@ -5,19 +5,29 @@
     <h3>
       Scanner input
     </h3>
-    <mat-form-field appearance="outline" >
-      <mat-label>Pick a test</mat-label>
-      <mat-select [(value)]="value" (selectionChange)="run()">
-        <mat-option [value]="''">Select</mat-option>
-        <mat-option *ngFor="let test of tests" [value]="test.testValue">{{test.testLabel}}</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <mat-slide-toggle [(ngModel)]="spanishMode" (change)="modeChanged()">Spanish Mode {{spanishMode ? 'Active' : 'Inactive'}}</mat-slide-toggle>
   </mat-card-subtitle>
   <mat-card-content class="input-container">
-    <mat-form-field class="input-feild " appearance="outline">
+    <div class="options">
+      <mat-form-field appearance="outline">
+        <mat-label>Pick a category</mat-label>
+        <mat-select [(value)]="selectedCategory" (selectionChange)="categoryChanged(selectedCategory)">
+          <mat-option [value]="''">Select</mat-option>
+          <mat-option *ngFor="let cat of testCategories" [value]="cat">{{cat}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Pick a test</mat-label>
+        <mat-select [(value)]="testValue" (selectionChange)="run()" [disabled]="!selectedCategory">
+          <mat-option [value]="''">Select</mat-option>
+          <mat-option *ngFor="let test of tests" [value]="test.testValue">{{test.testLabel}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <mat-form-field class="input-feild " appearance="outline" floatLabel="always">
       <mat-label>Scanner input</mat-label>
-      <textarea matInput type="text" style="height: 200px;" placeholder=">" [(ngModel)]="value" (keyup)="run()"></textarea>
-      <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''; run()">
+      <textarea matInput type="text" style="height: 200px;" placeholder=">" [(ngModel)]="testValue" (keyup)="run()"></textarea>
+      <button *ngIf="testValue" matSuffix mat-icon-button aria-label="Clear" (click)="testValue=''; run()">
         <mat-icon>close</mat-icon>
       </button>  
   </mat-form-field>

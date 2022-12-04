@@ -1,29 +1,30 @@
 table {
-  width: 100%;
+    width: 100%;
 }
 
-.table-container{
+.table-container {
     position: relative;
     min-height: 100px;
-    max-height: 400px;
+    max-height: 40vh;
     overflow: auto;
     padding: 0 20px 20px 20px;
 }
+
 .mat-column-type {
-width: 32px;
-border-right: 1px solid currentColor;
-padding-right: 24px;
-text-align: center;
+    width: 32px;
+    border-right: 1px solid currentColor;
+    padding-right: 24px;
+    text-align: center;
 }
 
 .mat-column-typeString {
-padding-left: 20px;
+    padding-left: 20px;
 }
 
 .mat-column-line {
-width: 32px;
-text-align: center;
-font-weight: bold;
+    width: 32px;
+    text-align: center;
+    font-weight: bold;
 }
 
 .input-container {
@@ -39,6 +40,32 @@ mat-card-subtitle {
 
 }
 
+.options {
+    display: flex;
+    justify-content: space-between;
+}
+
+.options>mat-form-field {
+    width: 40%;
+}
+
 :host ::ng-deep .mat-form-field-wrapper {
     padding: 0 !important;
+}
+
+:host {
+    height: 100% !important;
+    font-family: monospace;
+
+}
+
+textarea {
+    background: url(http://i.imgur.com/2cOaJ.png);
+    background-attachment: local;
+    background-repeat: no-repeat;
+    padding-left: 35px !important;
+    padding-top: 10px !important;
+    border-color: #ccc;
+    height: 200px;
+    width: -webkit-fill-available;
 }
