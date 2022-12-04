@@ -12,11 +12,11 @@ const routes: Routes = [
         loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)
       },
       {
-        path: 'lox-scanner',
-        loadChildren: () => import('./lox-scanner/lox-scanner.module').then(m => m.LoxScannerModule)
+        path: 'scanner',
+        loadChildren: () => import('./scanner-component/scanner.module').then(m => m.LoxScannerModule)
       },
       {
-        path: 'lox',
+        path: 'interpreter',
         loadChildren: () => import('./interpreter-component/interpreter.module').then(m => m.LoxModule)
       }
     ]

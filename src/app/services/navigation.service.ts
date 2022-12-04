@@ -14,10 +14,10 @@ export class NavigationService {
   }
 
   viewLoxScanner() {
-    this.store.dispatch(new Navigate(['/lox-scanner']))
+    this.store.dispatch(new Navigate(['/scanner']))
   }
 
   viewLox() {
-    this.store.dispatch(new Navigate(['/lox']))
+    this.store.dispatch(new Navigate(['/interpreter']))
   }
 }

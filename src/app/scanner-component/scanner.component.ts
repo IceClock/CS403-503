@@ -7,10 +7,10 @@ import { OutputHandlingService } from '../services/error-handling.service';
 
 @Component({
   selector: 'app-lox-scanner',
-  templateUrl: './lox-scanner.component.html',
-  styleUrls: ['./lox-scanner.component.css']
+  templateUrl: './scanner.component.html',
+  styleUrls: ['./scanner.component.css']
 })
-export class LoxScannerComponent implements OnInit {
+export class ScannerComponent implements OnInit {
 
   testCases = TESTS;
 

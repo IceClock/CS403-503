@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoxScannerComponent } from './lox-scanner.component';
+import { ScannerComponent } from './scanner.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: LoxScannerComponent,
+    component: ScannerComponent,
   }
 ];
 

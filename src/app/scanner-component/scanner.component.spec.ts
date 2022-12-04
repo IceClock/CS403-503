@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LoxScannerComponent } from './lox-scanner.component';
+import { ScannerComponent } from './scanner.component';
 
-describe('LoxScannerComponent', () => {
-  let component: LoxScannerComponent;
-  let fixture: ComponentFixture<LoxScannerComponent>;
+describe('ScannerComponent', () => {
+  let component: ScannerComponent;
+  let fixture: ComponentFixture<ScannerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LoxScannerComponent ]
+      declarations: [ ScannerComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(LoxScannerComponent);
+    fixture = TestBed.createComponent(ScannerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
