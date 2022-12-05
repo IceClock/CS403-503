@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TESTS } from 'src/assets/tests';
-import { OutputHandlingService } from '../services/error-handling.service';
+import { OutputHandlingService } from '../services/output-handling.service';
 import { AstPrinter } from '../interpreter/src/ast';
 import { Interpreter } from '../interpreter/src/interpreter';
 import { Parser } from '../interpreter/src/parser';
@@ -11,6 +11,7 @@ import { SpanishScanner } from '../interpreter/src-spanish/spanish-scanner';
 import { SpanishParser } from '../interpreter/src-spanish/parser';
 import { SpanishInterpreter } from '../interpreter/src-spanish/interpreter';
 import { SpanishResolver } from '../interpreter/src-spanish/resolver';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lox',
@@ -18,13 +19,16 @@ import { SpanishResolver } from '../interpreter/src-spanish/resolver';
   styleUrls: ['./interpreter.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InterpreterComponent implements OnInit {
+export class InterpreterComponent implements OnInit, OnDestroy {
 
   panelOpenState = false;
 
   testCases = TESTS;
 
   spanishMode = false;
+
+  errorSubscription: Subscription = new Subscription;
+  printSubscription: Subscription = new Subscription;
 
   testCategories = [
     "assignment",
@@ -69,12 +73,17 @@ export class InterpreterComponent implements OnInit {
     private _snackBar: MatSnackBar
     ) { }
 
-  syntaxError$ = this.outputHnadingService.errorOccured$;
+  error$ = this.outputHnadingService.errorOccured$;
   printSubject$ = this.outputHnadingService.printSubject$;
 
   ngOnInit(): void {
-    this.run();
-    this.syntaxError$.subscribe((x) => {
+    this.testValue = '';
+    this.output = '';
+    this.printingStmts = [];
+    this.logs = [];
+    this.errors = [];
+
+    this.errorSubscription = this.error$.subscribe((x) => {
       if(x)
       this._snackBar.open(x, 'close', {
         panelClass: ['mat-toolbar', 'mat-warn', 'error'],
@@ -83,7 +92,7 @@ export class InterpreterComponent implements OnInit {
       });
       this.errors.push(x);
     })
-    this.printSubject$.subscribe((output) => {
+    this.printSubscription = this.printSubject$.subscribe((output) => {
       this.printingStmts.push(output);
     });
   }
@@ -253,6 +262,18 @@ export class InterpreterComponent implements OnInit {
     this.errors = [];
     this.logs = [];
     this.printingStmts = [];
+  }
+
+  ngOnDestroy() {
+    this.testValue = '';
+    this.output = '';
+    this.printingStmts = [];
+    this.logs = [];
+    this.errors = [];
+    this.outputHnadingService.errorOccured('');
+    this.outputHnadingService.print('');
+    this.errorSubscription?.unsubscribe();
+    this.printSubscription?.unsubscribe();
   }
 
 }
