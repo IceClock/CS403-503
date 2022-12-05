@@ -1,4 +1,4 @@
-# CS403503 - spanglishC
+# CS403/503 - spanglishC
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.1.
 
@@ -32,6 +32,7 @@ To install the Angular CLI, open a terminal window and run the following command
 - If you wish to re-create the windows executable, navigate to the project directory, and delete *cs403-503-win32-x64* and *dist* folders and re-run the creation command.
 
 ## WE ARE LIVE!
+In this website there is a complete working online version of spanglishC:
 [CS403503 - spanglisC website](https://cs403-503.herokuapp.com)
 
 ## Interpreter file directories
