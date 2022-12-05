@@ -1,7 +1,7 @@
 import { Token } from "./spanish-scanner"
 import * as ast from "./ast"
 import { SpanishInterpreter, Environment } from "./interpreter"
-import { OutputHandlingService } from "src/app/services/error-handling.service"
+import { OutputHandlingService } from "src/app/services/output-handling.service"
 
 export abstract class TypeCallable {
   abstract arity(): number;

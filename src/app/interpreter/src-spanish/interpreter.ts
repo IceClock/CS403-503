@@ -1,6 +1,6 @@
 import * as ast from "./ast"
 
-import { OutputHandlingService } from "src/app/services/error-handling.service";
+import { OutputHandlingService } from "src/app/services/output-handling.service";
 import * as types from "./types"
 import { Token, TokenType } from "./spanish-scanner";
 

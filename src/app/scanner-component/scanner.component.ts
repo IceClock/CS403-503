@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TESTS } from 'src/assets/tests';
 import { SpanishScanner } from '../interpreter/src-spanish/spanish-scanner';
 import { Scanner, Token } from '../interpreter/src/scanner';
-import { OutputHandlingService } from '../services/error-handling.service';
+import { OutputHandlingService } from '../services/output-handling.service';
 
 @Component({
   selector: 'app-lox-scanner',

@@ -1,4 +1,4 @@
-import { OutputHandlingService } from "src/app/services/error-handling.service";
+import { OutputHandlingService } from "src/app/services/output-handling.service";
 
 export enum TokenType {
     // Single-character tokens. 0-10

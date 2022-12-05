@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { OutputHandlingService } from './error-handling.service';
+import { OutputHandlingService } from './output-handling.service';
 
 describe('OutputHandlingService', () => {
   let service: OutputHandlingService;
