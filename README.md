@@ -1,4 +1,4 @@
-# CS403503
+# CS403503 - spanglishC
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.1.
 
@@ -35,7 +35,7 @@ To install the Angular CLI, open a terminal window and run the following command
 CS403503 (cs403-503.herokuapp.com)
 
 ## Interpreter file directories
-- Spanish interpreter (SpanishC) `src\app\interpreter\src-spanish`
+- Spanish interpreter (spanglishC) `src\app\interpreter\src-spanish`
 - Normal Lox interpreter `src\app\interpreter\src`
 - Test cases `src\assets\tests.ts`
 
@@ -51,5 +51,5 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 - Abdelhadi Hussein
 - Abdulaziz Almousa
-- Andrés Ramírez
+- Andrés Ramírez Molina
 - Hazem Tashkandi
