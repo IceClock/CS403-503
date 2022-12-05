@@ -32,7 +32,7 @@ To install the Angular CLI, open a terminal window and run the following command
 - If you wish to re-create the windows executable, navigate to the project directory, and delete *cs403-503-win32-x64* and *dist* folders and re-run the creation command.
 
 ## WE ARE LIVE!
-[CS403503 - spanglisC website](cs403-503.herokuapp.com)
+[CS403503 - spanglisC website](https://cs403-503.herokuapp.com)
 
 ## Interpreter file directories
 - Spanish interpreter (spanglishC) `src\app\interpreter\src-spanish`
