@@ -17,7 +17,11 @@ const routes: Routes = [
       },
       {
         path: 'interpreter',
-        loadChildren: () => import('./interpreter-component/interpreter.module').then(m => m.LoxModule)
+        loadChildren: () => import('./interpreter-component/interpreter.module').then(m => m.InterpreterModule)
+      },
+      {
+        path: 'lisp-interpreter',
+        loadChildren: () => import('./interpreter-lisp/lisp-interpreter.module').then(m => m.LispInterpreterModule)
       }
     ]
   }

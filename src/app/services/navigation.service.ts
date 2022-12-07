@@ -13,11 +13,15 @@ export class NavigationService {
     this.store.dispatch(new Navigate(['/']))
   }
 
-  viewLoxScanner() {
+  viewScanner() {
     this.store.dispatch(new Navigate(['/scanner']))
   }
 
-  viewLox() {
+  viewInterpreter() {
     this.store.dispatch(new Navigate(['/interpreter']))
+  }
+
+  viewLispInterpreter() {
+    this.store.dispatch(new Navigate(['/lisp-interpreter']))
   }
 }
