@@ -1,9 +1,5 @@
-// deno-fmt-ignore-file
-// deno-lint-ignore-file
-
 import { OutputHandlingService } from "src/app/services/output-handling.service";
 
-// This code was bundled using `deno bundle` and it's not recommended to edit it manually
 const ZERO = typeof BigInt === 'undefined' ? 0 : BigInt(0);
 const ONE = typeof BigInt === 'undefined' ? 1 : BigInt(1);
 function isNumeric(x: any) {
@@ -71,7 +67,7 @@ function tryToParse(token: any) {
         return n;
     }
 }
-function convertToString(x: any) {
+function convertgetString(x: any) {
     const s = x + '';
     if (typeof BigInt !== 'undefined') {
         if (typeof x === 'number') {
@@ -81,7 +77,7 @@ function convertToString(x: any) {
     return s;
 }
 function assert(x: any, message?: any): any {
-    if (!x) throw new Error("Assertion Failure: " + (message || ""));
+    if (!x) throw OutputHandlingService.getInstance().errorOccured("Assertion Failure: " + (message || ""));
 }
 let readLine: any;
 let exit: any;
@@ -90,7 +86,7 @@ class Cell {
         this.car = car;
         this.cdr = cdr;
     }
-    toString() {
+    getString() {
         return "(" + this.car + " . " + this.cdr + ")";
     }
     get length() {
@@ -119,7 +115,7 @@ class Sym {
     constructor(name: any) {
         this.name = name;
     }
-    toString() {
+    getString() {
         return this.name;
     }
     get isInterned() {
@@ -169,7 +165,7 @@ function cdrCell(x: any): any {
     const k = x.cdr;
     if (k instanceof Cell) return k;
     else if (k === null) return null;
-    else throw new EvalException("proper list expected", x);
+    else throw OutputHandlingService.getInstance().errorOccured(new EvalException("proper list expected", x).getString());
 }
 class Func {
     constructor(carity: any) {
@@ -192,7 +188,7 @@ class Func {
             frame[i] = arg.car;
             arg = cdrCell(arg);
         }
-        if (i !== n || arg !== null && !this.hasRest) throw new EvalException("arity not matched", this);
+        if (i !== n || arg !== null && !this.hasRest) throw OutputHandlingService.getInstance().errorOccured(new EvalException("arity not matched", this).getString());
         if (this.hasRest) frame[n] = arg;
         return frame;
     }
@@ -229,7 +225,7 @@ class Macro extends DefinedFunc {
     constructor(carity: any, body: any) {
         super(carity, body);
     }
-    override toString() {
+    getString() {
         return `#<macro:${this.carity}:${str(this.body)}>`;
     }
     expandWith(interp: any, arg: any) {
@@ -248,7 +244,7 @@ class Lambda extends DefinedFunc {
     constructor(carity: any, body: any) {
         super(carity, body);
     }
-    override toString() {
+    getString() {
         return `#<lambda:${this.carity}:${str(this.body)}>`;
     }
     static make(carity: any, body: any, env: any) {
@@ -264,7 +260,7 @@ class Closure extends DefinedFunc {
     static makeFrom(x: any, env: any) {
         return new Closure(x.carity, x.body, env);
     }
-    override toString() {
+     getString() {
         return `#<closure:${this.carity}:${str(this.env)}:${str(this.body)}>`;
     }
     makeEnv(interp: any, arg: any, interpEnv: any) {
@@ -283,7 +279,7 @@ class BuiltInFunc extends Func {
         this.name = name;
         this.body = body;
     }
-    override toString() {
+    getString() {
         return "#<" + this.name + ":" + this.carity + ">";
     }
     evalWith(interp: any, arg: any, interpEnv: any) {
@@ -293,7 +289,7 @@ class BuiltInFunc extends Func {
             return this.body(frame);
         } catch (ex) {
             if (ex instanceof EvalException) throw ex;
-            else throw new EvalException(ex + " -- " + this.name, frame);
+            else throw OutputHandlingService.getInstance().errorOccured(new EvalException(ex + " -- " + this.name, frame).getString());
         }
     }
     name;
@@ -305,7 +301,7 @@ class Arg {
         this.offset = offset;
         this.symbol = symbol;
     }
-    toString() {
+    getString() {
         return "#" + this.level + ":" + this.offset + ":" + this.symbol;
     }
     setValue(x: any, env: any) {
@@ -325,7 +321,7 @@ class EvalException extends Error {
     constructor(msg: any, x: any, quoteString = true) {
         super(msg + ": " + str(x, quoteString));
     }
-    override toString() {
+   getString() {
         let s = "EvalException: " + this.message;
         for (const line of this.trace) s += "\n\t" + line;
         return s;
@@ -342,7 +338,7 @@ class FormatException extends Error {
     }
 }
 const EndOfFile = {
-    toString: () => "EOF"
+    getString: () => "EOF"
 };
 export class Interp {
     globals = new Map();
@@ -411,7 +407,7 @@ export class Interp {
             } else if (y.cdr === null) {
                 return quotient(x, y.car);
             } else {
-                throw "one or two arguments expected";
+                throw OutputHandlingService.getInstance().errorOccured("one or two arguments expected");
             }
         });
         this.def("prin1", 1, (a: any) => {
@@ -462,7 +458,7 @@ export class Interp {
                     return x.getValue(env);
                 } else if (x instanceof Sym) {
                     const value = this.globals.get(x);
-                    if (value === undefined) throw new EvalException("void variable", x);
+                    if (value === undefined) throw OutputHandlingService.getInstance().errorOccured(new EvalException("void variable", x).getString());
                     return value;
                 } else if (x instanceof Cell) {
                     let fn = x.car;
@@ -471,7 +467,7 @@ export class Interp {
                         switch (fn) {
                             case quoteSym:
                                 if (arg !== null && arg.cdr === null) return arg.car;
-                                throw new EvalException("bad quote", x);
+                                throw OutputHandlingService.getInstance().errorOccured(new EvalException("bad quote", x).getString());
                             case prognSym:
                                 x = this.evalProgN(arg, env);
                                 break;
@@ -483,21 +479,21 @@ export class Interp {
                             case lambdaSym:
                                 return this.compile(arg, env, Closure.make);
                             case macroSym:
-                                if (env !== null) throw new EvalException("nested macro", x);
+                                if (env !== null) throw OutputHandlingService.getInstance().errorOccured(new EvalException("nested macro", x).getString());
                                 return this.compile(arg, null, Macro.make);
                             case quasiquoteSym:
                                 if (arg !== null && arg.cdr === null) {
                                     x = qqExpand(arg.car);
                                     break;
                                 }
-                                throw new EvalException("bad quasiquote", x);
+                                throw OutputHandlingService.getInstance().errorOccured(new EvalException("bad quasiquote", x).getString());
                             default:
-                                throw new EvalException("bad keyword", fn);
+                                throw OutputHandlingService.getInstance().errorOccured(new EvalException("bad keyword", fn).getString());
                         }
                     } else {
                         if (fn instanceof Sym) {
                             fn = this.globals.get(fn);
-                            if (fn === undefined) throw new EvalException("undefined", x.car);
+                            if (fn === undefined) throw OutputHandlingService.getInstance().errorOccured(new EvalException("undefined", x.car).getString());
                         } else {
                             fn = this.eval(fn, env);
                         }
@@ -509,7 +505,7 @@ export class Interp {
                         } else if (fn instanceof BuiltInFunc) {
                             return fn.evalWith(this, arg, env);
                         } else {
-                            throw new EvalException("not applicable", fn);
+                            throw OutputHandlingService.getInstance().errorOccured(new EvalException("not applicable", fn).getString());
                         }
                     }
                 } else if (x instanceof Lambda) {
@@ -518,11 +514,11 @@ export class Interp {
                     return x;
                 }
             }
-        } catch (ex) {
+        } catch (ex: any) {
             if (ex instanceof EvalException) {
                 if (ex.trace.length < 10) ex.trace.push(str(x));
             }
-            throw ex;
+            throw OutputHandlingService.getInstance().errorOccured(ex?.getString());
         }
     }
     evalProgN(j: any, env: any) {
@@ -545,7 +541,7 @@ export class Interp {
                     else return this.evalProgN(body, env);
                 }
             } else if (clause !== null) {
-                throw new EvalException("cond test expected", clause);
+                throw OutputHandlingService.getInstance().errorOccured(new EvalException("cond test expected", clause).getString()); 
             }
         }
         return null;
@@ -555,7 +551,7 @@ export class Interp {
         for (; j !== null; j = cdrCell(j)) {
             const lval = j.car;
             j = cdrCell(j);
-            if (j === null) throw new EvalException("right value expected", lval);
+            if (j === null) throw OutputHandlingService.getInstance().errorOccured(new EvalException("right value expected", lval).getString());
             result = this.eval(j.car, env);
             if (lval instanceof Arg) {
                 assert(env !== null);
@@ -563,13 +559,13 @@ export class Interp {
             } else if (lval instanceof Sym && !(lval instanceof Keyword)) {
                 this.globals.set(lval, result);
             } else {
-                throw new NotVariableException(lval);
+                throw OutputHandlingService.getInstance().errorOccured(new NotVariableException(lval).getString());
             }
         }
         return result;
     }
     compile(arg: any, env: any, make: any): any {
-        if (arg === null) throw new EvalException("arglist and body expected", arg);
+        if (arg === null) throw OutputHandlingService.getInstance().errorOccured(new EvalException("arglist and body expected", arg).getString());
         const table = new Map();
         const [hasRest, arity] = makeArgTable(arg.car, table);
         let body = cdrCell(arg);
@@ -593,7 +589,7 @@ export class Interp {
                             const z = qqExpand(d.car);
                             return this.expandMacros(z, count);
                         }
-                        throw new EvalException("bad quasiquote", j);
+                        throw OutputHandlingService.getInstance().errorOccured(new EvalException("bad quasiquote", j).getString());
                     }
                 default:
                     if (k instanceof Sym) k = this.globals.get(k);
@@ -621,7 +617,7 @@ export class Interp {
                         return this.compile(d, null, Lambda.make);
                     }
                 case macroSym:
-                    throw new EvalException("nested macro", j);
+                    throw OutputHandlingService.getInstance().errorOccured(new EvalException("nested macro", j).getString());
                 default:
                     return mapcar(j, (x: any) => this.compileInners(x)
                     );
@@ -643,19 +639,19 @@ function makeArgTable(arg: any, table: any) {
         let hasRest = false;
         for (; ag !== null; ag = cdrCell(ag)) {
             let j = ag.car;
-            if (hasRest) throw new EvalException("2nd rest", j);
+            if (hasRest) throw OutputHandlingService.getInstance().errorOccured(new EvalException("2nd rest", j).getString());
             if (j === restSym) {
                 ag = cdrCell(ag);
-                if (ag === null) throw new NotVariableException(ag);
+                if (ag === null) throw OutputHandlingService.getInstance().errorOccured(new NotVariableException(ag).getString());
                 j = ag.car;
-                if (j === restSym) throw new NotVariableException(j);
+                if (j === restSym) throw OutputHandlingService.getInstance().errorOccured(new NotVariableException(j).getString());
                 hasRest = true;
             }
             let sym;
             if (j instanceof Sym) sym = j;
             else if (j instanceof Arg) sym = j.symbol;
-            else throw new NotVariableException(j);
-            if (table.has(sym)) throw new EvalException("duplicated argument name", j);
+            else throw OutputHandlingService.getInstance().errorOccured(new NotVariableException(j).getString());
+            if (table.has(sym)) throw OutputHandlingService.getInstance().errorOccured(new EvalException("duplicated argument name", j).getString());
             table.set(sym, new Arg(0, offset, sym));
             offset++;
         }
@@ -664,7 +660,7 @@ function makeArgTable(arg: any, table: any) {
             offset
         ];
     } else {
-        throw new EvalException("arglist expected", arg);
+        throw OutputHandlingService.getInstance().errorOccured(new EvalException("arglist expected", arg).getString());
     }
 }
 function scanForArgs(j: any, table: any): any {
@@ -816,8 +812,8 @@ class Reader {
             this.readToken();
             return this.parseExpression();
         } catch (ex) {
-            if (ex === EndOfFile) throw EndOfFile;
-            else if (ex instanceof FormatException) throw new EvalException("syntax error", ex.message + " at " + this.lineNo, false);
+            if (ex === EndOfFile) throw OutputHandlingService.getInstance().errorOccured(EndOfFile?.getString());
+            else if (ex instanceof FormatException) throw OutputHandlingService.getInstance().errorOccured(new EvalException("syntax error", ex.message + " at " + this.lineNo, false).getString());
             else throw ex;
         }
     }
@@ -840,7 +836,7 @@ class Reader {
                 return new Cell(unquoteSplicingSym, new Cell(this.parseExpression(), null));
             case dotSym:
             case rightParenSym:
-                throw new FormatException('unexpected "' + this.token + '"');
+                throw OutputHandlingService.getInstance().errorOccured(new FormatException('unexpected "' + this.token + '"')?.message);
             default:
                 return this.token;
         }
@@ -856,7 +852,7 @@ class Reader {
                 this.readToken();
                 e2 = this.parseExpression();
                 this.readToken();
-                if (this.token !== rightParenSym) throw new FormatException('")" expected: ' + this.token);
+                if (this.token !== rightParenSym) throw OutputHandlingService.getInstance().errorOccured(new FormatException('")" expected: ' + this.token)?.message);
             } else {
                 e2 = this.parseListBody();
             }
@@ -867,7 +863,7 @@ class Reader {
         for (; ;) {
             const t = this.tokens.shift();
             if (t === undefined) {
-                throw EndOfFile;
+                throw OutputHandlingService.getInstance().errorOccured(EndOfFile.getString());
             } else if (t === "\n") {
                 this.lineNo += 1;
             } else if (t === "+" || t === "-") {
@@ -877,7 +873,7 @@ class Reader {
                 if (t[0] === '"') {
                     let s = t;
                     const n = s.length - 1;
-                    if (n < 1 || s[n] !== '"') throw new FormatException("bad string: " + s);
+                    if (n < 1 || s[n] !== '"') throw OutputHandlingService.getInstance().errorOccured(new FormatException("bad string: " + s)?.message);
                     s = s.substring(1, n);
                     s = s.replace(/\\./g, (m: any) => {
                         const val = Reader.escapes[m];
@@ -970,7 +966,7 @@ function str(x: any, quoteString = true, count?: any, printed?: any): any {
     } else if (x instanceof Sym) {
         return x.isInterned ? x.name : "#:" + x;
     } else if (isNumeric(x)) {
-        return convertToString(x);
+        return convertgetString(x);
     } else {
         return x + "";
     }
@@ -1002,44 +998,6 @@ function strListBody(x: any, count: any, printed: any) {
         if (i >= 0) printed.splice(i, 1);
     }
     return s.join(" ");
-}
-class REPL {
-    stdInTokens = new Reader();
-    async readExpression(prompt1: any, prompt2: any) {
-        const oldTokens = new Reader();
-        for (; ;) {
-            oldTokens.copyFrom(this.stdInTokens);
-            try {
-                return this.stdInTokens.read();
-            } catch (ex) {
-                if (ex === EndOfFile) {
-                    OutputHandlingService.getInstance().print(oldTokens.isEmpty() ? prompt1 : prompt2);
-                    const line = await readLine();
-                    if (line === null) return EndOfFile;
-                    oldTokens.push(line);
-                    this.stdInTokens.copyFrom(oldTokens);
-                } else {
-                    this.stdInTokens.clear();
-                    throw ex;
-                }
-            }
-        }
-    }
-    async readEvalPrintLoop(interp: any) {
-        for (; ;) {
-            try {
-                const exp = await this.readExpression("> ", "  ");
-                if (exp === EndOfFile) {
-                    OutputHandlingService.getInstance().print("Goodbye\n");
-                    return;
-                }
-                const result = interp.eval(exp, null);
-                OutputHandlingService.getInstance().print(str(result) + "\n");
-            } catch (ex) {
-                throw ex;
-            }
-        }
-    }
 }
 export const prelude = `
 (setq defmacro

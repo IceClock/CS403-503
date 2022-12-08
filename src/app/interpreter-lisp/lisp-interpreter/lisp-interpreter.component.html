@@ -8,7 +8,7 @@
       <div class="options">
       </div>
       <mat-form-field class="input-feild " appearance="outline" floatLabel="always">
-        <mat-label>Input</mat-label>
+        <mat-label>LISP Input</mat-label>
         <textarea matInput type="text" placeholder=">" [(ngModel)]="testValue"></textarea>
         <div class="action-bar">
           <button mat-raised-button color="primary" aria-label="Run" (click)="run()">
@@ -30,6 +30,15 @@
     </mat-card-header>
     <mat-card-content style="padding: 30px; border: 1px #b8b6b6 solid; border-radius: 1%; box-shadow: 1px 1px 2px black;">
         <p *ngFor="let print of printingStmts">{{print}}</p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card style="margin-top: 20px;">
+    <mat-card-header>
+      <mat-card-title>Error Log</mat-card-title>
+    </mat-card-header>
+    <mat-card-content style="padding: 30px; border: 1px #b8b6b6 solid; border-radius: 1%; box-shadow: 1px 1px 2px black; color: red;">
+        <p *ngFor="let error of errorLog">{{error}}</p>
     </mat-card-content>
   </mat-card>
   
