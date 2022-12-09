@@ -114,11 +114,64 @@ export const LISP_TESTS = [
           `
     },
     {
-      testLabel: 'Test Label',
-      testValue:
-        `
-                    
-                          `
-    },
+      testLabel: 'Double',
+      testValue: 
+      `
+      (define double (x) (* x 2))
+
+      (print (double 3))
+      `
+      },
+      {
+      testLabel: 'Tripe and negate',
+      testValue: 
+      `
+      ;;
+      ;; Triple the value of a number
+      ;;
+      
+      (define triple (X)
+        "Compute three times X."  ; Inline comments can
+        (* 3 X))                  ; be placed here.
+      
+      ;;
+      ;; Negate the sign of a number
+      ;;
+      
+      (define negate (X)
+        "Negate the value of X."  ; This is a documentation string.
+        (- X)) 
+      
+      (print (triple 2))
+      (print (negate 3))  
+      `
+      },
+      {
+      testLabel: 'Factorial',
+      testValue: 
+      `
+      (define factorial (N)
+      "Compute the factorial of N."
+      (if (= N 1)
+          1
+        (* N (factorial (- N 1)))))
+
+        (print (factorial 4))
+      `
+      },
+      {
+      testLabel: 'Multiple Recursions (Fib)',
+      testValue: 
+      `
+      (define fib (n)
+      (if (<= n 1)
+            n
+          (+ (fib (- n 1))
+            (fib (- n 2)))))
+
+      (print (fib 5))   ; => 5
+      (print (fib 10))  ; => 55
+      `
+      }
   
 ]
