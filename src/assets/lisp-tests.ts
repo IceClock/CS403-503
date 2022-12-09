@@ -93,6 +93,7 @@ export const LISP_TESTS = [
       testLabel: 'If else statement',
       testValue:
         `
+        (set a 15)
         (if (eql a 10) (print a) (print "Not equal")) ;; expect "Not equal"
         `
     },

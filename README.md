@@ -1,4 +1,4 @@
-# CS403503 - spanglishC
+# CS403503 - Lisp Interpreter
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.1.
 
@@ -31,13 +31,10 @@ To install the Angular CLI, open a terminal window and run the following command
 - In case you come across a blank window, go to view menu in the tab bar and click reload
 - If you wish to re-create the windows executable, navigate to the project directory, and delete *cs403-503-win32-x64* and *dist* folders and re-run the creation command.
 
-## WE ARE LIVE!
-[CS403503 - spanglisC website](https://cs403-503.herokuapp.com)
 
 ## Interpreter file directories
-- Spanish interpreter (spanglishC) `src\app\interpreter\src-spanish`
-- Normal Lox interpreter `src\app\interpreter\src`
-- Test cases `src\assets\tests.ts`
+- Lisp interpreter  `src\app\interpreter\interpreter-lisp`
+- Test cases `src\assets\lisp-tests.ts`
 
 ## Development server
 
