@@ -160,7 +160,7 @@ const macroSym = newKeyword("macro");
 const prognSym = newKeyword("progn");
 const quasiquoteSym = newKeyword("quasiquote");
 const quoteSym = newKeyword("quote");
-const setqSym = newKeyword("setq");
+const setSym = newKeyword("set");
 function cdrCell(x: any): any {
     const k = x.cdr;
     if (k instanceof Cell) return k;
@@ -365,9 +365,9 @@ export class Interp {
         });
         this.def("length", 1, (a: any) => a[0] === null ? 0 : quotient(a[0].length, 1)
         );
-        this.def("stringp", 1, (a: any) => typeof a[0] === "string" ? true : null
+        this.def("symbol?", 1, (a: any) => typeof a[0] === "string" ? true : null
         );
-        this.def("numberp", 1, (a: any) => isNumeric(a[0]) ? true : null
+        this.def("number?", 1, (a: any) => isNumeric(a[0]) ? true : null
         );
         this.def("eql", 2, (a: any) => {
             const x = a[0];
@@ -474,8 +474,8 @@ export class Interp {
                             case condSym:
                                 x = this.evalCond(arg, env);
                                 break;
-                            case setqSym:
-                                return this.evalSetQ(arg, env);
+                            case setSym:
+                                return this.evalset(arg, env);
                             case lambdaSym:
                                 return this.compile(arg, env, Closure.make);
                             case macroSym:
@@ -546,7 +546,7 @@ export class Interp {
         }
         return null;
     }
-    evalSetQ(j: any, env: any) {
+    evalset(j: any, env: any) {
         let result = null;
         for (; j !== null; j = cdrCell(j)) {
             const lval = j.car;
@@ -1000,13 +1000,13 @@ function strListBody(x: any, count: any, printed: any) {
     return s.join(" ");
 }
 export const prelude = `
-(setq defmacro
+(set defmacro
       (macro (name args &rest body)
-             \`(progn (setq ,name (macro ,args ,@body))
+             \`(progn (set ,name (macro ,args ,@body))
                      ',name)))
 
 (defmacro define (name args &rest body)
-  \`(progn (setq ,name (lambda ,args ,@body))
+  \`(progn (set ,name (lambda ,args ,@body))
           ',name))
 
 (define caar (x) (car (car x)))
@@ -1026,7 +1026,7 @@ export const prelude = `
 (define print (x) (prin1 x) (terpri) x)
 (define identity (x) x)
 
-(setq
+(set
  = eql
  rem %
  null not
@@ -1037,6 +1037,13 @@ export const prelude = `
 (define >= (x y) (not (< x y)))
 (define <= (x y) (not (< y x)))
 (define /= (x y) (not (= x y)))
+
+(define nil? (x)
+  (cond ((nil (x)) T)
+        (t nil)
+        ))
+
+
 
 (define equal (x y)
   (cond ((atom x) (eql x y))
@@ -1066,12 +1073,12 @@ export const prelude = `
    nil nil))
 
 (defmacro letrec (args &rest body)      ; (letrec ((v e) ...) body...)
-  (let (vars setqs)
+  (let (vars sets)
     (define vars (x)
       (cond (x (cons (caar x)
                      (vars (cdr x))))))
     (define sets (x)
-      (cond (x (cons \`(setq ,(caar x) ,(cadar x))
+      (cond (x (cons \`(set ,(caar x) ,(cadar x))
                      (sets (cdr x))))))
     \`(let ,(vars args) ,@(sets args) ,@body)))
 
@@ -1157,11 +1164,11 @@ export const prelude = `
     \`(let (,name
            (,list ,(cadr spec)))
        (while ,list
-         (setq ,name (car ,list))
+         (set ,name (car ,list))
          ,@body
-         (setq ,list (cdr ,list)))
+         (set ,list (cdr ,list)))
        ,@(if (cddr spec)
-             \`((setq ,name nil)
+             \`((set ,name nil)
                ,(caddr spec))))))
 
 (defmacro dotimes (spec &rest body) ; (dotimes (name count [result]) body...)
@@ -1171,7 +1178,7 @@ export const prelude = `
            (,count ,(cadr spec)))
        (while (< ,name ,count)
          ,@body
-         (setq ,name (+ ,name 1)))
+         (set ,name (+ ,name 1)))
        ,@(if (cddr spec)
              \`(,(caddr spec))))))
 `;

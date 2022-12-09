@@ -70,10 +70,10 @@ export const LISP_TESTS = [
         `
     },
     {
-      testLabel: 'Setq',
+      testLabel: 'set',
       testValue:
         ` 
-        (setq a 10)
+        (set a 10)
         (print a) ;; expect 10
 
         `
@@ -83,7 +83,7 @@ export const LISP_TESTS = [
       testValue:
         `
                     
-        (setq a 10)
+        (set a 10)
         (if (eql a 10) (print a)) ;; expect 10
 
   
@@ -100,12 +100,12 @@ export const LISP_TESTS = [
       testLabel: 'Cond',
       testValue:
         `
-          (setq a 11)
+          (set a 11)
           (cond 
           ((eql a 10) (print "a Equal 10"))
           ((eql a 11) (print "a Equal 11"))) ;; expect "a Equal 11"
 
-          (setq a 10)
+          (set a 10)
           (cond 
           ((eql a 10) (print "a Equal 10"))
           ((eql a 11) (print "a Equal 11"))) ;; expect "a Equal 10"
@@ -173,5 +173,18 @@ export const LISP_TESTS = [
       (print (fib 10))  ; => 55
       `
       }
+      ,
+      {
+      testLabel: 'number? and Symbol?',
+      testValue: 
+      `
+      (set a 1)
+      (set b "a")
+
+      (if (number? a) (print "a is a number") (print "a is not a number")) ;; expect "a is a number"
+      (if (symbol? b) (print "b is a symbol") (print "b is not a symbol")) ;; expect "b is a symbol"
+      `
+      }
+      
   
 ]
