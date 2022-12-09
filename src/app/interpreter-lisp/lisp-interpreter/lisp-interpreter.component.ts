@@ -31,6 +31,9 @@ export class LispInterpreterComponent implements OnInit {
   clear() {
     this.printingStmts = [];
     this.errorLog = [];
+    this.testValue = '';
+    OutputHandlingService.getInstance().print('');
+    OutputHandlingService.getInstance().errorOccured('');
   }
 
   run() {
