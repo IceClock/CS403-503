@@ -6,6 +6,13 @@
     </mat-card-subtitle>
     <mat-card-content class="input-container">
       <div class="options">
+        <mat-form-field appearance="outline">
+            <mat-label>Pick a test</mat-label>
+            <mat-select [(value)]="testValue" (selectionChange)="run()">
+              <mat-option [value]="''">Select</mat-option>
+              <mat-option *ngFor="let test of tests" [value]="test.testValue">{{test.testLabel}}</mat-option>
+            </mat-select>
+          </mat-form-field>
       </div>
       <mat-form-field class="input-feild " appearance="outline" floatLabel="always">
         <mat-label>LISP Input</mat-label>

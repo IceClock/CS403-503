@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { OutputHandlingService } from 'src/app/services/output-handling.service';
+import { LISP_TESTS } from 'src/assets/lisp-tests';
 import * as lisp from '../src/lisp'
 
 @Component({
@@ -11,15 +12,8 @@ import * as lisp from '../src/lisp'
 export class LispInterpreterComponent implements OnInit {
 
 
-  testValue = `
-                (define fib (n)
-                (if (<= n 1)
-                    n
-                  (+ (fib (- n 1))
-                    (fib (- n 2)))))
-
-              (print (fib 5))   ; => 5
-              (print (fib 10))          ; => 55`;
+  tests = LISP_TESTS;
+  testValue = ``;
   printingStmts: any = [];
   errorLog: any = [];
 
