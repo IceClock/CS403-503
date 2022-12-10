@@ -40,7 +40,7 @@ To install the Angular CLI, open a terminal window and run the following command
 
 ## Interpreter file directories
 - Spanish interpreter (spanglishC) `src\app\interpreter\src-spanish`
-- Normal Lox interpreter `src\app\interpreter\src`
+- English interpreter `src\app\interpreter\src`
 - Lisp interpreter  `src\app\interpreter\interpreter-lisp`
 - Test cases (Spanish & English) `src\assets\tests.ts`
 - LISP Test cases `src\assets\lisp-tests.ts`
