@@ -173,8 +173,7 @@ export const LISP_TESTS = [
       (print (fib 5))   ; => 5
       (print (fib 10))  ; => 55
       `
-      }
-      ,
+      },
       {
       testLabel: 'number? and Symbol?',
       testValue: 
@@ -184,6 +183,20 @@ export const LISP_TESTS = [
 
       (if (number? a) (print "a is a number") (print "a is not a number")) ;; expect "a is a number"
       (if (symbol? b) (print "b is a symbol") (print "b is not a symbol")) ;; expect "b is a symbol"
+      `
+      },
+      {
+      testLabel: 'list?',
+      testValue: 
+      `
+      
+      (set a 15)
+      (if (list? a) (print "a is a list") (print "a is not a list")) ;; expect "a is not a list"
+
+
+      (if (list? \`(1 2)) (print "It is a list") (print "It is not a list")) ;; expect "It is a list"
+
+      (if (list? \`("a" "b")) (print "It is a list") (print "It is not a list")) ;; expect "It is a list"
       `
       }
       
