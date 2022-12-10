@@ -2,16 +2,17 @@ import { NgModule } from "@angular/core";
 
 import { CommonModule } from "@angular/common";
 import { SharedModule } from "../shared";
+
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { InterpreterComponent } from "./interpreter.component";
-import { InterpreterRoutingModule } from "./interpreter-routing.module";
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { LispInterpreterRoutingModule } from "./lisp-interpreter-routing.module";
+import { LispInterpreterComponent } from "./lisp-interpreter/lisp-interpreter.component";
+
 @NgModule({
     declarations: [
-        InterpreterComponent
+        LispInterpreterComponent
     ],
     imports: [
         CommonModule,
@@ -20,11 +21,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
         MatTableModule,
         MatSelectModule,
         MatSnackBarModule,
-        InterpreterRoutingModule,
-        MatSlideToggleModule
+        LispInterpreterRoutingModule
     ],
     exports: [
-        InterpreterComponent
+        LispInterpreterComponent
     ]
 })
-export class InterpreterModule {}
+export class LispInterpreterModule {}

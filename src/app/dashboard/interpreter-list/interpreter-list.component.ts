@@ -14,10 +14,13 @@ export class InterpreterListComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  goToLoxScanner () {
-    this.navigation.viewLoxScanner();
+  goToScanner () {
+    this.navigation.viewScanner();
   }
-  goToLox () {
-    this.navigation.viewLox();
+  goToInterpreter () {
+    this.navigation.viewInterpreter();
+  }
+  goToLispInterpreter () {
+    this.navigation.viewLispInterpreter();
   }
 }
