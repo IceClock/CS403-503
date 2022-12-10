@@ -1054,42 +1054,8 @@ export const prelude = `
   \`(cond (,test ,then)
          ,@(cond (else \`((t ,@else))))))
 
-(defmacro when (test &rest body)
-  \`(cond (,test ,@body)))
 
-(defmacro let (args &rest body)
-  ((lambda (vars vals)
-     (define vars (x)
-       (cond (x (cons (if (atom (car x))
-                          (car x)
-                        (caar x))
-                      (vars (cdr x))))))
-     (define vals (x)
-       (cond (x (cons (if (atom (car x))
-                          nil
-                        (cadar x))
-                      (vals (cdr x))))))
-     \`((lambda ,(vars args) ,@body) ,@(vals args)))
-   nil nil))
 
-(defmacro letrec (args &rest body)      ; (letrec ((v e) ...) body...)
-  (let (vars sets)
-    (define vars (x)
-      (cond (x (cons (caar x)
-                     (vars (cdr x))))))
-    (define sets (x)
-      (cond (x (cons \`(set ,(caar x) ,(cadar x))
-                     (sets (cdr x))))))
-    \`(let ,(vars args) ,@(sets args) ,@body)))
-
-(define _append (x y)
-  (if (null x)
-      y
-    (cons (car x) (_append (cdr x) y))))
-(defmacro append (x &rest y)
-  (if (null y)
-      x
-    \`(_append ,x (append ,@y))))
 
 (defmacro and (x &rest y)
   (if (null y)
@@ -1105,82 +1071,12 @@ export const prelude = `
     \`(cond (,x)
            ((or ,@y)))))
 
-(define listp (x)
-  (or (null x) (consp x)))    ; NB (listp (lambda (x) (+ x 1))) => nil
+(define list? (x)
+  (or (null x) (consp x)))    ; NB (list? (lambda (x) (+ x 1))) => nil
 
-(define memq (key x)
-  (cond ((null x) nil)
-        ((eq key (car x)) x)
-        (t (memq key (cdr x)))))
 
-(define member (key x)
-  (cond ((null x) nil)
-        ((equal key (car x)) x)
-        (t (member key (cdr x)))))
 
-(define assq (key alist)
-  (cond (alist (let ((e (car alist)))
-                 (if (and (consp e) (eq key (car e)))
-                     e
-                   (assq key (cdr alist)))))))
 
-(define assoc (key alist)
-  (cond (alist (let ((e (car alist)))
-                 (if (and (consp e) (equal key (car e)))
-                     e
-                   (assoc key (cdr alist)))))))
-
-(define _nreverse (x prev)
-  (let ((next (cdr x)))
-    (setcdr x prev)
-    (if (null next)
-        x
-      (_nreverse next x))))
-(define nreverse (list)        ; (nreverse (quote (a b c d))) => (d c b a))
-  (cond (list (_nreverse list nil))))
-
-(define last (list)
-  (if (atom (cdr list))
-      list
-    (last (cdr list))))
-
-(define nconc (&rest lists)
-  (if (null (cdr lists))
-      (car lists)
-    (if (null (car lists))
-        (apply nconc (cdr lists))
-      (setcdr (last (car lists))
-              (apply nconc (cdr lists)))
-      (car lists))))
-
-(defmacro while (test &rest body)
-  (let ((loop (gensym)))
-    \`(letrec ((,loop (lambda () (cond (,test ,@body (,loop))))))
-       (,loop))))
-
-(defmacro dolist (spec &rest body) ; (dolist (name list [result]) body...)
-  (let ((name (car spec))
-        (list (gensym)))
-    \`(let (,name
-           (,list ,(cadr spec)))
-       (while ,list
-         (set ,name (car ,list))
-         ,@body
-         (set ,list (cdr ,list)))
-       ,@(if (cddr spec)
-             \`((set ,name nil)
-               ,(caddr spec))))))
-
-(defmacro dotimes (spec &rest body) ; (dotimes (name count [result]) body...)
-  (let ((name (car spec))
-        (count (gensym)))
-    \`(let ((,name 0)
-           (,count ,(cadr spec)))
-       (while (< ,name ,count)
-         ,@body
-         (set ,name (+ ,name 1)))
-       ,@(if (cddr spec)
-             \`(,(caddr spec))))))
 `;
 export function run(interp: any, text: any) {
     const tokens = new Reader();
