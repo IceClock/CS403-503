@@ -1,6 +1,10 @@
-# CS403503 - Lisp Interpreter
+# CS403503 - Interpreters
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.1.
+
+## Interpreters List
+- spanglishC
+- LISP
 
 ## Getting Started
 ### Requrements
@@ -22,19 +26,25 @@ To install the Angular CLI, open a terminal window and run the following command
 - In case you come across a blank window, go to view menu in the tab bar and click reload.
 - If you wish to re-create the windows executable, navigate to the project directory and delete *cs403-503-win32-x64* and *dist* folders and re-run the creation command.
 
-## Create macOS executable
+## Create macOS executable 
 - Navigate to the project folder.
 - Open a terminal and run the following command `npm run build`
 - then the following command `npm run electron-mac`
-- The previous command will create a folder *cs403-503-win32-x64* in the project directory.
-- Navigate to *cs403-503-win32-x64* and open the executable file cs403-503.exe.
+- The previous command will create a folder *cs403-503-darwin-x64* in the project directory.
+- Navigate to *cs403-503.app* and open the executable file cs403-503.app.
 - In case you come across a blank window, go to view menu in the tab bar and click reload
-- If you wish to re-create the windows executable, navigate to the project directory, and delete *cs403-503-win32-x64* and *dist* folders and re-run the creation command.
+- If you wish to re-create the windows executable, navigate to the project directory, and delete *cs403-503.app* and *dist* folders and re-run the creation command.
 
+## WE ARE LIVE!
+[CS403503 - Interpreters](https://cs403-503.herokuapp.com)
 
 ## Interpreter file directories
+- Spanish interpreter (spanglishC) `src\app\interpreter\src-spanish`
+- Normal Lox interpreter `src\app\interpreter\src`
 - Lisp interpreter  `src\app\interpreter\interpreter-lisp`
-- Test cases `src\assets\lisp-tests.ts`
+- Test cases (Spanish & English) `src\assets\tests.ts`
+- LISP Test cases `src\assets\lisp-tests.ts`
+
 
 ## Development server
 
