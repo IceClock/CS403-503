@@ -23,4 +23,7 @@ export class InterpreterListComponent implements OnInit {
   goToLispInterpreter () {
     this.navigation.viewLispInterpreter();
   }
+  goToTravelingSalesman () {
+    this.navigation.viewTravelingSalesman();
+  }
 }

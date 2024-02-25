@@ -24,4 +24,8 @@ export class NavigationService {
   viewLispInterpreter() {
     this.store.dispatch(new Navigate(['/lisp-interpreter']))
   }
+
+  viewTravelingSalesman() {
+    this.store.dispatch(new Navigate(['/traveling-salesman']))
+  }
 }

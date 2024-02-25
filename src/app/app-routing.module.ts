@@ -22,7 +22,11 @@ const routes: Routes = [
       {
         path: 'lisp-interpreter',
         loadChildren: () => import('./interpreter-lisp/lisp-interpreter.module').then(m => m.LispInterpreterModule)
-      }
+      },
+      {
+        path: 'traveling-salesman',
+        loadChildren: () => import('./travel-salesman/travel-salesman.module').then(m => m.TravelSalesmanModule)
+      },
     ]
   }
 ];

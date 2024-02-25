@@ -1,0 +1,112 @@
+
+
+<mat-card>
+    <mat-card-subtitle>
+      <h3>Input</h3>
+    </mat-card-subtitle>
+    <mat-card-content class="input-container">
+      <div class="options">
+        <mat-form-field appearance="outline">
+          <mat-label>Pick a file</mat-label>
+          <mat-select [(value)]="selectedCat">
+            <mat-option *ngFor="let cat of testCategories" [value]="cat">{{cat}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="input-feild " appearance="outline" floatLabel="always">
+
+    </div>
+    <!-- <div class="logs">
+      <mat-accordion>
+        <mat-expansion-panel [expanded]="panelOpenState" (opened)="panelOpenState = true"
+        (closed)="panelOpenState = false">
+        <mat-expansion-panel-header>
+        <mat-panel-title>
+        Verbose Log
+        </mat-panel-title>
+        </mat-expansion-panel-header>
+        </mat-expansion-panel>
+        </mat-accordion>
+
+        <mat-accordion>
+        <mat-expansion-panel [expanded]="panelOpenState" (opened)="panelOpenState = true"
+        (closed)="panelOpenState = false">
+        <mat-expansion-panel-header>
+        <mat-panel-title>
+        Error Log
+        </mat-panel-title>
+        </mat-expansion-panel-header>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>   -->
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-raised-button color="primary" aria-label="Run" (click)="run()">
+            Run 
+            <mat-icon>start</mat-icon>
+          </button>  
+          <button mat-raised-button color="warn" aria-label="Clear" (click)="clear()">
+            <mat-icon>close</mat-icon>
+             Clear
+          </button>  
+    </mat-card-actions>
+  </mat-card>
+
+
+
+  <mat-card style="margin-top: 20px;">
+    <mat-card-header>
+      <mat-card-title>Output</mat-card-title>
+    </mat-card-header>
+    <mat-card-content style="border: 1px #b8b6b6 solid; border-radius: 1%; box-shadow: 1px 1px 2px black;" class="output-content">
+        <div class="table-container" *ngIf="dataSource$ | async as ds">
+            <table mat-table [dataSource]="ds" class="mat-elevation-z8">
+        
+              <ng-container matColumnDef="route">
+                <th mat-header-cell *matHeaderCellDef> Route </th>
+                <td mat-cell *matCellDef="let element"> {{element.route}} </td>
+              </ng-container>
+            
+              <ng-container matColumnDef="value">
+                <th mat-header-cell *matHeaderCellDef> Value </th>
+                <td mat-cell *matCellDef="let element"> {{element.value}} </td>
+              </ng-container>
+            
+              <ng-container matColumnDef="index">
+                <th mat-header-cell *matHeaderCellDef> Index </th>
+                <td mat-cell *matCellDef="let element"> {{element.index}} </td>
+              </ng-container>
+          
+              <ng-container matColumnDef="total">
+                <th mat-header-cell *matHeaderCellDef> Total </th>
+                <td mat-cell *matCellDef="let element"> {{element.total}} </td>
+              </ng-container>
+            
+            
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+        </div>    
+        <div class="table-container" *ngIf="symmetricMat$ | async as sm">
+            <table mat-table [dataSource]="sm" class="mat-elevation-z8">
+        
+              <ng-container matColumnDef="route">
+                <th mat-header-cell *matHeaderCellDef> Route </th>
+                <td mat-cell *matCellDef="let element; let i = index;"> {{i}} </td>
+              </ng-container>    
+
+              <ng-container matColumnDef="node">
+                <th mat-header-cell *matHeaderCellDef> Nodes </th>
+                <td mat-cell *matCellDef="let element">
+                        {{element}}
+                    </td>
+              </ng-container>    
+            
+              <tr mat-header-row *matHeaderRowDef="['route','node']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['route', 'node'];"></tr>
+            </table>
+        </div>    
+    </mat-card-content>
+  </mat-card>
+  
+  

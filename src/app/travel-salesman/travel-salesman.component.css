@@ -1,0 +1,76 @@
+table {
+  width: 100%;
+}
+
+.table-container {
+  position: relative;
+  min-height: 100px;
+  max-height: 40vh;
+  overflow: auto;
+  padding: 0 20px 20px 20px;
+  width: 45%;
+  min-width: 500px;
+}
+
+.mat-column-route {
+  width: 32px;
+  border-right: 1px solid currentColor;
+  padding-right: 24px;
+  text-align: center;
+}
+
+.mat-column-node {
+  padding: 10px;
+}
+
+.mat-column-total {
+  font-weight: bold;
+  text-align: center;
+}
+.mat-column-index {
+  text-align: center;
+}
+
+.mat-column-value {
+  text-align: center;
+  font-weight: bold;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 20px 0 20px;
+}
+
+mat-card-subtitle {
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+}
+
+.options>mat-form-field {
+  width: 40%;
+}
+
+:host ::ng-deep .mat-form-field-wrapper {
+  padding: 0 !important;
+  font-family: monospace;
+}
+
+:host {
+  height: 100% !important;
+  font-family: monospace;
+
+}
+
+.output-content {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
