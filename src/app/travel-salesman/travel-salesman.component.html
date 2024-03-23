@@ -8,37 +8,20 @@
       <div class="options">
         <mat-form-field appearance="outline">
           <mat-label>Pick a file</mat-label>
-          <mat-select [(value)]="selectedCat">
+          <mat-select [(value)]="selectedCat" (valueChange)="init()">
             <mat-option *ngFor="let cat of testCategories" [value]="cat">{{cat}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Pick an algorithem</mat-label>
+          <mat-select [(value)]="selectedAlgo">
+            <mat-option *ngFor="let cat of algoCategories" [value]="cat.value">{{cat.label}}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
       <div class="input-feild " appearance="outline" floatLabel="always">
 
     </div>
-    <!-- <div class="logs">
-      <mat-accordion>
-        <mat-expansion-panel [expanded]="panelOpenState" (opened)="panelOpenState = true"
-        (closed)="panelOpenState = false">
-        <mat-expansion-panel-header>
-        <mat-panel-title>
-        Verbose Log
-        </mat-panel-title>
-        </mat-expansion-panel-header>
-        </mat-expansion-panel>
-        </mat-accordion>
-
-        <mat-accordion>
-        <mat-expansion-panel [expanded]="panelOpenState" (opened)="panelOpenState = true"
-        (closed)="panelOpenState = false">
-        <mat-expansion-panel-header>
-        <mat-panel-title>
-        Error Log
-        </mat-panel-title>
-        </mat-expansion-panel-header>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>   -->
     </mat-card-content>
     <mat-card-actions>
         <button mat-raised-button color="primary" aria-label="Run" (click)="run()">

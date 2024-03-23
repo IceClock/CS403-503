@@ -16,19 +16,104 @@ export class TravelSalesmanComponent {
   symmetricMat$ = this.symmetricMatSub.asObservable();
   dataSource$ = this.dataSoruceSub.asObservable();
   testCategories = [100, 1000];
+  algoCategories = [{label:'Nearest Neighbor', value: 'nearestNeighbor'}, {label:'Nearest Neighbor of Five', value: 'nearestNeighborOfFive'}]
   selectedCat = 100;
+  selectedAlgo = 'nearestNeighbor';
 
   data: string[][] = [];
   triangularMat: number[][] = [];
   symmetricMat: number[][] = [];
   recordedRoutes : Buffer[] = [];
-  buffer :Buffer = new Buffer(0, 0, 0, 0);
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) {
+    this.init();
+  }
     
 
   run() {
-    this.clear(true);
+    this.clear();
+
+    switch (this.selectedAlgo) {
+      case 'nearestNeighbor':
+        this.dataSoruceSub.next(this.nearestNeighbor());
+        break;
+
+      case 'nearestNeighborOfFive':
+        this.dataSoruceSub.next(this.nearestNeighborOfFive());
+        break;
+    }
+  }
+
+  /** Picks the nearest shortest route. */
+  nearestNeighbor() {
+    const symmetricMatTemp = this.symmetricMat;
+    let recordedRoutes : Buffer[] = [];
+    let buffer :Buffer = new Buffer(0, 0, 0, 0);
+    symmetricMatTemp.forEach((m, i) => {
+        buffer.value = Math.min(...m.filter((prev) => !recordedRoutes.slice(0, recordedRoutes.length).map((buffer) => buffer.value).includes(prev)));
+        buffer.index = m.indexOf(buffer.value);
+        recordedRoutes.push(new Buffer(buffer.value, buffer.index, 0, i));
+        const total = recordedRoutes.map((x) => x.value).reduce((total, value) => total + value, 0);
+        recordedRoutes[recordedRoutes.length -1].total = total;
+        this.swap(symmetricMatTemp, i, recordedRoutes.length -1);
+    })
+    this.symmetricMatSub.next(this.symmetricMat.map((ar) => ar.map((value, i) => `(${i} - ${value})`).toString().replace(/\,/gi, ' '))); 
+    return recordedRoutes;
+  }
+
+  /** Calculates the shortest route based on specific number of nodes */
+  nearestNeighbors(symmetricMat: number[][], recordedRoutes: Buffer[] = [],  initVal?: number) {
+    let buffer :Buffer = new Buffer(0, 0, 0, 0);
+    symmetricMat.forEach((m, i) => {
+      if (initVal && i == 0) {
+        buffer.value = initVal;
+      } else {
+        buffer.value = Math.min(...m.filter((prev) => !recordedRoutes.slice(0, recordedRoutes.length).map((buffer) => buffer.value).includes(prev)));
+      }
+        buffer.index = m.indexOf(buffer.value);
+        recordedRoutes.push(new Buffer(buffer.value, buffer.index, 0, recordedRoutes.length+1));
+        const total = recordedRoutes.map((x) => x.value).reduce((total, value) => total + value, 0);
+        recordedRoutes[recordedRoutes.length -1].total = total;
+        this.swap(symmetricMat, i, recordedRoutes.length -1);
+    })
+    this.symmetricMatSub.next(this.symmetricMat.map((ar) => ar.map((value, i) => `(${i} - ${value})`).toString().replace(/\,/gi, ' '))); 
+    return recordedRoutes;
+  }
+
+  /** Picks the shortest path based on the next 5 nodes*/
+  nearestNeighborOfFive() {
+    const symmetricMat = this.symmetricMat;
+    let recordedRoutes : Buffer[] = [];
+    let totalNodes: {city: number; total: number}[] = [];
+    let initVal: number;
+    let window: number[][]= [];
+    for (let i = 0; i < symmetricMat.length; i+=5) {
+      this.symmetricMat[i].slice(i ==0 ? i : i+1, symmetricMat.length).forEach((value) => {
+         window = symmetricMat.slice(i, i+5);
+        const nearestFive = this.nearestNeighbors([...window], [] ,value);
+        totalNodes.push({city: nearestFive[0].value , total: nearestFive[nearestFive.length-1].total});
+       })
+       let totals = totalNodes.map((val) => val.total);
+       initVal = totalNodes[totals.indexOf(Math.min(...totals))].city;
+       totalNodes = [];
+       this.nearestNeighbors([...window], recordedRoutes, initVal);
+    }
+
+    this.symmetricMatSub.next(this.symmetricMat.map((ar) => ar.map((value, i) => `(${i} - ${value})`).toString().replace(/\,/gi, ' '))); 
+    return recordedRoutes;
+  }
+
+  /** Swaps the picked node with current node. */
+  swap(symmetricMat: number[][], index: number, location: number) {
+        symmetricMat.splice(index, 1, symmetricMat[location])
+  }
+  
+
+  /** Sets up the matrices */
+  init() {
+    this.data = [];
+    this.triangularMat= [];
+    this.symmetricMat= [];
     this.httpClient.get(`assets/Size${this.selectedCat}.graph`, {responseType: 'text'})
     .subscribe(data => {
       data.split('\n').forEach((x) => {
@@ -41,30 +126,15 @@ export class TravelSalesmanComponent {
         let col = this.getCol(this.triangularMat, index, row);
         this.symmetricMat.push(col);
       });
-      this.symmetricMatSub.next(this.symmetricMat.map((ar) => ar.toString().replace(/\,/gi, '  ')));
-      this.symmetricMat.forEach((m, i) => {
-        if (i == 0 ) {
-          this.recordedRoutes.push(new Buffer(0, 0, 0, 0));
-        } else {
-          this.buffer.value = Math.min(...m.filter((x) => x !== 0));
-          this.buffer.index = m.indexOf(this.buffer.value);
-          const total = this.recordedRoutes.map((x) => x.value).reduce((total, value) => total + value, 0);
-          this.recordedRoutes.push(new Buffer(this.buffer.value, this.buffer.index, total, i));
-        }
-      })
-      this.dataSoruceSub.next(this.recordedRoutes);
-    });
+      this.symmetricMatSub.next(this.symmetricMat.map((ar) => ar.map((value, i) => `(${i} - ${value})`).toString().replace(/\,/gi, ' '))); 
+       });
   }
 
-  clear(run = false) {
-    this.data = [];
-    this.triangularMat= [];
-    this.symmetricMat= [];
+  clear() {
     this.recordedRoutes = [];
-    this.buffer = new Buffer(0, 0, 0, 0);
-    if (!run) {
+
       this.dataSoruceSub.next(this.recordedRoutes);
-    }
+    
   }
 
   getCol(arr: number[][], n:number, row: number[]) {
